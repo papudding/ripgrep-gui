@@ -8,6 +8,8 @@
 
 ripgrep-gui 是一个图形界面搜索工具，基于命令行工具 ripgrep (rg) 构建。提供GUI界面，让用户能够轻松配置搜索选项、查看搜索结果并预览文件内容。
 
+<img width="789" height="968" alt="Snipaste_2025-12-31_18-02-51" src="https://github.com/user-attachments/assets/a05e1636-dddf-484c-bcaf-cc54139e010b" />
+
 
 ### 主要功能
 
