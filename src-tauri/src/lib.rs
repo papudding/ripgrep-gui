@@ -115,6 +115,10 @@ async fn search(
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
+    // Fix PATH environment variable on macOS to ensure commands like ripgrep are found
+    #[cfg(target_os = "macos")]
+    let _ = fix_path_env::fix();
+    
     tauri::Builder::default()
         .plugin(tauri_plugin_dialog::init())
         .plugin(tauri_plugin_opener::init())
