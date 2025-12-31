@@ -54,6 +54,30 @@ export interface SearchHistory {
 }
 
 /**
+ * 用户配置类型定义
+ * 表示用户基本配置信息
+ */
+export interface UserConfig {
+  /** 是否启用深色模式 */
+  darkMode: boolean;
+  /** 应用程序语言 */
+  language: string;
+}
+
+/**
+ * 应用配置类型定义
+ * 表示整个应用的配置信息
+ */
+export interface Config {
+  /** 默认搜索路径 */
+  defaultSearchPath: string;
+  /** 历史记录保存路径 */
+  historyPath: string | null;
+  /** 用户配置 */
+  userConfig: UserConfig;
+}
+
+/**
  * 应用根状态类型定义
  * 表示整个应用的状态树结构
  */
@@ -84,4 +108,6 @@ export interface RootState {
   searchError: string | null;
   /** 历史记录保存路径 */
   historyPath: string | null;
+  /** 应用配置 */
+  config: Config;
 }

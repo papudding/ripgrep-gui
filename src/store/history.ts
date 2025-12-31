@@ -3,7 +3,11 @@ import type { RootState, SearchHistory } from '../types';
 
 // 导入Tauri fs相关API
 import { writeTextFile, readTextFile, exists, mkdir } from '@tauri-apps/plugin-fs';
-import { join, appLocalDataDir } from '@tauri-apps/api/path';
+import { join, homeDir } from '@tauri-apps/api/path';
+
+// 配置文件存储目录名
+const CONFIG_DIR_NAME = '.config';
+const APP_CONFIG_DIR_NAME = 'ripgrep-gui';
 
 // 历史记录存储文件名
 const HISTORY_FILE_NAME = 'search_history.json';
@@ -20,10 +24,18 @@ const HISTORY_CONFIG = {
 
 // 获取历史记录文件的完整路径
 async function getHistoryFilePath(state: RootState): Promise<string> {
-  // 使用用户设置的历史记录路径，如果未设置则使用应用本地数据目录
-  const basePath = state.historyPath || await appLocalDataDir();
-  
   try {
+    // 使用用户设置的历史记录路径，如果未设置则使用默认路径
+    let basePath;
+    if (state.historyPath) {
+      basePath = state.historyPath;
+    } else {
+      // 获取用户目录
+      const userHomeDir = await homeDir();
+      // 构建默认的历史记录目录路径 (~/.config/ripgrep-gui)
+      basePath = join(userHomeDir, CONFIG_DIR_NAME, APP_CONFIG_DIR_NAME);
+    }
+    
     // 检查目录是否存在，不存在则创建
     const dirExists = await exists(basePath);
     if (!dirExists) {
@@ -31,15 +43,14 @@ async function getHistoryFilePath(state: RootState): Promise<string> {
       await mkdir(basePath, { recursive: true });
       console.log(`历史记录目录已创建: ${basePath}`);
     }
+    
+    // 生成完整的历史记录文件路径
+    return join(basePath, HISTORY_FILE_NAME);
   } catch (error) {
-    console.error('创建历史记录目录失败:', error);
-    // 目录创建失败时，使用应用本地数据目录作为备用
-    const appDataDir = await appLocalDataDir();
-    return join(appDataDir, HISTORY_FILE_NAME);
+    console.error('获取历史记录文件路径失败:', error);
+    // 失败时使用当前目录作为备用
+    return HISTORY_FILE_NAME;
   }
-  
-  // 生成完整的历史记录文件路径
-  return join(basePath, HISTORY_FILE_NAME);
 }
 
 // 历史记录相关的状态管理模块

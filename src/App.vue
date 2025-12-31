@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref } from "vue";
+import { ref, onMounted } from "vue";
 import { useStore } from 'vuex';
 
 // 导入组件
@@ -34,6 +34,16 @@ function toggleHistory() {
 function closeHistory() {
   showHistory.value = false;
 }
+
+// 组件挂载后查看配置状态
+onMounted(() => {
+  console.log('=== 应用程序配置状态 ===');
+  console.log('当前配置:', store.state.config);
+  console.log('默认搜索路径:', store.state.config.defaultSearchPath);
+  console.log('历史记录路径:', store.state.config.historyPath);
+  console.log('用户配置:', store.state.config.userConfig);
+  console.log('=== 应用程序配置状态结束 ===');
+});
 </script>
 
 <template>

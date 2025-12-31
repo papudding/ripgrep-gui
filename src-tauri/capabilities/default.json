@@ -34,6 +34,24 @@
           "recursive": true
         }
       ]
+    },
+    {
+      "identifier": "fs:allow-create",
+      "allow": [
+        {
+          "path": "$HOME/**",
+          "recursive": true
+        }
+      ]
+    },
+    {
+      "identifier": "fs:allow-mkdir",
+      "allow": [
+        {
+          "path": "$HOME/**",
+          "recursive": true
+        }
+      ]
     }
   ]
 }

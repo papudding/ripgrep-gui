@@ -11,6 +11,7 @@ import type { RootState } from '../types';
 import searchModule from './search';    // 搜索相关状态管理
 import historyModule from './history';  // 历史记录相关状态管理
 import fileModule from './file';        // 文件相关状态管理
+import configModule from './config';    // 配置相关状态管理
 
 /**
  * 创建并配置Vuex Store
@@ -32,7 +33,8 @@ export const store = createStore<RootState>({
   modules: {
     search: searchModule,    // 搜索相关状态
     history: historyModule,  // 历史记录相关状态
-    file: fileModule         // 文件相关状态
+    file: fileModule,        // 文件相关状态
+    config: configModule     // 配置相关状态
   }
 });
 
