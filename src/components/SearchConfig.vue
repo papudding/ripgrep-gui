@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed } from "vue";
+import { computed, onMounted } from "vue";
 import { useStore } from 'vuex';
 import { open } from '@tauri-apps/plugin-dialog';
 
@@ -62,6 +62,13 @@ const emit = defineEmits<{
 function toggleHistory() {
   emit('toggleHistory');
 }
+
+// 组件初始化结束后打印配置
+onMounted(() => {
+  console.log('=== SearchConfig 组件初始化完成 ===');
+  console.log('搜索路径:', searchPath.value);
+  console.log('=== SearchConfig 组件初始化完成 ===');
+});
 </script>
 
 <template>

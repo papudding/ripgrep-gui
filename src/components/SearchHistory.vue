@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed } from "vue";
+import { ref, computed, onMounted } from "vue";
 import { useStore } from 'vuex';
 import type { SearchHistory } from '../types';
 
@@ -52,6 +52,14 @@ const emit = defineEmits<{
 const closeHistory = () => {
   emit('close');
 };
+
+// 组件初始化结束后打印配置
+onMounted(() => {
+  console.log('=== SearchHistory 组件初始化完成 ===');
+  console.log('历史记录数量:', searchHistory.value.length);
+  console.log('历史记录保存路径:', store.state.config.historyPath);
+  console.log('=== SearchHistory 组件初始化完成 ===');
+});
 </script>
 
 <template>

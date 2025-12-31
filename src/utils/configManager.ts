@@ -63,7 +63,7 @@ export async function createDefaultConfig(): Promise<boolean> {
   try {
     // 创建默认配置对象
     const defaultConfig: Config = {
-      defaultSearchPath: '',
+      defaultSearchPath: await homeDir(),
       historyPath: await join(await homeDir(), CONFIG_DIR_NAME, APP_CONFIG_DIR_NAME, 'history'),
       userConfig: {
         darkMode: window.matchMedia('(prefers-color-scheme: dark)').matches,

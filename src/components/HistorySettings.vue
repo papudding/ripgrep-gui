@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed } from "vue";
+import { ref, computed, onMounted } from "vue";
 import { useStore } from 'vuex';
 import { open } from '@tauri-apps/plugin-dialog';
 
@@ -53,6 +53,14 @@ async function confirmHistoryPath() {
   // 3秒后自动关闭提示
   setTimeout(closePathSettingResult, 3000);
 }
+
+// 组件初始化结束后打印配置
+onMounted(() => {
+  console.log('=== HistorySettings 组件初始化完成 ===');
+  console.log('历史记录保存路径:', store.state.history.historyPath);
+  console.log('配置中存储的历史记录路径:', store.state.config.historyPath);
+  console.log('=== HistorySettings 组件初始化完成 ===');
+});
 </script>
 
 <template>
