@@ -36,7 +36,6 @@ async function startApp() {
     // 挂载应用
     app.mount("#app");
     
-    console.log("应用程序启动成功");
   } catch (error) {
     console.error("应用程序启动失败:", error);
     // 即使配置加载失败，也要尝试启动应用

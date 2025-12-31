@@ -24,17 +24,13 @@ const CONFIG_FILE_NAME = 'config.json';
 export async function getConfigFilePath(): Promise<string> {
   try {
     // 获取用户目录
-    console.log('获取用户目录...');
     const userHomeDir = await homeDir();
-    console.log('用户目录:', userHomeDir);
     
     // 构建配置文件夹路径
     const configDir = await join(userHomeDir, CONFIG_DIR_NAME, APP_CONFIG_DIR_NAME);
-    console.log('配置文件夹路径:', configDir);
     
     // 构建配置文件路径
     const configPath = await join(configDir, CONFIG_FILE_NAME);
-    console.log('配置文件路径:', configPath);
     return configPath;
   } catch (error) {
     console.error('获取配置文件路径失败:', error);
@@ -50,9 +46,7 @@ export async function getConfigFilePath(): Promise<string> {
 export async function detectConfigFile(): Promise<boolean> {
   try {
     // 获取配置文件路径
-    console.log('检测配置文件是否存在...');
     const configPath = await getConfigFilePath();
-    console.log('配置文件路径:', configPath);
     return await exists(configPath);
   } catch (error) {
     console.error('检测配置文件失败:', error);
@@ -85,14 +79,13 @@ export async function createDefaultConfig(): Promise<boolean> {
     
     // 提取配置文件夹路径
     const configDir = configPath.substring(0, configPath.lastIndexOf('/'));
-    console.log('配置文件夹路径:', configDir);
     
     // 检查并创建配置文件夹（如果不存在）
     const dirExists = await exists(configDir);
     if (!dirExists) {
-      console.log('配置文件夹不存在，正在创建...');
+      console.warn('配置文件夹不存在，正在创建...');
       await mkdir(configDir, { recursive: true });
-      console.log('配置文件夹已创建:', configDir);
+      console.warn('配置文件夹已创建:', configDir);
     }
     
     // 写入配置文件
@@ -131,7 +124,6 @@ export async function loadConfig(): Promise<Config> {
       }
     };
     
-    console.log('配置文件加载成功:', config);
     return config;
   } catch (error) {
     console.error('加载配置文件失败:', error);
@@ -162,14 +154,13 @@ export async function saveConfig(config: Config): Promise<boolean> {
     
     // 提取配置文件夹路径
     const configDir = configPath.substring(0, configPath.lastIndexOf('/'));
-    console.log('配置文件夹路径:', configDir);
     
     // 检查并创建配置文件夹（如果不存在）
     const dirExists = await exists(configDir);
     if (!dirExists) {
-      console.log('配置文件夹不存在，正在创建...');
+      console.warn('配置文件夹不存在，正在创建...');
       await mkdir(configDir, { recursive: true });
-      console.log('配置文件夹已创建:', configDir);
+      console.warn('配置文件夹已创建:', configDir);
     }
     
     // 写入配置文件

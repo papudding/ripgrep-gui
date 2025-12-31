@@ -41,7 +41,6 @@ async function getHistoryFilePath(state: RootState): Promise<string> {
     if (!dirExists) {
       // 创建目录，递归创建父目录
       await mkdir(basePath, { recursive: true });
-      console.log(`历史记录目录已创建: ${basePath}`);
     }
     
     // 生成完整的历史记录文件路径
@@ -90,7 +89,6 @@ const historyModule: Module<Partial<RootState>, RootState> = {
         const historyData = JSON.stringify(state.searchHistory, null, 2);
         const filePath = await getHistoryFilePath(state);
         await writeTextFile(filePath, historyData);
-        console.log('搜索历史已保存');
       } catch (error) {
         console.error('保存搜索历史失败:', error);
       }
@@ -106,9 +104,8 @@ const historyModule: Module<Partial<RootState>, RootState> = {
           const historyData = await readTextFile(filePath);
           const history: SearchHistory[] = JSON.parse(historyData);
           commit('setSearchHistory', history);
-          console.log('搜索历史已加载');
         } else {
-          console.log('搜索历史文件不存在，使用默认值');
+          console.warn('搜索历史文件不存在，使用默认值');
         }
       } catch (error) {
         console.error('加载搜索历史失败:', error);
@@ -154,7 +151,6 @@ const historyModule: Module<Partial<RootState>, RootState> = {
         if (!pathExists) {
           // 尝试创建目录
           await mkdir(trimmedPath, { recursive: true });
-          console.log(`已创建历史记录目录: ${trimmedPath}`);
         }
         
         // 验证是否有写入权限（尝试创建临时文件）

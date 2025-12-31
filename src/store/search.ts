@@ -93,10 +93,6 @@ const searchModule: Module<Partial<RootState>, RootState> = {
                  JSON.stringify(history.options) === JSON.stringify(newSearchConfig.options);
         });
         
-        // 添加详细日志记录
-        console.log(`历史记录重复检查: ${isDuplicate ? '重复，不添加' : '不重复，添加新记录'}`);
-        console.log('检查的搜索配置:', newSearchConfig);
-        
         if (!isDuplicate) {
           await dispatch('history/addSearchHistory', newSearchConfig, { root: true });
         }

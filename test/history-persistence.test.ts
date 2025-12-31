@@ -37,7 +37,6 @@ async function getHistoryFilePath(): Promise<string> {
     if (!dirExists) {
       // 创建目录，递归创建父目录
       await mkdir(historyDir, { recursive: true });
-      console.log(`历史记录目录已创建: ${historyDir}`);
     }
   } catch (error) {
     console.error('创建历史记录目录失败:', error);
