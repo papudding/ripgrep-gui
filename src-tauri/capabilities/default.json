@@ -10,47 +10,103 @@
     "fs:default",
     {
       "identifier": "fs:allow-write-text-file",
-      "allow": [
-        {
-          "path": "$HOME/**",
-          "recursive": true
-        }
+       "allow": [
+        {"path": "C:\\**"},
+        {"path": "D:\\**"},
+        {"path": "E:\\**"},
+        {"path": "F:\\**"},
+        {"path": "G:\\**"},
+        {"path": "H:\\**"},
+        {"path": "A:\\**"},
+        {"path": "B:\\**"},
+        {"path": "$APPDATA/**"},
+        {"path": "$DOCUMENT/**"},
+        {"path": "$HOME/**"}
+      ],
+      "deny": [
+        {"path": "C:\\Windows\\**"},
+        {"path": "C:\\ProgramData\\**"}
       ]
     },
     {
       "identifier": "fs:allow-exists",
       "allow": [
-        {
-          "path": "$HOME/**",
-          "recursive": true
-        }
+        {"path": "C:\\**"},
+        {"path": "D:\\**"},
+        {"path": "E:\\**"},
+        {"path": "F:\\**"},
+        {"path": "G:\\**"},
+        {"path": "H:\\**"},
+        {"path": "A:\\**"},
+        {"path": "B:\\**"},
+        {"path": "$APPDATA/**"},
+        {"path": "$DOCUMENT/**"},
+        {"path": "$HOME/**"},
+        {"path": "$CONFIG/**"}
+      ],
+      "deny": [
+        {"path": "C:\\Windows\\**"},
+        {"path": "C:\\ProgramData\\**"}
       ]
     },
     {
       "identifier": "fs:allow-read-text-file",
-      "allow": [
-        {
-          "path": "$HOME/**",
-          "recursive": true
-        }
+       "allow": [
+        {"path": "C:\\**"},
+        {"path": "D:\\**"},
+        {"path": "E:\\**"},
+        {"path": "F:\\**"},
+        {"path": "G:\\**"},
+        {"path": "H:\\**"},
+        {"path": "A:\\**"},
+        {"path": "B:\\**"},
+        {"path": "$APPDATA/**"},
+        {"path": "$DOCUMENT/**"},
+        {"path": "$HOME/**"}
+      ],
+      "deny": [
+        {"path": "C:\\Windows\\**"},
+        {"path": "C:\\ProgramData\\**"}
       ]
     },
     {
       "identifier": "fs:allow-create",
-      "allow": [
-        {
-          "path": "$HOME/**",
-          "recursive": true
-        }
+       "allow": [
+        {"path": "C:\\**"},
+        {"path": "D:\\**"},
+        {"path": "E:\\**"},
+        {"path": "F:\\**"},
+        {"path": "G:\\**"},
+        {"path": "H:\\**"},
+        {"path": "A:\\**"},
+        {"path": "B:\\**"},
+        {"path": "$APPDATA/**"},
+        {"path": "$DOCUMENT/**"},
+        {"path": "$HOME/**"}
+      ],
+      "deny": [
+        {"path": "C:\\Windows\\**"},
+        {"path": "C:\\ProgramData\\**"}
       ]
     },
     {
       "identifier": "fs:allow-mkdir",
       "allow": [
-        {
-          "path": "$HOME/**",
-          "recursive": true
-        }
+        {"path": "C:\\**"},
+        {"path": "D:\\**"},
+        {"path": "E:\\**"},
+        {"path": "F:\\**"},
+        {"path": "G:\\**"},
+        {"path": "H:\\**"},
+        {"path": "A:\\**"},
+        {"path": "B:\\**"},
+        {"path": "$APPDATA/**"},
+        {"path": "$DOCUMENT/**"},
+        {"path": "$HOME/**"}
+      ],
+      "deny": [
+        {"path": "C:\\Windows\\**"},
+        {"path": "C:\\ProgramData\\**"}
       ]
     }
   ]

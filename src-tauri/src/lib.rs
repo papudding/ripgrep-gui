@@ -92,17 +92,37 @@ async fn search(
             break;
         }
         
-        // 分割行: 文件路径:行号:列号:内容
-        let parts: Vec<&str> = line.splitn(4, ':').collect();
-        if parts.len() == 4 {
-            let file = parts[0].to_string();
-            let line = parts[1].parse::<u32>().unwrap_or(0);
-            let column = parts[2].parse::<u32>().unwrap_or(0);
-            let content = parts[3].to_string();
-            
+        // 分割行: 根据操作系统调整分割逻辑
+        let mut file = String::new();
+        let mut line_num = 0;
+        let mut column = 0;
+        let mut content = String::new();
+        
+        if std::env::consts::OS == "windows" {
+            // Windows系统：路径可能包含盘符，如C:\path\to\file，所以分成5段
+            let parts: Vec<&str> = line.splitn(5, ':').collect();
+            if parts.len() == 5 {
+                file = format!("{}:{}", parts[0], parts[1]);
+                line_num = parts[2].parse::<u32>().unwrap_or(0);
+                column = parts[3].parse::<u32>().unwrap_or(0);
+                content = parts[4].to_string();
+            }
+        } else {
+            // 非Windows系统：正常分成4段
+            let parts: Vec<&str> = line.splitn(4, ':').collect();
+            if parts.len() == 4 {
+                file = parts[0].to_string();
+                line_num = parts[1].parse::<u32>().unwrap_or(0);
+                column = parts[2].parse::<u32>().unwrap_or(0);
+                content = parts[3].to_string();
+            }
+        }
+        
+        // 如果成功解析，添加到结果
+        if !file.is_empty() {
             results.push(SearchResult {
                 file,
-                line,
+                line: line_num,
                 column,
                 content,
                 match_text: pattern.to_string(),

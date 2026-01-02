@@ -3,11 +3,7 @@ import type { RootState, SearchHistory } from '../types';
 
 // 导入Tauri fs相关API
 import { writeTextFile, readTextFile, exists, mkdir } from '@tauri-apps/plugin-fs';
-import { join, homeDir } from '@tauri-apps/api/path';
-
-// 配置文件存储目录名
-const CONFIG_DIR_NAME = '.config';
-const APP_CONFIG_DIR_NAME = 'ripgrep-gui';
+import { join, appConfigDir } from '@tauri-apps/api/path';
 
 // 历史记录存储文件名
 const HISTORY_FILE_NAME = 'search_history.json';
@@ -30,10 +26,8 @@ async function getHistoryFilePath(state: RootState): Promise<string> {
     if (state.historyPath) {
       basePath = state.historyPath;
     } else {
-      // 获取用户目录
-      const userHomeDir = await homeDir();
-      // 构建默认的历史记录目录路径 (~/.config/ripgrep-gui)
-      basePath = join(userHomeDir, CONFIG_DIR_NAME, APP_CONFIG_DIR_NAME);
+      // 使用平台特定的应用配置目录
+      basePath = await appConfigDir();
     }
     
     // 检查目录是否存在，不存在则创建

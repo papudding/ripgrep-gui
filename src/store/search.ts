@@ -74,7 +74,7 @@ const searchModule: Module<Partial<RootState>, RootState> = {
           content: result.content,
           match: result.match_text
         }));
-        
+        console.log(formattedResults);
         commit('setSearchResults', formattedResults);
         commit('setSearchProgress', 100);
         

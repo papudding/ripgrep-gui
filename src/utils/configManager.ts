@@ -8,11 +8,7 @@ import type { Config } from '../types';
 
 // 导入Tauri fs相关API
 import { writeTextFile, readTextFile, exists, mkdir } from '@tauri-apps/plugin-fs';
-import { join, homeDir } from '@tauri-apps/api/path';
-
-// 配置文件存储目录名
-const CONFIG_DIR_NAME = '.config';
-const APP_CONFIG_DIR_NAME = 'ripgrep-gui';
+import { join, homeDir, appConfigDir } from '@tauri-apps/api/path';
 
 // 配置文件名
 const CONFIG_FILE_NAME = 'config.json';
@@ -23,11 +19,8 @@ const CONFIG_FILE_NAME = 'config.json';
  */
 export async function getConfigFilePath(): Promise<string> {
   try {
-    // 获取用户目录
-    const userHomeDir = await homeDir();
-    
-    // 构建配置文件夹路径
-    const configDir = await join(userHomeDir, CONFIG_DIR_NAME, APP_CONFIG_DIR_NAME);
+    // 获取平台特定的应用配置目录
+    const configDir = await appConfigDir();
     
     // 构建配置文件路径
     const configPath = await join(configDir, CONFIG_FILE_NAME);
@@ -61,10 +54,13 @@ export async function detectConfigFile(): Promise<boolean> {
  */
 export async function createDefaultConfig(): Promise<boolean> {
   try {
+    // 获取配置目录
+    const configDir = await appConfigDir();
+    
     // 创建默认配置对象
     const defaultConfig: Config = {
       defaultSearchPath: await homeDir(),
-      historyPath: await join(await homeDir(), CONFIG_DIR_NAME, APP_CONFIG_DIR_NAME, 'history'),
+      historyPath: await join(configDir, 'history'),
       userConfig: {
         darkMode: window.matchMedia('(prefers-color-scheme: dark)').matches,
         language: navigator.language
@@ -76,9 +72,6 @@ export async function createDefaultConfig(): Promise<boolean> {
     
     // 获取配置文件路径
     const configPath = await getConfigFilePath();
-    
-    // 提取配置文件夹路径
-    const configDir = configPath.substring(0, configPath.lastIndexOf('/'));
     
     // 检查并创建配置文件夹（如果不存在）
     const dirExists = await exists(configDir);
@@ -152,8 +145,8 @@ export async function saveConfig(config: Config): Promise<boolean> {
     // 获取配置文件路径
     const configPath = await getConfigFilePath();
     
-    // 提取配置文件夹路径
-    const configDir = configPath.substring(0, configPath.lastIndexOf('/'));
+    // 获取配置目录
+    const configDir = await appConfigDir();
     
     // 检查并创建配置文件夹（如果不存在）
     const dirExists = await exists(configDir);
