@@ -14,9 +14,11 @@ const searchModule: Module<Partial<RootState>, RootState> = {
       ignoreHidden: true,
       includeTypes: [],
       excludeTypes: [],
-      maxDepth: 0
+      maxDepth: 0,
+      filenameExactMatch: false
     },
     searchResults: [],
+    filenameSearchResults: [],
     isSearching: false,
     searchProgress: 0,
     searchError: null
@@ -34,6 +36,9 @@ const searchModule: Module<Partial<RootState>, RootState> = {
     setSearchResults(state, results: SearchResult[]) {
       state.searchResults = results;
     },
+    setFilenameSearchResults(state, results: SearchResult[]) {
+      state.filenameSearchResults = results;
+    },
     setIsSearching(state, isSearching: boolean) {
       state.isSearching = isSearching;
     },
@@ -49,33 +54,56 @@ const searchModule: Module<Partial<RootState>, RootState> = {
       commit('setIsSearching', true);
       commit('setSearchProgress', 0);
       commit('setSearchResults', []);
+      commit('setFilenameSearchResults', []);
       commit('setSearchError', null); // 清除之前的搜索错误
       
       try {
         // 导入invoke函数
         const { invoke } = await import('@tauri-apps/api/core');
         
-        // 调用Rust搜索命令
-        const results = await invoke<any[]>('search', {
-          path: state.searchPath,
-          pattern: state.searchPattern,
-          caseInsensitive: state.searchOptions.caseInsensitive,
-          wholeWord: state.searchOptions.wholeWord,
-          regex: state.searchOptions.regex,
-          ignoreHidden: state.searchOptions.ignoreHidden,
-          maxDepth: state.searchOptions.maxDepth
-        });
+        // 并行执行内容搜索和文件名搜索
+        const [contentResults, filenameResults] = await Promise.all([
+          // 调用内容搜索命令
+          invoke<any[]>('search', {
+            path: state.searchPath,
+            pattern: state.searchPattern,
+            caseInsensitive: state.searchOptions.caseInsensitive,
+            wholeWord: state.searchOptions.wholeWord,
+            regex: state.searchOptions.regex,
+            ignoreHidden: state.searchOptions.ignoreHidden,
+            maxDepth: state.searchOptions.maxDepth
+          }),
+          // 调用文件名搜索命令
+          invoke<any[]>('search_filename', {
+            path: state.searchPath,
+            pattern: state.searchPattern,
+            exactMatch: state.searchOptions.filenameExactMatch,
+            ignoreHidden: state.searchOptions.ignoreHidden,
+            maxDepth: state.searchOptions.maxDepth
+          })
+        ]);
         
-        // 转换结果格式
-        const formattedResults: SearchResult[] = results.map(result => ({
+        // 转换内容搜索结果格式
+        const formattedContentResults: SearchResult[] = contentResults.map(result => ({
           file: result.file,
           line: result.line,
           column: result.column,
           content: result.content,
           match: result.match_text
         }));
-        console.log(formattedResults);
-        commit('setSearchResults', formattedResults);
+        
+        // 转换文件名搜索结果格式
+        const formattedFilenameResults: SearchResult[] = filenameResults.map(result => ({
+          file: result.file,
+          line: result.line,
+          column: result.column,
+          content: result.content,
+          match: result.match_text
+        }));
+        
+        // 存储结果
+        commit('setSearchResults', formattedContentResults);
+        commit('setFilenameSearchResults', formattedFilenameResults);
         commit('setSearchProgress', 100);
         
         // 添加到搜索历史前检查是否与所有历史记录重复
@@ -116,7 +144,8 @@ const searchModule: Module<Partial<RootState>, RootState> = {
         }
         
         commit('setSearchError', errorMessage);
-        commit('setSearchResults', []); // 确保结果列表为空
+        commit('setSearchResults', []); // 确保内容搜索结果列表为空
+        commit('setFilenameSearchResults', []); // 确保文件名搜索结果列表为空
         commit('setSearchProgress', 100); // 设置进度为100%
       } finally {
         commit('setIsSearching', false);

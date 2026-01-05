@@ -149,6 +149,14 @@ onMounted(() => {
           />
           忽略隐藏文件
         </label>
+        
+        <label class="option-label">
+          <input 
+            type="checkbox" 
+            v-model="searchOptions.filenameExactMatch"
+          />
+          文件名精确匹配
+        </label>
       </div>
       
       <div class="option-group">

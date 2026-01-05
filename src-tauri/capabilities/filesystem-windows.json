@@ -1,0 +1,85 @@
+{
+  "$schema": "../gen/schemas/desktop-schema.json",
+  "identifier": "filesystem-windows",
+  "description": "Filesystem capabilities for Windows",
+  "windows": ["main"],
+  "permissions": [
+    "fs:default",
+    {
+      "identifier": "fs:allow-write-text-file",
+       "allow": [
+        {"path": "C:\\**"},
+        {"path": "D:\\**"},
+        {"path": "E:\\**"},
+        {"path": "F:\\**"},
+        {"path": "G:\\**"},
+        {"path": "H:\\**"}
+      ],
+      "deny": [
+        {"path": "C:\\Windows\\**"},
+        {"path": "C:\\ProgramData\\**"}
+      ]
+    },
+    {
+      "identifier": "fs:allow-exists",
+      "allow": [
+        {"path": "C:\\**"},
+        {"path": "D:\\**"},
+        {"path": "E:\\**"},
+        {"path": "F:\\**"},
+        {"path": "G:\\**"},
+        {"path": "H:\\**"}
+      ],
+      "deny": [
+        {"path": "C:\\Windows\\**"},
+        {"path": "C:\\ProgramData\\**"}
+      ]
+    },
+    {
+      "identifier": "fs:allow-read-text-file",
+       "allow": [
+        {"path": "C:\\**"},
+        {"path": "D:\\**"},
+        {"path": "E:\\**"},
+        {"path": "F:\\**"},
+        {"path": "G:\\**"},
+        {"path": "H:\\**"}
+      ],
+      "deny": [
+        {"path": "C:\\Windows\\**"},
+        {"path": "C:\\ProgramData\\**"}
+      ]
+    },
+    {
+      "identifier": "fs:allow-create",
+        "allow": [
+        {"path": "C:\\**"},
+        {"path": "D:\\**"},
+        {"path": "E:\\**"},
+        {"path": "F:\\**"},
+        {"path": "G:\\**"},
+        {"path": "H:\\**"}
+      ],
+      "deny": [
+        {"path": "C:\\Windows\\**"},
+        {"path": "C:\\ProgramData\\**"}
+      ]
+    },
+    {
+      "identifier": "fs:allow-mkdir",
+       "allow": [
+        {"path": "C:\\**"},
+        {"path": "D:\\**"},
+        {"path": "E:\\**"},
+        {"path": "F:\\**"},
+        {"path": "G:\\**"},
+        {"path": "H:\\**"}
+      ],
+      "deny": [
+        {"path": "C:\\Windows\\**"},
+        {"path": "C:\\ProgramData\\**"}
+      ]
+    }
+  ],
+  "platforms": ["windows"]
+}

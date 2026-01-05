@@ -34,6 +34,8 @@ export interface SearchOptions {
   excludeTypes: string[];
   /** 最大搜索深度（0表示无限制） */
   maxDepth: number;
+  /** 文件名搜索是否精确匹配 */
+  filenameExactMatch: boolean;
 }
 
 /**

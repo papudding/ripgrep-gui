@@ -9,9 +9,29 @@ import type { Config } from '../types';
 // 导入Tauri fs相关API
 import { writeTextFile, readTextFile, exists, mkdir } from '@tauri-apps/plugin-fs';
 import { join, homeDir, appConfigDir } from '@tauri-apps/api/path';
+import { platform } from '@tauri-apps/plugin-os';
 
 // 配置文件名
 const CONFIG_FILE_NAME = 'config.json';
+// 配置目录常量
+const CONFIG_DIR_NAME = '.config';
+const APP_CONFIG_DIR_NAME = 'ripgrep-gui';
+
+/**
+ * 获取平台特定的配置目录
+ * @returns 配置目录的完整路径
+ */
+async function getPlatformConfigDir(): Promise<string> {
+  const osPlatform = await platform();
+  
+  // Windows使用appConfigDir()，mac和linux使用~/.config/ripgrep-gui
+  if (osPlatform === 'windows') {
+    return await appConfigDir();
+  } else {
+    const userHomeDir = await homeDir();
+    return await join(userHomeDir, CONFIG_DIR_NAME, APP_CONFIG_DIR_NAME);
+  }
+}
 
 /**
  * 获取配置文件路径
@@ -20,7 +40,7 @@ const CONFIG_FILE_NAME = 'config.json';
 export async function getConfigFilePath(): Promise<string> {
   try {
     // 获取平台特定的应用配置目录
-    const configDir = await appConfigDir();
+    const configDir = await getPlatformConfigDir();
     
     // 构建配置文件路径
     const configPath = await join(configDir, CONFIG_FILE_NAME);
@@ -40,6 +60,7 @@ export async function detectConfigFile(): Promise<boolean> {
   try {
     // 获取配置文件路径
     const configPath = await getConfigFilePath();
+    console.log('检测配置文件路径:', configPath);
     return await exists(configPath);
   } catch (error) {
     console.error('检测配置文件失败:', error);
@@ -55,7 +76,7 @@ export async function detectConfigFile(): Promise<boolean> {
 export async function createDefaultConfig(): Promise<boolean> {
   try {
     // 获取配置目录
-    const configDir = await appConfigDir();
+    const configDir = await getPlatformConfigDir();
     
     // 创建默认配置对象
     const defaultConfig: Config = {
@@ -146,7 +167,7 @@ export async function saveConfig(config: Config): Promise<boolean> {
     const configPath = await getConfigFilePath();
     
     // 获取配置目录
-    const configDir = await appConfigDir();
+    const configDir = await getPlatformConfigDir();
     
     // 检查并创建配置文件夹（如果不存在）
     const dirExists = await exists(configDir);

@@ -5,13 +5,19 @@
  * @returns 带有高亮标记的HTML字符串
  */
 export function highlightMatch(content: string, match: string): string {
-  if (!match || !content) return content;
+  // 确保内容不为空
+  const safeContent = content || '';
   
   // 转义正则表达式特殊字符
   const escapeRegExp = (str: string) => str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
   
   // 将内容按行分割
-  const lines = content.split('\n');
+  const lines = safeContent.split('\n');
+  
+  // 如果没有匹配文本，直接返回原始内容，但保留行结构
+  if (!match) {
+    return safeContent;
+  }
   
   // 创建匹配正则表达式
   const escapedMatch = escapeRegExp(match);
@@ -36,6 +42,6 @@ export function highlightMatch(content: string, match: string): string {
     return highlightedLine;
   });
   
-  // 重新组合成完整内容
+  // 重新组合成完整内容，确保行数与原始内容一致
   return highlightedLines.join('\n');
 }

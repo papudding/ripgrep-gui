@@ -16,13 +16,16 @@ const sortOrder = ref("asc"); // asc, desc
 const PAGE_SIZE = 100;
 const currentPage = ref(1);
 
+// 页签切换
+const activeTab = ref("content"); // content, filename
+
 // 计算属性
 const isSearching = computed(() => store.state.search.isSearching);
 const searchError = computed(() => store.state.search.searchError);
 const selectedResult = computed(() => store.state.file.selectedResult);
 
-// 筛选后的结果
-const filteredResults = computed(() => {
+// 内容搜索筛选后的结果
+const filteredContentResults = computed(() => {
   let results = store.getters['search/filteredSearchResults'](resultFilter.value);
   
   // 排序
@@ -44,10 +47,47 @@ const filteredResults = computed(() => {
     return sortOrder.value === 'asc' ? comparison : -comparison;
   });
   
+  return sortedResults;
+});
+
+// 文件名搜索筛选后的结果
+const filteredFilenameResults = computed(() => {
+  let results = store.state.search.filenameSearchResults;
+  
+  // 应用筛选
+  if (resultFilter.value) {
+    const filter = resultFilter.value.toLowerCase();
+    results = results.filter(result => result.file.toLowerCase().includes(filter));
+  }
+  
+  // 排序
+  const sortedResults = [...results].sort((a, b) => {
+    let comparison = 0;
+    
+    switch (sortBy.value) {
+      case 'file':
+        comparison = a.file.localeCompare(b.file);
+        break;
+      case 'match':
+        comparison = a.match.localeCompare(b.match);
+        break;
+      case 'line':
+        comparison = a.line - b.line;
+        break;
+    }
+    
+    return sortOrder.value === 'asc' ? comparison : -comparison;
+  });
+  
+  return sortedResults;
+});
+
+// 当前页签筛选后的结果
+const filteredResults = computed(() => {
   // 重置分页
   resetPagination();
   
-  return sortedResults;
+  return activeTab.value === 'content' ? filteredContentResults.value : filteredFilenameResults.value;
 });
 
 // 总页数
@@ -100,6 +140,24 @@ function loadMoreResults() {
 <template>
   <div class="search-results">
     <div class="results-header">
+      <!-- 页签切换 -->
+      <div class="results-tabs">
+        <button 
+          @click="activeTab = 'content'"
+          class="tab-btn"
+          :class="{ active: activeTab === 'content' }"
+        >
+          内容匹配 ({{ filteredContentResults.length }})
+        </button>
+        <button 
+          @click="activeTab = 'filename'"
+          class="tab-btn"
+          :class="{ active: activeTab === 'filename' }"
+        >
+          文件名匹配 ({{ filteredFilenameResults.length }})
+        </button>
+      </div>
+      
       <div class="results-header-top">
         <h2>搜索结果 ({{ filteredResults.length }})</h2>
         
@@ -150,8 +208,10 @@ function loadMoreResults() {
         @click="selectResult(result)"
       >
         <div class="result-file">{{ result.file }}</div>
-        <div class="result-line">{{ result.line }}:{{ result.column }}</div>
+        <div v-if="activeTab === 'content'" class="result-line">{{ result.line }}:{{ result.column }}</div>
+        <div v-else class="result-line">文件名匹配</div>
         <div 
+          v-if="activeTab === 'content'" 
           class="result-content" 
           v-html="highlightMatch(result.content, result.match)"
         ></div>
@@ -212,6 +272,52 @@ function loadMoreResults() {
   display: flex;
   flex-direction: column;
   gap: 12px;
+}
+
+/* 结果页签 */
+.results-tabs {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+
+.tab-btn {
+  padding: 8px 16px;
+  background-color: var(--bg-primary);
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  color: var(--text-secondary);
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.tab-btn:hover {
+  background-color: var(--bg-hover);
+  border-color: var(--border-hover);
+  color: var(--text-primary);
+}
+
+.tab-btn.active {
+  background-color: var(--accent-color);
+  border-color: var(--accent-color);
+  color: white;
+}
+
+/* 页签按钮中的计数样式 */
+.tab-btn::after {
+  content: '';
+  display: inline-block;
+  margin-left: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  background-color: rgba(255, 255, 255, 0.2);
+  padding: 2px 6px;
+  border-radius: 10px;
 }
 
 .results-header-top {

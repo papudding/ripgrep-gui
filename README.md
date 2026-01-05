@@ -143,7 +143,7 @@ ripgrep-gui 的配置文件会自动创建和管理，默认存储在以下位�
 7. 🔧 feat:i18n（国际化支持）
 8. 🔧 feat:图标更换
 9. 🔧 feat:快速打开文件
-10. 🔧 feat:Windows 系统适配
+10. ✅ feat:Windows 系统适配
 11. 🔧 feat:内部集成 ripgrep
 12. 🔧 feat:用户配置修改
 
