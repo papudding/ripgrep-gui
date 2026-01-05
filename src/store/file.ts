@@ -1,11 +1,11 @@
 import { Module } from 'vuex';
-import type { RootState } from '../types';
+import type { FileState, RootState } from '../types';
 
 // 导入Tauri fs相关API
 import { readTextFile } from '@tauri-apps/plugin-fs';
 
 // 文件相关的状态管理模块
-const fileModule: Module<Partial<RootState>, RootState> = {
+const fileModule: Module<Partial<FileState>, RootState> = {
   namespaced: true,
   state: {
     selectedResult: null,
@@ -13,13 +13,13 @@ const fileModule: Module<Partial<RootState>, RootState> = {
     isLoadingFile: false
   },
   mutations: {
-    setSelectedResult(state, result: RootState['selectedResult']) {
+    setSelectedResult(state: FileState, result: FileState['selectedResult']) {
       state.selectedResult = result;
     },
-    setFileContent(state, content: string) {
+    setFileContent(state: FileState, content: string) {
       state.fileContent = content;
     },
-    setIsLoadingFile(state, isLoading: boolean) {
+    setIsLoadingFile(state: FileState, isLoading: boolean) {
       state.isLoadingFile = isLoading;
     }
   },

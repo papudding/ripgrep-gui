@@ -1,9 +1,10 @@
 import { Module } from 'vuex';
-import type { RootState, SearchHistory } from '../types';
+import type { HistoryState, RootState, SearchHistory } from '../types';
 
 // 导入Tauri fs相关API
 import { writeTextFile, readTextFile, exists, mkdir } from '@tauri-apps/plugin-fs';
-import { join, appConfigDir } from '@tauri-apps/api/path';
+import { join } from '@tauri-apps/api/path';
+import { getPlatformConfigDir } from '../utils/configManager';
 
 // 历史记录存储文件名
 const HISTORY_FILE_NAME = 'search_history.json';
@@ -23,11 +24,11 @@ async function getHistoryFilePath(state: RootState): Promise<string> {
   try {
     // 使用用户设置的历史记录路径，如果未设置则使用默认路径
     let basePath;
-    if (state.historyPath) {
-      basePath = state.historyPath;
+    if (state.config.historyPath) {
+      basePath = state.config.historyPath;
     } else {
       // 使用平台特定的应用配置目录
-      basePath = await appConfigDir();
+      basePath = await getPlatformConfigDir();
     }
     
     // 检查目录是否存在，不存在则创建
@@ -47,14 +48,13 @@ async function getHistoryFilePath(state: RootState): Promise<string> {
 }
 
 // 历史记录相关的状态管理模块
-const historyModule: Module<Partial<RootState>, RootState> = {
+const historyModule: Module<Partial<HistoryState>, RootState> = {
   namespaced: true,
   state: {
     searchHistory: [],
-    historyPath: null
   },
   mutations: {
-    addSearchHistory(state, history: Omit<SearchHistory, 'id' | 'timestamp'>) {
+    addSearchHistory(state: HistoryState, history: Omit<SearchHistory, 'id' | 'timestamp'>) {
       const newHistory: SearchHistory = {
         ...history,
         id: Date.now().toString(),
@@ -62,26 +62,23 @@ const historyModule: Module<Partial<RootState>, RootState> = {
       };
       state.searchHistory.unshift(newHistory);
       // 只保留最近100条历史记录
-      if (state.searchHistory.length > 100) {
-        state.searchHistory = state.searchHistory.slice(0, 100);
+      if (state.searchHistory.length > HISTORY_CONFIG.MAX_HISTORY_COUNT) {
+        state.searchHistory = state.searchHistory.slice(0, HISTORY_CONFIG.MAX_HISTORY_COUNT);
       }
     },
-    clearSearchHistory(state) {
+    clearSearchHistory(state: HistoryState) {
       state.searchHistory = [];
     },
-    setSearchHistory(state, history: SearchHistory[]) {
+    setSearchHistory(state: HistoryState, history: SearchHistory[]) {
       state.searchHistory = history;
     },
-    setHistoryPath(state, path: string | null) {
-      state.historyPath = path;
-    }
   },
   actions: {
     // 保存搜索历史到文件
-    async saveSearchHistory({ state }: { state: RootState }) {
+    async saveSearchHistory({ state, rootState }: { state: HistoryState, rootState: RootState }) {
       try {
         const historyData = JSON.stringify(state.searchHistory, null, 2);
-        const filePath = await getHistoryFilePath(state);
+        const filePath = await getHistoryFilePath(rootState);
         await writeTextFile(filePath, historyData);
       } catch (error) {
         console.error('保存搜索历史失败:', error);
@@ -89,9 +86,10 @@ const historyModule: Module<Partial<RootState>, RootState> = {
     },
     
     // 从文件加载搜索历史
-    async loadSearchHistory({ commit, state }: { commit: any, state: RootState }) {
+    async loadSearchHistory({ commit, rootState }: { commit: any, rootState: RootState }) {
       try {
-        const filePath = await getHistoryFilePath(state);
+        const filePath = await getHistoryFilePath(rootState);
+
         const fileExists = await exists(filePath);
         
         if (fileExists) {
@@ -173,7 +171,7 @@ const historyModule: Module<Partial<RootState>, RootState> = {
         const maxAge = HISTORY_CONFIG.MAX_HISTORY_DAYS * 24 * 60 * 60 * 1000;
         
         // 过滤掉过期的历史记录
-        const filteredByDate = state.searchHistory.filter(history => {
+        const filteredByDate = state.history.searchHistory.filter(history => {
           return now - history.timestamp < maxAge;
         });
         
@@ -181,7 +179,7 @@ const historyModule: Module<Partial<RootState>, RootState> = {
         const cleanedHistory = filteredByDate.slice(0, HISTORY_CONFIG.MAX_HISTORY_COUNT);
         
         // 如果历史记录有变化，更新并保存
-        if (cleanedHistory.length !== state.searchHistory.length) {
+        if (cleanedHistory.length !== state.history.searchHistory.length) {
           commit('setSearchHistory', cleanedHistory);
           await dispatch('saveSearchHistory');
           console.log('搜索历史已清理，当前数量:', cleanedHistory.length);

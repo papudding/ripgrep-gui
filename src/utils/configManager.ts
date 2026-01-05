@@ -4,7 +4,7 @@
  */
 
 // 导入类型定义
-import type { Config } from '../types';
+import type { ConfigState } from '../types';
 
 // 导入Tauri fs相关API
 import { writeTextFile, readTextFile, exists, mkdir } from '@tauri-apps/plugin-fs';
@@ -21,7 +21,7 @@ const APP_CONFIG_DIR_NAME = 'ripgrep-gui';
  * 获取平台特定的配置目录
  * @returns 配置目录的完整路径
  */
-async function getPlatformConfigDir(): Promise<string> {
+export async function getPlatformConfigDir(): Promise<string> {
   const osPlatform = await platform();
   
   // Windows使用appConfigDir()，mac和linux使用~/.config/ripgrep-gui
@@ -60,7 +60,7 @@ export async function detectConfigFile(): Promise<boolean> {
   try {
     // 获取配置文件路径
     const configPath = await getConfigFilePath();
-    console.log('检测配置文件路径:', configPath);
+
     return await exists(configPath);
   } catch (error) {
     console.error('检测配置文件失败:', error);
@@ -73,13 +73,13 @@ export async function detectConfigFile(): Promise<boolean> {
  * 创建默认配置文件
  * @returns 创建是否成功
  */
-export async function createDefaultConfig(): Promise<boolean> {
+export async function createDefaultConfig(): Promise<ConfigState | null> {
   try {
     // 获取配置目录
     const configDir = await getPlatformConfigDir();
     
     // 创建默认配置对象
-    const defaultConfig: Config = {
+    const defaultConfig: ConfigState = {
       defaultSearchPath: await homeDir(),
       historyPath: await join(configDir, 'history'),
       userConfig: {
@@ -106,10 +106,10 @@ export async function createDefaultConfig(): Promise<boolean> {
     await writeTextFile(configPath, jsonContent);
     
     console.log(`默认配置文件已创建: ${configPath}`);
-    return true;
+    return defaultConfig;
   } catch (error) {
     console.error('创建默认配置文件失败:', error);
-    return false;
+    return null;
   }
 }
 
@@ -117,19 +117,28 @@ export async function createDefaultConfig(): Promise<boolean> {
  * 加载配置文件
  * @returns 加载的配置对象
  */
-export async function loadConfig(): Promise<Config> {
+export async function loadConfig(): Promise<ConfigState> {
   try {
     // 获取配置文件路径
     const configPath = await getConfigFilePath();
     
     // 读取配置文件内容
-    const fileContent = await readTextFile(configPath);
+    let fileContent = await readTextFile(configPath);
+    
+    // 检查文件是否为空
+    if (!fileContent.trim()) {
+      console.warn('配置文件为空，正在初始化默认配置');
+      await createDefaultConfig();
+      // 重新读取配置文件
+      fileContent = await readTextFile(configPath);
+      console.log('重新加载配置文件内容:', fileContent);
+    }
     
     // 解析JSON内容
     const parsedConfig = JSON.parse(fileContent);
     
     // 验证配置对象结构，确保所有必要字段都存在
-    const config: Config = {
+    const config: ConfigState = {
       defaultSearchPath: parsedConfig.defaultSearchPath || '',
       historyPath: parsedConfig.historyPath || null,
       userConfig: {
@@ -158,7 +167,7 @@ export async function loadConfig(): Promise<Config> {
  * @param config 要保存的配置对象
  * @returns 保存是否成功
  */
-export async function saveConfig(config: Config): Promise<boolean> {
+export async function saveConfig(config: ConfigState): Promise<boolean> {
   try {
     // 转换为JSON格式
     const jsonContent = JSON.stringify(config, null, 2);
@@ -193,14 +202,18 @@ export async function saveConfig(config: Config): Promise<boolean> {
  * 自动检测配置文件，不存在则创建，然后加载配置
  * @returns 初始化后的配置对象
  */
-export async function initializeConfig(): Promise<Config> {
+export async function initializeConfig(): Promise<ConfigState> {
   try {
     // 检测配置文件是否存在
     const configExists = await detectConfigFile();
     
     // 如果配置文件不存在，创建默认配置文件
     if (!configExists) {
-      await createDefaultConfig();
+      const defaultConfig = await createDefaultConfig();
+      if (!defaultConfig) {
+        throw new Error('创建默认配置文件失败');
+      }
+      return defaultConfig;
     }
     
     // 加载配置文件

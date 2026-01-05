@@ -22,8 +22,11 @@ async function startApp() {
     
     // 更新历史记录路径（如果配置中指定了）
     if (config.historyPath) {
-      await store.dispatch('history/setHistoryPath', config.historyPath);
+      await store.dispatch('config/updateHistoryPath', config.historyPath);
     }
+    
+    // 加载搜索历史记录
+    await store.dispatch('history/loadSearchHistory');
     
     // 设置默认搜索路径（如果配置中指定了）
     if (config.defaultSearchPath) {

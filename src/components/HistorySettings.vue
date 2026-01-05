@@ -7,12 +7,12 @@ const store = useStore();
 
 // 历史记录路径设置
 const historyPath = computed({
-  get: () => store.state.history.historyPath,
-  set: (value) => store.dispatch('history/setHistoryPath', value)
+  get: () => store.state.config.historyPath,
+  set: (value) => store.dispatch('config/updateHistoryPath', value)
 });
 
 // 历史记录路径输入框的值
-const historyPathInput = ref(store.state.history.historyPath || '');
+const historyPathInput = ref(store.state.config.historyPath || '');
 
 // 打开目录选择器选择历史记录保存路径
 async function selectHistoryPath() {
@@ -43,7 +43,7 @@ function closePathSettingResult() {
 
 // 手动输入路径后确认设置
 async function confirmHistoryPath() {
-  const result = await store.dispatch('history/setHistoryPath', historyPathInput.value || null);
+  const result = await store.dispatch('config/updateHistoryPath', historyPathInput.value || null);
   pathSettingResult.value = { 
     show: true, 
     success: result.success, 

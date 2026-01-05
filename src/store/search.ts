@@ -1,8 +1,8 @@
 import { Module } from 'vuex';
-import type { RootState, SearchResult } from '../types';
+import type { SearchState, RootState, SearchResult } from '../types';
 
 // 搜索相关的状态管理模块
-const searchModule: Module<Partial<RootState>, RootState> = {
+const searchModule: Module<Partial<SearchState>, RootState> = {
   namespaced: true,
   state: {
     searchPath: '',
@@ -24,35 +24,32 @@ const searchModule: Module<Partial<RootState>, RootState> = {
     searchError: null
   },
   mutations: {
-    setSearchPath(state, path: string) {
+    setSearchPath(state: SearchState, path: string) {
       state.searchPath = path;
     },
-    setSearchPattern(state, pattern: string) {
+    setSearchPattern(state: SearchState, pattern: string) {
       state.searchPattern = pattern;
     },
-    setSearchOptions(state, options: Partial<RootState['searchOptions']>) {
+    setSearchOptions(state: SearchState, options: Partial<SearchState['searchOptions']>) {
       state.searchOptions = { ...state.searchOptions, ...options };
     },
-    setSearchResults(state, results: SearchResult[]) {
+    setSearchResults(state: SearchState, results: SearchResult[]) {
       state.searchResults = results;
     },
-    setFilenameSearchResults(state, results: SearchResult[]) {
+    setFilenameSearchResults(state: SearchState, results: SearchResult[]) {
       state.filenameSearchResults = results;
     },
-    setIsSearching(state, isSearching: boolean) {
+    setIsSearching(state: SearchState, isSearching: boolean) {
       state.isSearching = isSearching;
     },
-    setSearchProgress(state, progress: number) {
-      state.searchProgress = progress;
-    },
-    setSearchError(state, error: string | null) {
+
+    setSearchError(state: SearchState, error: string | null) {
       state.searchError = error;
     }
   },
   actions: {
     async performSearch({ commit, state, dispatch, rootState }) {
       commit('setIsSearching', true);
-      commit('setSearchProgress', 0);
       commit('setSearchResults', []);
       commit('setFilenameSearchResults', []);
       commit('setSearchError', null); // 清除之前的搜索错误
@@ -104,7 +101,6 @@ const searchModule: Module<Partial<RootState>, RootState> = {
         // 存储结果
         commit('setSearchResults', formattedContentResults);
         commit('setFilenameSearchResults', formattedFilenameResults);
-        commit('setSearchProgress', 100);
         
         // 添加到搜索历史前检查是否与所有历史记录重复
         // 重复判断标准：pattern、path和options完全相同
@@ -146,14 +142,13 @@ const searchModule: Module<Partial<RootState>, RootState> = {
         commit('setSearchError', errorMessage);
         commit('setSearchResults', []); // 确保内容搜索结果列表为空
         commit('setFilenameSearchResults', []); // 确保文件名搜索结果列表为空
-        commit('setSearchProgress', 100); // 设置进度为100%
       } finally {
         commit('setIsSearching', false);
       }
     }
   },
   getters: {
-    filteredSearchResults: (state) => (filter: string) => {
+    filteredSearchResults: (state: SearchState) => (filter: string) => {
       if (!filter) return state.searchResults;
       return state.searchResults.filter((result: SearchResult) => 
         result.file.includes(filter) || 

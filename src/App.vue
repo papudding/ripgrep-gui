@@ -1,30 +1,12 @@
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted } from "vue";
-import { useStore } from 'vuex';
 
 // 导入组件
 import SearchConfig from './components/SearchConfig.vue';
 import SearchHistory from './components/SearchHistory.vue';
 import SearchResults from './components/SearchResults.vue';
 import FilePreview from './components/FilePreview.vue';
-import HistorySettings from './components/HistorySettings.vue';
 import SettingsModal from './components/SettingsModal.vue';
-
-const store = useStore();
-
-// 应用启动时加载配置
-store.dispatch('config/loadConfigFromFile');
-
-// 应用启动时加载搜索历史
-store.dispatch('history/loadSearchHistory');
-
-// 应用启动时执行一次历史记录清理
-store.dispatch('history/cleanupSearchHistory');
-
-// 设置定期清理历史记录（每24小时）
-setInterval(() => {
-  store.dispatch('history/cleanupSearchHistory');
-}, 24 * 60 * 60 * 1000);
 
 // 搜索历史面板显示状态
 const showHistory = ref(false);

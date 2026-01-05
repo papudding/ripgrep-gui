@@ -1,47 +1,48 @@
 import { Module } from 'vuex';
-import type { RootState, Config } from '../types';
+import type { RootState, ConfigState } from '../types';
 import { saveConfig, loadConfig, validateConfig, mergeConfig } from '../utils/configUtils';
 
 // 配置模块
-const configModule: Module<{ config: Config }, RootState> = {
+const configModule: Module<{ config: ConfigState }, RootState> = {
   namespaced: true,
   state: {
-    config: {
-      defaultSearchPath: '',
-      historyPath: null,
-      userConfig: {
-        darkMode: window.matchMedia('(prefers-color-scheme: dark)').matches,
-        language: navigator.language
-      }
+    defaultSearchPath: '',
+    historyPath: null,
+    userConfig: {
+      darkMode: window.matchMedia('(prefers-color-scheme: dark)').matches,
+      language: navigator.language
     }
   },
   mutations: {
     /**
      * 设置配置
      */
-    setConfig(state, config: Config) {
-      state.config = config;
+    setConfig(state: ConfigState, config: ConfigState) {
+      // 逐个属性更新，确保状态响应式
+      state.defaultSearchPath = config.defaultSearchPath;
+      state.historyPath = config.historyPath;
+      state.userConfig = config.userConfig;
     },
     
     /**
      * 更新默认搜索路径
      */
     setDefaultSearchPath(state, path: string) {
-      state.config.defaultSearchPath = path;
+      state.defaultSearchPath = path;
     },
     
     /**
      * 更新历史记录保存路径
      */
-    setHistoryPath(state, path: string | null) {
-      state.config.historyPath = path;
+    setHistoryPath(state: ConfigState, path: string | null) {
+      state.historyPath = path;
     },
     
     /**
      * 更新用户配置
      */
-    updateUserConfig(state, userConfig: Partial<Config['userConfig']>) {
-      state.config.userConfig = { ...state.config.userConfig, ...userConfig };
+    updateUserConfig(state: ConfigState, userConfig: Partial<ConfigState['userConfig']>) {
+      state.userConfig = { ...state.userConfig, ...userConfig };
     }
   },
   actions: {
@@ -50,7 +51,7 @@ const configModule: Module<{ config: Config }, RootState> = {
      */
     async loadConfigFromFile({ commit, state }) {
       try {
-        const loadedConfig = await loadConfig(state.config);
+        const loadedConfig = await loadConfig(state);
         commit('setConfig', loadedConfig);
         return { success: true, message: '配置加载成功' };
       } catch (error) {
@@ -67,7 +68,7 @@ const configModule: Module<{ config: Config }, RootState> = {
      */
     async saveConfigToFile({ state }) {
       try {
-        await saveConfig(state.config);
+        await saveConfig(state);
         return { success: true, message: '配置保存成功' };
       } catch (error) {
         console.error('保存配置到文件失败:', error);
@@ -81,10 +82,10 @@ const configModule: Module<{ config: Config }, RootState> = {
     /**
      * 更新完整配置并保存到文件
      */
-    async updateConfig({ commit, state }, newConfig: Partial<Config>) {
+    async updateConfig({ commit, state }, newConfig: Partial<ConfigState>) {
       try {
         // 合并新配置和当前配置
-        const updatedConfig = mergeConfig(state.config, newConfig);
+        const updatedConfig = mergeConfig(state, newConfig);
         
         // 验证配置有效性
         if (!validateConfig(updatedConfig)) {
@@ -97,10 +98,7 @@ const configModule: Module<{ config: Config }, RootState> = {
         // 保存到文件
         await saveConfig(updatedConfig);
         
-        // 同时更新 historyPath 到 root state，供历史记录模块使用
-        if (newConfig.historyPath !== undefined) {
-          commit('setHistoryPath', newConfig.historyPath, { root: true });
-        }
+  
         
         return { success: true, message: '配置更新成功' };
       } catch (error) {
@@ -125,14 +123,13 @@ const configModule: Module<{ config: Config }, RootState> = {
      */
     async updateHistoryPath({ commit, dispatch }, path: string | null) {
       commit('setHistoryPath', path);
-      commit('setHistoryPath', path, { root: true }); // 更新 root state 中的 historyPath
       await dispatch('saveConfigToFile');
     },
     
     /**
      * 更新用户配置
      */
-    async updateUserConfig({ commit, dispatch }, userConfig: Partial<Config['userConfig']>) {
+    async updateUserConfig({ commit, dispatch }, userConfig: Partial<ConfigState['userConfig']>) {
       commit('updateUserConfig', userConfig);
       await dispatch('saveConfigToFile');
     }
@@ -141,22 +138,22 @@ const configModule: Module<{ config: Config }, RootState> = {
     /**
      * 获取完整配置
      */
-    getConfig: (state) => state.config,
+    getConfig: (state: ConfigState) => state,
     
     /**
      * 获取默认搜索路径
      */
-    getDefaultSearchPath: (state) => state.config.defaultSearchPath,
+    getDefaultSearchPath: (state: ConfigState) => state.defaultSearchPath,
     
     /**
      * 获取历史记录保存路径
      */
-    getHistoryPath: (state) => state.config.historyPath,
+    getHistoryPath: (state: ConfigState) => state.historyPath,
     
     /**
      * 获取用户配置
      */
-    getUserConfig: (state) => state.config.userConfig
+    getUserConfig: (state: ConfigState) => state.userConfig
   }
 };
 

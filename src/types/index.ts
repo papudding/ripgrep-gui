@@ -70,7 +70,7 @@ export interface UserConfig {
  * 应用配置类型定义
  * 表示整个应用的配置信息
  */
-export interface Config {
+export interface ConfigState {
   /** 默认搜索路径 */
   defaultSearchPath: string;
   /** 历史记录保存路径 */
@@ -79,37 +79,41 @@ export interface Config {
   userConfig: UserConfig;
 }
 
+export interface HistoryState {
+  /** 搜索历史列表 */
+  searchHistory: SearchHistory[];
+}
+
+export interface SearchState {
+  searchPath: string;
+  searchPattern: string;
+  searchOptions: SearchOptions;
+  searchResults: SearchResult[];
+  filenameSearchResults: SearchResult[];
+  isSearching: boolean;
+  searchError: string | null;
+}
+
+export interface FileState {
+  selectedResult: SearchResult | null;
+  fileContent: string;
+  isLoadingFile: boolean;
+}
+
 /**
  * 应用根状态类型定义
  * 表示整个应用的状态树结构
  */
 export interface RootState {
-  /** 当前搜索路径 */
-  searchPath: string;
-  /** 当前搜索模式 */
-  searchPattern: string;
-  /** 当前搜索选项 */
-  searchOptions: SearchOptions;
-  /** 当前搜索结果列表 */
-  searchResults: SearchResult[];
-  /** 是否正在搜索 */
-  isSearching: boolean;
-  /** 搜索进度（0-100） */
-  searchProgress: number;
-  /** 当前选中的搜索结果 */
-  selectedResult: SearchResult | null;
-  /** 搜索历史列表 */
-  searchHistory: SearchHistory[];
-  /** 是否启用深色模式 */
-  isDarkMode: boolean;
+  search: SearchState;
+  history: HistoryState
+  file: FileState;
+  
   /** 当前预览的文件内容 */
   fileContent: string;
   /** 是否正在加载文件内容 */
   isLoadingFile: boolean;
-  /** 搜索错误信息 */
-  searchError: string | null;
-  /** 历史记录保存路径 */
-  historyPath: string | null;
+  
   /** 应用配置 */
-  config: Config;
+  config: ConfigState;
 }

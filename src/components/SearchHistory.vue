@@ -57,81 +57,109 @@ const closeHistory = () => {
 onMounted(() => {
   console.log('=== SearchHistory 组件初始化完成 ===');
   console.log('历史记录数量:', searchHistory.value.length);
-  console.log('历史记录保存路径:', store.state.config.historyPath);
+  console.log('历史记录保存路径:', store.state.history.historyPath);
   console.log('=== SearchHistory 组件初始化完成 ===');
 });
 </script>
 
 <template>
-  <div v-if="visible" class="history-panel">
-    <div class="history-header">
-      <h3>搜索历史</h3>
-      <div class="history-header-actions">
-        <button @click="clearHistory" class="clear-history-btn">
-          清除
+  <div v-if="visible" class="history-modal-overlay">
+    <div class="history-modal">
+      <div class="modal-header">
+        <h2>搜索历史</h2>
+        <button @click="closeHistory" class="close-btn">
+          &times;
         </button>
-        <button @click="closeHistory" class="close-history-btn">
-          关闭
-        </button>
-      </div>
-    </div>
-    
-    <div class="history-filter">
-      <input
-        v-model="historyFilter"
-        type="text"
-        placeholder="筛选历史记录..."
-        class="history-filter-input"
-      />
-    </div>
-    
-    <div class="history-list">
-      <div 
-        v-for="history in filteredHistory" 
-        :key="history.id"
-        class="history-item"
-        @click="useHistory(history)"
-      >
-        <div class="history-pattern">{{ history.pattern }}</div>
-        <div class="history-path">{{ history.path }}</div>
-        <div class="history-options">
-          <span v-if="history.options.caseInsensitive" class="option-tag">i</span>
-          <span v-if="history.options.wholeWord" class="option-tag">w</span>
-          <span v-if="history.options.regex" class="option-tag">r</span>
-          <span v-if="history.options.ignoreHidden" class="option-tag">h</span>
-        </div>
-        <div class="history-time">{{ new Date(history.timestamp).toLocaleString() }}</div>
       </div>
       
-      <div v-if="filteredHistory.length === 0" class="no-history">
-        <p>{{ historyFilter ? '没有匹配的历史记录' : '暂无搜索历史' }}</p>
+      <div class="modal-content">
+        <div class="history-filter">
+          <input
+            v-model="historyFilter"
+            type="text"
+            placeholder="筛选历史记录..."
+            class="history-filter-input"
+          />
+        </div>
+        
+        <div class="history-list">
+          <div 
+            v-for="history in filteredHistory" 
+            :key="history.id"
+            class="history-item"
+            @click="useHistory(history)"
+          >
+            <div class="history-pattern">{{ history.pattern }}</div>
+            <div class="history-path">{{ history.path }}</div>
+            <div class="history-options">
+              <span v-if="history.options.caseInsensitive" class="option-tag">i</span>
+              <span v-if="history.options.wholeWord" class="option-tag">w</span>
+              <span v-if="history.options.regex" class="option-tag">r</span>
+              <span v-if="history.options.ignoreHidden" class="option-tag">h</span>
+            </div>
+            <div class="history-time">{{ new Date(history.timestamp).toLocaleString() }}</div>
+          </div>
+          
+          <div v-if="filteredHistory.length === 0" class="no-history">
+            <p>{{ historyFilter ? '没有匹配的历史记录' : '暂无搜索历史' }}</p>
+          </div>
+        </div>
+      </div>
+      
+      <div class="modal-footer">
+        <button @click="clearHistory" class="clear-history-btn">
+          清除所有历史
+        </button>
       </div>
     </div>
   </div>
 </template>
 
 <style scoped>
-/* 搜索历史面板 */
-.history-panel {
+/* 模态对话框遮罩层 */
+.history-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  animation: fadeIn 0.2s ease-out forwards;
+}
+
+/* 模态对话框 */
+.history-modal {
   background-color: var(--bg-primary);
   border: 1px solid var(--border-color);
   border-radius: 8px;
-  padding: 12px;
-  margin-top: 8px;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
-  max-height: 400px;
-  overflow: hidden;
+  width: 90%;
+  max-width: 600px;
+  max-height: 80vh;
   display: flex;
   flex-direction: column;
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-  animation: slideDown 0.2s ease-out forwards;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+  animation: slideUp 0.2s ease-out forwards;
+}
+
+/* 淡入动画 */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
 /* 滑入动画 */
-@keyframes slideDown {
+@keyframes slideUp {
   from {
     opacity: 0;
-    transform: translateY(-8px);
+    transform: translateY(20px);
   }
   to {
     opacity: 1;
@@ -139,53 +167,67 @@ onMounted(() => {
   }
 }
 
-.history-header {
+/* 模态对话框头部 */
+.modal-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 12px;
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--border-color);
 }
 
-.history-header h3 {
-  font-size: 14px;
+.modal-header h2 {
+  font-size: 18px;
   font-weight: 600;
   margin: 0;
   color: var(--text-primary);
 }
 
-.clear-history-btn,
-.close-history-btn {
-  padding: 4px 8px;
-  background-color: transparent;
-  border: 1px solid var(--border-color);
-  border-radius: 4px;
+/* 关闭按钮 */
+.close-btn {
+  background: none;
+  border: none;
+  font-size: 24px;
   color: var(--text-secondary);
-  font-size: 12px;
   cursor: pointer;
+  padding: 0;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
   transition: all 0.2s ease;
-  margin-left: 8px;
 }
 
-.clear-history-btn:hover,
-.close-history-btn:hover {
+.close-btn:hover {
   background-color: var(--bg-hover);
-  border-color: var(--border-hover);
   color: var(--text-primary);
+}
+
+/* 模态对话框内容 */
+.modal-content {
+  flex: 1;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  padding: 0 20px;
 }
 
 /* 历史记录筛选 */
 .history-filter {
-  margin-bottom: 12px;
+  padding: 16px 0;
+  border-bottom: 1px solid var(--border-color);
 }
 
 .history-filter-input {
   width: 100%;
-  padding: 8px 10px;
+  padding: 8px 12px;
   background-color: var(--bg-primary);
   border: 1px solid var(--border-color);
   border-radius: 6px;
   color: var(--text-primary);
-  font-size: 13px;
+  font-size: 14px;
   transition: all 0.2s ease;
 }
 
@@ -201,11 +243,12 @@ onMounted(() => {
   display: flex;
   flex-direction: column;
   gap: 8px;
+  padding: 16px 0;
 }
 
 /* 历史记录项 */
 .history-item {
-  padding: 10px 12px;
+  padding: 12px 16px;
   background-color: var(--bg-secondary);
   border: 1px solid var(--border-color);
   border-radius: 6px;
@@ -286,10 +329,57 @@ onMounted(() => {
   margin-top: 2px;
 }
 
+/* 空历史记录 */
 .no-history {
-  padding: 20px;
+  padding: 30px;
   text-align: center;
   color: var(--text-secondary);
-  font-size: 13px;
+  font-size: 14px;
+}
+
+/* 模态对话框底部 */
+.modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  padding: 16px 20px;
+  border-top: 1px solid var(--border-color);
+}
+
+/* 清除历史记录按钮 */
+.clear-history-btn {
+  padding: 8px 16px;
+  background-color: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  color: var(--text-secondary);
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.clear-history-btn:hover {
+  background-color: var(--bg-hover);
+  border-color: var(--border-hover);
+  color: var(--text-primary);
+}
+
+/* 滚动条样式 */
+.history-list::-webkit-scrollbar {
+  width: 8px;
+}
+
+.history-list::-webkit-scrollbar-track {
+  background: var(--bg-primary);
+  border-radius: 4px;
+}
+
+.history-list::-webkit-scrollbar-thumb {
+  background: var(--border-color);
+  border-radius: 4px;
+}
+
+.history-list::-webkit-scrollbar-thumb:hover {
+  background: var(--border-hover);
 }
 </style>

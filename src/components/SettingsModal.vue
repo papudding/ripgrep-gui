@@ -1,12 +1,12 @@
 <script setup lang="ts">
-import { ref, computed } from "vue";
+import { ref } from "vue";
 import { useStore } from 'vuex';
 import { open } from '@tauri-apps/plugin-dialog';
 
 const store = useStore();
 
 // 定义组件属性
-const props = defineProps<{
+defineProps<{
   visible: boolean;
 }>();
 
@@ -17,10 +17,10 @@ const emit = defineEmits<{
 }>();
 
 // 配置项
-const defaultSearchPath = ref(store.state.config.config.defaultSearchPath);
-const historyPath = ref(store.state.config.config.historyPath);
-const darkMode = ref(store.state.config.config.userConfig.darkMode);
-const language = ref(store.state.config.config.userConfig.language);
+const defaultSearchPath = ref(store.state.config.defaultSearchPath);
+const historyPath = ref(store.state.config.historyPath);
+const darkMode = ref(store.state.config.userConfig.darkMode);
+const language = ref(store.state.config.userConfig.language);
 
 // 表单验证错误
 const errors = ref<Record<string, string>>({});
