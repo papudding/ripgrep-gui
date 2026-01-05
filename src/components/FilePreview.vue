@@ -70,18 +70,23 @@ const handleScroll = () => {
 <style scoped>
 /* 文件预览 */
 .file-preview {
-  padding: 16px;
-  border-top: 1px solid var(--border-color);
-  background-color: var(--bg-secondary);
-  max-height: 300px;
-  overflow-y: auto;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding: 12px 16px;
+  background-color: var(--bg-primary);
+  overflow: hidden;
+  transition: background-color 0.2s ease;
 }
 
 .preview-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 12px;
+  margin-bottom: 10px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--border-color);
+  transition: all 0.2s ease;
 }
 
 .preview-header h3 {
@@ -104,25 +109,30 @@ const handleScroll = () => {
 }
 
 .preview-content {
+  flex: 1;
   background-color: var(--bg-primary);
   border: 1px solid var(--border-color);
   border-radius: 8px;
-  overflow: auto;
+  overflow: hidden;
   position: relative;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  transition: all 0.2s ease;
 }
 
 /* 代码容器，使用flex布局 */
 .code-container {
   display: flex;
+  height: 100%;
   background: var(--bg-primary);
   border-radius: 8px;
-  overflow: auto;
+  overflow: hidden;
   font-family: 'Consolas', 'Monaco', monospace;
+  transition: all 0.2s ease;
 }
 
 /* 行号区域样式 */
 .line-numbers {
-  padding: 12px 5px 12px 10px;
+  padding: 12px 8px 12px 12px;
   text-align: right;
   color: var(--text-muted);
   border-right: 1px solid var(--border-color);
@@ -131,7 +141,8 @@ const handleScroll = () => {
   line-height: 1.5;
   font-size: 13px;
   overflow: hidden;
-  min-width: 50px;
+  min-width: 55px;
+  transition: all 0.2s ease;
 }
 
 .line-number {
@@ -150,7 +161,7 @@ const handleScroll = () => {
 
 /* 代码内容区域样式 */
 .code-content {
-  padding: 12px 10px 12px 5px;
+  padding: 12px 12px 12px 8px;
   flex: 1;
   white-space: pre-wrap;
   word-break: break-all;
@@ -161,6 +172,7 @@ const handleScroll = () => {
   font-size: 13px;
   color: var(--text-primary);
   font-family: 'Consolas', 'Monaco', monospace;
+  transition: all 0.2s ease;
 }
 
 .code-content code {

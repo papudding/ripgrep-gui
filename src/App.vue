@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref } from "vue";
+import { ref, onMounted, onUnmounted } from "vue";
 import { useStore } from 'vuex';
 
 // 导入组件
@@ -8,8 +8,12 @@ import SearchHistory from './components/SearchHistory.vue';
 import SearchResults from './components/SearchResults.vue';
 import FilePreview from './components/FilePreview.vue';
 import HistorySettings from './components/HistorySettings.vue';
+import SettingsModal from './components/SettingsModal.vue';
 
 const store = useStore();
+
+// 应用启动时加载配置
+store.dispatch('config/loadConfigFromFile');
 
 // 应用启动时加载搜索历史
 store.dispatch('history/loadSearchHistory');
@@ -35,22 +39,122 @@ function closeHistory() {
   showHistory.value = false;
 }
 
+// 设置对话框显示状态
+const showSettings = ref(false);
 
+// 切换设置对话框
+function toggleSettings() {
+  showSettings.value = !showSettings.value;
+}
+
+// 关闭设置对话框
+function closeSettings() {
+  showSettings.value = false;
+}
+
+// 可调整大小分割线相关逻辑
+const resizer = ref<HTMLElement | null>(null);
+const resultsContainer = ref<HTMLElement | null>(null);
+const previewContainer = ref<HTMLElement | null>(null);
+const isResizing = ref(false);
+
+// 鼠标按下事件处理
+function handleMouseDown(e: MouseEvent) {
+  isResizing.value = true;
+  // 添加全局事件监听器
+  document.addEventListener('mousemove', handleMouseMove);
+  document.addEventListener('mouseup', handleMouseUp);
+  // 阻止默认行为
+  e.preventDefault();
+}
+
+// 鼠标移动事件处理
+function handleMouseMove(e: MouseEvent) {
+  if (!isResizing.value || !resizer.value || !resultsContainer.value || !previewContainer.value) {
+    return;
+  }
+  
+  // 获取父容器的位置和尺寸
+  const parentEl = resizer.value.parentElement;
+  if (!parentEl) return;
+  
+  const parentRect = parentEl.getBoundingClientRect();
+  const parentWidth = parentRect.width;
+  
+  // 计算新的结果容器宽度（相对于父容器）
+  const newResultsWidth = e.clientX - parentRect.left;
+  
+  // 限制最小宽度（20%）和最大宽度（80%）
+  const minWidth = parentWidth * 0.2;
+  const maxWidth = parentWidth * 0.8;
+  const clampedWidth = Math.max(minWidth, Math.min(maxWidth, newResultsWidth));
+  
+  // 计算百分比宽度
+  const resultsWidthPercent = (clampedWidth / parentWidth) * 100;
+  const previewWidthPercent = 100 - resultsWidthPercent;
+  
+  // 更新样式
+  resultsContainer.value.style.flex = `0 0 ${resultsWidthPercent}%`;
+  previewContainer.value.style.width = `${previewWidthPercent}%`;
+}
+
+// 鼠标释放事件处理
+function handleMouseUp() {
+  isResizing.value = false;
+  // 移除全局事件监听器
+  document.removeEventListener('mousemove', handleMouseMove);
+  document.removeEventListener('mouseup', handleMouseUp);
+}
+
+// 组件挂载后获取引用
+onMounted(() => {
+  resultsContainer.value = document.querySelector('.results-container');
+  previewContainer.value = document.querySelector('.preview-container');
+});
+
+// 组件卸载前清理事件监听器
+onUnmounted(() => {
+  document.removeEventListener('mousemove', handleMouseMove);
+  document.removeEventListener('mouseup', handleMouseUp);
+});
 </script>
 
 <template>
   <div class="app-container">
     <!-- 搜索配置区域 -->
     <div class="search-config-section">
-      <SearchConfig @toggle-history="toggleHistory" />
+      <SearchConfig 
+        @toggle-history="toggleHistory" 
+        @toggle-settings="toggleSettings" 
+      />
       <SearchHistory :visible="showHistory" @close="closeHistory" />
-      <HistorySettings />
+      <!-- <HistorySettings /> -->
     </div>
+    
+    <!-- 设置对话框 -->
+    <SettingsModal 
+      :visible="showSettings" 
+      @close="closeSettings" 
+    />
     
     <!-- 搜索结果区域 -->
     <div class="search-results-section">
-      <SearchResults />
-      <FilePreview />
+      <!-- 结果列表容器 -->
+      <div class="results-container">
+        <SearchResults />
+      </div>
+      
+      <!-- 可调整大小的分割线 -->
+      <div 
+        class="resizer"
+        @mousedown="handleMouseDown"
+        ref="resizer"
+      ></div>
+      
+      <!-- 文件预览容器 -->
+      <div class="preview-container">
+        <FilePreview />
+      </div>
     </div>
   </div>
 </template>
@@ -164,9 +268,68 @@ body {
 .search-results-section {
   flex: 1;
   display: flex;
+  flex-direction: row;
+  overflow: hidden;
+  background-color: var(--bg-primary);
+  border-top: 1px solid var(--border-color);
+}
+
+/* 结果列表容器 */
+.results-container {
+  flex: 1;
+  display: flex;
   flex-direction: column;
   overflow: hidden;
   background-color: var(--bg-primary);
+}
+
+/* 文件预览容器 */
+.preview-container {
+  width: 50%;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background-color: var(--bg-primary);
+  border-left: 1px solid var(--border-color);
+}
+
+/* 可调整大小的分割线 */
+.resizer {
+  width: 4px;
+  background-color: var(--border-color);
+  cursor: col-resize;
+  transition: background-color 0.2s ease;
+  flex-shrink: 0;
+}
+
+.resizer:hover,
+.resizer:active {
+  background-color: var(--accent-color);
+}
+
+/* 响应式布局 */
+@media (max-width: 768px) {
+  .search-results-section {
+    flex-direction: column;
+  }
+  
+  .results-container {
+    width: 100%;
+    height: 50%;
+  }
+  
+  .preview-container {
+    width: 100%;
+    height: 50%;
+    border-left: none;
+    border-top: 1px solid var(--border-color);
+  }
+  
+  .resizer {
+    width: 100%;
+    height: 4px;
+    cursor: row-resize;
+  }
 }
 
 /* 滚动条样式 */
@@ -178,14 +341,28 @@ body {
 ::-webkit-scrollbar-track {
   background: var(--bg-primary);
   border-radius: 4px;
+  transition: background-color 0.2s ease;
 }
 
 ::-webkit-scrollbar-thumb {
   background: var(--border-color);
   border-radius: 4px;
+  transition: background-color 0.2s ease;
 }
 
 ::-webkit-scrollbar-thumb:hover {
   background: var(--border-hover);
+}
+
+::-webkit-scrollbar-thumb:active {
+  background: var(--accent-color);
+}
+
+/* 确保滚动条在所有容器中一致 */
+.search-results-section ::-webkit-scrollbar,
+.results-container ::-webkit-scrollbar,
+.preview-container ::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
 }
 </style>

@@ -56,6 +56,7 @@ async function selectSearchPath() {
 // 事件
 const emit = defineEmits<{
   (e: 'toggleHistory'): void
+  (e: 'toggleSettings'): void
 }>();
 
 // 切换历史记录面板
@@ -75,6 +76,12 @@ onMounted(() => {
   <div class="search-config">
     <div class="search-header">
       <h1>ripgrep GUI</h1>
+      <button 
+        @click="$emit('toggleSettings')" 
+        class="settings-btn"
+      >
+        设置
+      </button>
     </div>
     
     <div class="search-input-section">
@@ -191,8 +198,9 @@ onMounted(() => {
 .search-config {
   background-color: var(--bg-secondary);
   border-bottom: 1px solid var(--border-color);
-  padding: 16px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  padding: 12px 16px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
+  transition: box-shadow 0.2s ease;
 }
 
 .search-header h1 {
@@ -205,8 +213,8 @@ onMounted(() => {
 .search-input-section {
   display: flex;
   flex-direction: column;
-  gap: 12px;
-  margin-bottom: 16px;
+  gap: 8px;
+  margin-bottom: 12px;
 }
 
 .path-selector {
@@ -234,6 +242,31 @@ onMounted(() => {
 .search-input-group {
   display: flex;
   gap: 8px;
+  flex-wrap: wrap;
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+  .search-config {
+    padding: 10px 12px;
+  }
+  
+  .search-header h1 {
+    font-size: 20px;
+    margin-bottom: 12px;
+  }
+  
+  .search-input-group {
+    flex-direction: column;
+  }
+  
+  .option-group {
+    gap: 12px;
+  }
+  
+  .option-label {
+    font-size: 13px;
+  }
 }
 
 .search-input {
@@ -285,18 +318,45 @@ onMounted(() => {
   font-size: 14px;
   font-weight: 500;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+.history-btn::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.03);
+  opacity: 0;
+  transition: opacity 0.2s ease;
 }
 
 .history-btn:hover {
   background-color: var(--bg-hover);
   border-color: var(--border-hover);
+  transform: translateY(-1px);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+}
+
+.history-btn:hover::before {
+  opacity: 1;
 }
 
 .history-btn.active {
   background-color: var(--accent-light);
   border-color: var(--accent-color);
   color: var(--accent-color);
+  transform: translateY(-1px);
+  box-shadow: 0 2px 6px rgba(57, 108, 216, 0.2);
+}
+
+.history-btn.active::before {
+  background-color: rgba(57, 108, 216, 0.1);
+  opacity: 1;
 }
 
 .search-btn {
@@ -308,33 +368,66 @@ onMounted(() => {
   font-size: 14px;
   font-weight: 500;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+.search-btn::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  border-radius: 50%;
+  background-color: rgba(255, 255, 255, 0.3);
+  transform: translate(-50%, -50%);
+  transition: width 0.3s ease, height 0.3s ease;
 }
 
 .search-btn:hover:not(:disabled) {
   background-color: var(--accent-hover);
   transform: translateY(-1px);
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 4px 12px rgba(57, 108, 216, 0.25);
+}
+
+.search-btn:hover:not(:disabled)::before {
+  width: 200px;
+  height: 200px;
+}
+
+.search-btn:active:not(:disabled) {
+  transform: translateY(0);
+  box-shadow: 0 2px 8px rgba(57, 108, 216, 0.2);
 }
 
 .search-btn:disabled {
   opacity: 0.6;
   cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
 }
 
 /* 搜索选项 */
 .search-options {
   display: flex;
   flex-direction: column;
-  gap: 12px;
-  margin-bottom: 16px;
+  gap: 8px;
+  margin-bottom: 12px;
 }
 
 .option-group {
   display: flex;
   flex-wrap: wrap;
-  gap: 16px;
+  gap: 14px;
   align-items: center;
+  padding: 8px 0;
+  border-top: 1px solid var(--border-color);
+}
+
+.option-group:first-child {
+  border-top: none;
 }
 
 .option-label {
@@ -342,19 +435,26 @@ onMounted(() => {
   align-items: center;
   gap: 6px;
   cursor: pointer;
-  font-size: 14px;
+  font-size: 13px;
   color: var(--text-secondary);
-  transition: color 0.2s ease;
+  transition: all 0.2s ease;
+  padding: 4px 0;
 }
 
 .option-label:hover {
   color: var(--text-primary);
+  transform: translateY(-1px);
 }
 
 .option-label input[type="checkbox"] {
   width: 16px;
   height: 16px;
   accent-color: var(--accent-color);
+  transition: all 0.2s ease;
+}
+
+.option-label input[type="checkbox"]:hover {
+  transform: scale(1.1);
 }
 
 .depth-control {
@@ -410,5 +510,32 @@ onMounted(() => {
   font-size: 12px;
   color: var(--text-secondary);
   min-width: 40px;
+}
+
+/* 搜索头部样式 */
+.search-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+/* 设置按钮 */
+.settings-btn {
+  padding: 8px 16px;
+  background-color: var(--bg-primary);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  color: var(--text-primary);
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.settings-btn:hover {
+  background-color: var(--bg-hover);
+  border-color: var(--border-hover);
+  transform: translateY(-1px);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
 }
 </style>

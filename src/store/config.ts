@@ -1,5 +1,6 @@
 import { Module } from 'vuex';
 import type { RootState, Config } from '../types';
+import { saveConfig, loadConfig, validateConfig, mergeConfig } from '../utils/configUtils';
 
 // 配置模块
 const configModule: Module<{ config: Config }, RootState> = {
@@ -45,31 +46,95 @@ const configModule: Module<{ config: Config }, RootState> = {
   },
   actions: {
     /**
-     * 加载配置
+     * 从文件加载配置
      */
-    async loadConfig({ commit }, config: Config) {
-      commit('setConfig', config);
+    async loadConfigFromFile({ commit, state }) {
+      try {
+        const loadedConfig = await loadConfig(state.config);
+        commit('setConfig', loadedConfig);
+        return { success: true, message: '配置加载成功' };
+      } catch (error) {
+        console.error('从文件加载配置失败:', error);
+        return { 
+          success: false, 
+          message: `从文件加载配置失败: ${error instanceof Error ? error.message : String(error)}` 
+        };
+      }
+    },
+    
+    /**
+     * 保存配置到文件
+     */
+    async saveConfigToFile({ state }) {
+      try {
+        await saveConfig(state.config);
+        return { success: true, message: '配置保存成功' };
+      } catch (error) {
+        console.error('保存配置到文件失败:', error);
+        return { 
+          success: false, 
+          message: `保存配置到文件失败: ${error instanceof Error ? error.message : String(error)}` 
+        };
+      }
+    },
+    
+    /**
+     * 更新完整配置并保存到文件
+     */
+    async updateConfig({ commit, state }, newConfig: Partial<Config>) {
+      try {
+        // 合并新配置和当前配置
+        const updatedConfig = mergeConfig(state.config, newConfig);
+        
+        // 验证配置有效性
+        if (!validateConfig(updatedConfig)) {
+          throw new Error('配置无效');
+        }
+        
+        // 更新状态
+        commit('setConfig', updatedConfig);
+        
+        // 保存到文件
+        await saveConfig(updatedConfig);
+        
+        // 同时更新 historyPath 到 root state，供历史记录模块使用
+        if (newConfig.historyPath !== undefined) {
+          commit('setHistoryPath', newConfig.historyPath, { root: true });
+        }
+        
+        return { success: true, message: '配置更新成功' };
+      } catch (error) {
+        console.error('更新配置失败:', error);
+        return { 
+          success: false, 
+          message: `更新配置失败: ${error instanceof Error ? error.message : String(error)}` 
+        };
+      }
     },
     
     /**
      * 更新默认搜索路径
      */
-    updateDefaultSearchPath({ commit }, path: string) {
+    async updateDefaultSearchPath({ commit, dispatch }, path: string) {
       commit('setDefaultSearchPath', path);
+      await dispatch('saveConfigToFile');
     },
     
     /**
      * 更新历史记录保存路径
      */
-    updateHistoryPath({ commit }, path: string | null) {
+    async updateHistoryPath({ commit, dispatch }, path: string | null) {
       commit('setHistoryPath', path);
+      commit('setHistoryPath', path, { root: true }); // 更新 root state 中的 historyPath
+      await dispatch('saveConfigToFile');
     },
     
     /**
      * 更新用户配置
      */
-    updateUserConfig({ commit }, userConfig: Partial<Config['userConfig']>) {
+    async updateUserConfig({ commit, dispatch }, userConfig: Partial<Config['userConfig']>) {
       commit('updateUserConfig', userConfig);
+      await dispatch('saveConfigToFile');
     }
   },
   getters: {

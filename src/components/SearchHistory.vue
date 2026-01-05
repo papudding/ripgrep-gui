@@ -118,11 +118,25 @@ onMounted(() => {
   border-radius: 8px;
   padding: 12px;
   margin-top: 8px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-  max-height: 300px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+  max-height: 400px;
   overflow: hidden;
   display: flex;
   flex-direction: column;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  animation: slideDown 0.2s ease-out forwards;
+}
+
+/* 滑入动画 */
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .history-header {
@@ -191,22 +205,44 @@ onMounted(() => {
 
 /* 历史记录项 */
 .history-item {
-  padding: 12px;
+  padding: 10px 12px;
   background-color: var(--bg-secondary);
   border: 1px solid var(--border-color);
   border-radius: 6px;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   display: flex;
   flex-direction: column;
   gap: 4px;
+  position: relative;
+  overflow: hidden;
+}
+
+.history-item::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 3px;
+  height: 100%;
+  background-color: transparent;
+  transition: background-color 0.2s ease;
 }
 
 .history-item:hover {
   background-color: var(--bg-hover);
   border-color: var(--border-hover);
   transform: translateY(-1px);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+}
+
+.history-item:hover::before {
+  background-color: var(--accent-color);
+}
+
+.history-item:active {
+  transform: translateY(0);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
 }
 
 .history-pattern {

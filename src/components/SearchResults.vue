@@ -146,15 +146,17 @@ function loadMoreResults() {
           @click="activeTab = 'content'"
           class="tab-btn"
           :class="{ active: activeTab === 'content' }"
+          :data-count="filteredContentResults.length"
         >
-          内容匹配 ({{ filteredContentResults.length }})
+          内容匹配
         </button>
         <button 
           @click="activeTab = 'filename'"
           class="tab-btn"
           :class="{ active: activeTab === 'filename' }"
+          :data-count="filteredFilenameResults.length"
         >
-          文件名匹配 ({{ filteredFilenameResults.length }})
+          文件名匹配
         </button>
       </div>
       
@@ -263,15 +265,17 @@ function loadMoreResults() {
   flex-direction: column;
   overflow: hidden;
   background-color: var(--bg-primary);
+  transition: background-color 0.2s ease;
 }
 
 .results-header {
-  padding: 12px 16px;
+  padding: 10px 16px;
   border-bottom: 1px solid var(--border-color);
   background-color: var(--bg-secondary);
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 10px;
+  transition: all 0.2s ease;
 }
 
 /* 结果页签 */
@@ -279,38 +283,66 @@ function loadMoreResults() {
   display: flex;
   gap: 8px;
   margin-bottom: 4px;
+  flex-wrap: wrap;
 }
 
 .tab-btn {
-  padding: 8px 16px;
+  padding: 7px 14px;
   background-color: var(--bg-primary);
   border: 1px solid var(--border-color);
   border-radius: 6px;
   color: var(--text-secondary);
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 500;
   cursor: pointer;
   transition: all 0.2s ease;
   display: flex;
   align-items: center;
   gap: 6px;
+  position: relative;
+  overflow: hidden;
+}
+
+.tab-btn::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.03);
+  opacity: 0;
+  transition: opacity 0.2s ease;
 }
 
 .tab-btn:hover {
   background-color: var(--bg-hover);
   border-color: var(--border-hover);
   color: var(--text-primary);
+  transform: translateY(-1px);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+}
+
+.tab-btn:hover::before {
+  opacity: 1;
 }
 
 .tab-btn.active {
   background-color: var(--accent-color);
   border-color: var(--accent-color);
   color: white;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 6px rgba(57, 108, 216, 0.3);
+}
+
+.tab-btn.active::before {
+  background-color: rgba(255, 255, 255, 0.15);
+  opacity: 1;
 }
 
 /* 页签按钮中的计数样式 */
 .tab-btn::after {
-  content: '';
+  content: attr(data-count);
   display: inline-block;
   margin-left: 6px;
   font-size: 12px;
@@ -318,6 +350,8 @@ function loadMoreResults() {
   background-color: rgba(255, 255, 255, 0.2);
   padding: 2px 6px;
   border-radius: 10px;
+  min-width: 20px;
+  text-align: center;
 }
 
 .results-header-top {
@@ -402,28 +436,47 @@ function loadMoreResults() {
 }
 
 .result-item {
-  padding: 12px;
-  margin-bottom: 8px;
+  padding: 10px 12px;
+  margin-bottom: 6px;
   background-color: var(--bg-secondary);
   border: 1px solid var(--border-color);
   border-radius: 8px;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   display: flex;
   flex-direction: column;
   gap: 4px;
+  position: relative;
+  overflow: hidden;
+}
+
+.result-item::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 4px;
+  height: 100%;
+  background-color: transparent;
+  transition: background-color 0.2s ease;
 }
 
 .result-item:hover {
   background-color: var(--bg-hover);
   border-color: var(--border-hover);
   transform: translateY(-1px);
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
 .result-item.selected {
   background-color: var(--accent-light);
   border-color: var(--accent-color);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(57, 108, 216, 0.2);
+}
+
+.result-item.selected::before {
+  background-color: var(--accent-color);
 }
 
 .result-file {
@@ -505,5 +558,58 @@ function loadMoreResults() {
 .search-error p {
   margin: 0;
   font-weight: 500;
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+  .results-header {
+    padding: 10px 12px;
+    gap: 8px;
+  }
+  
+  .results-header-top {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
+  }
+  
+  .results-tabs {
+    gap: 6px;
+  }
+  
+  .tab-btn {
+    padding: 6px 12px;
+    font-size: 12px;
+  }
+  
+  .filter-input {
+    width: 100%;
+  }
+  
+  .results-sort {
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+  
+  .results-list {
+    padding: 6px;
+  }
+  
+  .result-item {
+    padding: 10px;
+    margin-bottom: 6px;
+  }
+  
+  .result-file {
+    font-size: 13px;
+  }
+  
+  .result-line {
+    font-size: 11px;
+  }
+  
+  .result-content {
+    font-size: 12px;
+  }
 }
 </style>

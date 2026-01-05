@@ -18,7 +18,7 @@ async function startApp() {
     const config = await initializeConfig();
     
     // 将配置应用到Vuex store
-    await store.dispatch('config/loadConfig', config);
+    store.commit('config/setConfig', config);
     
     // 更新历史记录路径（如果配置中指定了）
     if (config.historyPath) {
