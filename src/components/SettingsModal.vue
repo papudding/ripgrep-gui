@@ -435,19 +435,15 @@ function importFileAssociations() {
             {{ importExportError }}
           </div>
           
-          <!-- 文件关联搜索 -->
-          <div class="file-association-search">
-            <input
-              v-model="fileAssociationFilter"
-              type="text"
-              class="form-input"
-              placeholder="搜索扩展名..."
-            />
-          </div>
-          
           <!-- 添加文件关联表单 -->
           <div class="add-file-association-form">
-            <h3>添加文件关联</h3>
+            <div class="add-btn-container">
+              <h3>添加文件关联</h3>
+              <button type="button" @click="addFileAssociation" class="add-btn">
+                添加
+              </button>
+            </div>
+            
             <div class="form-row">
               <div class="form-group">
                 <label class="form-label">扩展名</label>
@@ -482,22 +478,18 @@ function importFileAssociations() {
                   {{ errors.appPath }}
                 </div>
               </div>
-              <div class="form-group add-button-group">
-                <label class="form-label">&nbsp;</label>
-                <button 
-                  type="button" 
-                  @click="addFileAssociation"
-                  class="add-btn"
-                >
-                  添加
-                </button>
-              </div>
             </div>
           </div>
           
           <!-- 文件关联列表 -->
           <div class="file-associations-list">
-            <h3>已配置的文件关联</h3>
+            <div class="file-association-search-container">
+              <h3>已配置的文件关联</h3>
+              <!-- 文件关联搜索 -->
+              <div class="file-association-search">
+                <input v-model="fileAssociationFilter" type="text" class="form-input" placeholder="搜索扩展名..." />
+              </div>
+            </div>
             <div v-if="filteredFileAssociations.length === 0" class="no-associations">
               <p>暂无文件关联配置</p>
             </div>
@@ -647,7 +639,7 @@ function importFileAssociations() {
   border-radius: 12px;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
   width: 90%;
-  max-width: 500px;
+  max-width: 800px;
   max-height: 80vh;
   overflow-y: auto;
   animation: slideUp 0.3s ease;
@@ -757,10 +749,12 @@ function importFileAssociations() {
 .input-with-button {
   display: flex;
   gap: 8px;
+  flex-wrap: wrap;
 }
 
 .input-with-button .form-input {
   flex: 1;
+  min-width: 150px;
 }
 
 /* 路径选择按钮 */
@@ -774,6 +768,18 @@ function importFileAssociations() {
   font-weight: 500;
   cursor: pointer;
   transition: all 0.2s ease;
+  min-width: 80px;
+}
+
+/* 确保选择按钮在小屏幕上换行 */
+@media (max-width: 768px) {
+  .input-with-button {
+    flex-direction: column;
+  }
+  
+  .path-select-btn {
+    width: 100%;
+  }
 }
 
 .path-select-btn:hover {
@@ -932,6 +938,7 @@ function importFileAssociations() {
   display: flex;
   gap: 12px;
   margin-bottom: 10px;
+  flex-wrap: wrap;
 }
 
 .import-btn,
@@ -942,19 +949,25 @@ function importFileAssociations() {
   border-radius: 6px;
   color: var(--text-primary);
   font-size: 14px;
+  font-weight: 500;
   cursor: pointer;
   transition: all 0.2s ease;
+  flex: 1;
+  min-width: 120px;
+  text-align: center;
 }
 
 .import-btn:hover,
 .export-btn:hover {
   background-color: var(--bg-hover);
   border-color: var(--border-hover);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
 /* 文件关联搜索 */
 .file-association-search {
   margin-bottom: 10px;
+  margin-left: auto;
 }
 
 /* 添加文件关联表单 */
@@ -965,30 +978,42 @@ function importFileAssociations() {
   border: 1px solid var(--border-color);
 }
 
+.add-btn-container {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  flex-direction: row;
+}
+
 .add-file-association-form h3,
 .file-associations-list h3 {
   font-size: 16px;
   font-weight: 600;
   color: var(--text-primary);
-  margin: 0 0 16px 0;
+  margin: 0 0 16px 0
+}
+
+.file-association-search-container {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  flex-direction: row;
 }
 
 .form-row {
   display: flex;
   gap: 12px;
-  align-items: flex-end;
+  flex-wrap: wrap;
+  flex-direction: column;
 }
 
 .form-row .form-group {
   flex: 1;
-}
-
-.add-button-group {
-  min-width: 80px;
+  min-width: 200px;
 }
 
 .add-btn {
-  padding: 10px 16px;
+  padding: 8px 12px;
   background-color: var(--accent-color);
   border: none;
   border-radius: 6px;
@@ -997,12 +1022,17 @@ function importFileAssociations() {
   font-weight: 500;
   cursor: pointer;
   transition: all 0.2s ease;
-  width: 100%;
+  width: 100px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-left: auto;
 }
 
 .add-btn:hover {
   background-color: var(--accent-hover);
-  box-shadow: 0 2px 8px rgba(57, 108, 216, 0.2);
+  box-shadow: 0 4px 12px rgba(57, 108, 216, 0.25);
 }
 
 /* 文件关联列表 */
@@ -1011,18 +1041,21 @@ function importFileAssociations() {
   padding: 16px;
   border-radius: 8px;
   border: 1px solid var(--border-color);
+  overflow-x: auto;
 }
 
 .no-associations {
   text-align: center;
   padding: 40px 20px;
   color: var(--text-secondary);
+  font-size: 14px;
 }
 
 .associations-table {
   width: 100%;
   border-collapse: collapse;
   margin-top: 10px;
+  min-width: 600px;
 }
 
 .associations-table th,
@@ -1030,12 +1063,18 @@ function importFileAssociations() {
   padding: 12px;
   text-align: left;
   border-bottom: 1px solid var(--border-color);
+  vertical-align: middle;
 }
 
 .associations-table th {
   background-color: var(--bg-primary);
   font-weight: 600;
   color: var(--text-primary);
+  white-space: nowrap;
+}
+
+.associations-table td {
+  font-size: 14px;
 }
 
 .associations-table tr:hover {
@@ -1047,6 +1086,7 @@ function importFileAssociations() {
 .edit-actions {
   display: flex;
   gap: 8px;
+  flex-wrap: wrap;
 }
 
 .edit-btn,
@@ -1060,6 +1100,8 @@ function importFileAssociations() {
   font-weight: 500;
   cursor: pointer;
   transition: all 0.2s ease;
+  min-width: 60px;
+  text-align: center;
 }
 
 .edit-btn {
@@ -1070,16 +1112,19 @@ function importFileAssociations() {
 .edit-btn:hover {
   background-color: var(--accent-color);
   color: white;
+  box-shadow: 0 2px 8px rgba(57, 108, 216, 0.2);
 }
 
 .delete-btn {
   background-color: rgba(231, 76, 60, 0.1);
   color: #e74c3c;
+  border: 1px solid rgba(231, 76, 60, 0.2);
 }
 
 .delete-btn:hover {
   background-color: #e74c3c;
   color: white;
+  box-shadow: 0 2px 8px rgba(231, 76, 60, 0.2);
 }
 
 .save-btn {
@@ -1089,6 +1134,7 @@ function importFileAssociations() {
 
 .save-btn:hover {
   background-color: var(--accent-hover);
+  box-shadow: 0 2px 8px rgba(57, 108, 216, 0.2);
 }
 
 .cancel-btn {
@@ -1099,6 +1145,7 @@ function importFileAssociations() {
 
 .cancel-btn:hover {
   background-color: var(--bg-hover);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
 /* 响应式设计 */
@@ -1123,6 +1170,10 @@ function importFileAssociations() {
     align-items: stretch;
   }
   
+  .form-row .form-group {
+    min-width: unset;
+  }
+  
   .add-button-group {
     min-width: unset;
   }
@@ -1131,18 +1182,70 @@ function importFileAssociations() {
     flex-direction: column;
   }
   
+  .import-btn,
+  .export-btn {
+    flex: unset;
+    width: 100%;
+  }
+  
   .associations-table {
     font-size: 12px;
+    min-width: unset;
   }
   
   .associations-table th,
   .associations-table td {
     padding: 8px;
+    font-size: 12px;
   }
   
   .association-actions,
   .edit-actions {
     flex-direction: column;
+  }
+  
+  .edit-btn,
+  .delete-btn,
+  .save-btn,
+  .cancel-btn {
+    width: 100%;
+  }
+}
+
+/* 小屏幕设备 */
+@media (max-width: 480px) {
+  .settings-modal {
+    width: 98%;
+    max-height: 95vh;
+  }
+  
+  .modal-header h2 {
+    font-size: 16px;
+  }
+  
+  .tab-btn {
+    padding: 10px 12px;
+    font-size: 13px;
+  }
+  
+  .form-label {
+    font-size: 13px;
+  }
+  
+  .form-input,
+  .form-select {
+    font-size: 13px;
+    padding: 8px 10px;
+  }
+  
+  .add-file-association-form h3,
+  .file-associations-list h3 {
+    font-size: 14px;
+  }
+  
+  .no-associations {
+    padding: 20px 10px;
+    font-size: 13px;
   }
 }
 </style>
