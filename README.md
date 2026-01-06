@@ -8,7 +8,7 @@
 
 ripgrep-gui 是一个图形界面搜索工具，基于命令行工具 ripgrep (rg) 构建。提供GUI界面，让用户能够轻松配置搜索选项、查看搜索结果并预览文件内容。
 
-<img width="2400" height="1600" alt="Snipaste_2026-01-06_16-19-38" src="https://github.com/user-attachments/assets/5ae6fc12-077e-4813-9763-eb414030a80e" />
+<img width="1200" height="800" alt="Snipaste_2026-01-06_16-19-38" src="https://github.com/user-attachments/assets/5ae6fc12-077e-4813-9763-eb414030a80e" />
 
 
 
@@ -43,7 +43,7 @@ ripgrep-gui 是一个图形界面搜索工具，基于命令行工具 ripgrep (r
     ```
     如果显示版本号（如 `ripgrep 15.1.0`），则表示已安装；否则需要进行安装。
 ### 2.2 安装包安装
-1. 在release下载安装包安装（目前仅支持MacOS Apple Silicon ）
+1. 在release下载安装包安装
 2. 编译安装，参考3. 开发配置
 
 ## 3. 开发配置

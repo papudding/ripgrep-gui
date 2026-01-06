@@ -8,7 +8,7 @@ A cross-platform ripgrep graphical interface application developed with Tauri + 
 
 ripgrep-gui is a graphical interface search tool built on the command-line tool ripgrep (rg). It provides a GUI interface that allows users to easily configure search options, view search results, and preview file contents.
 
-<img width="2400" height="1600" alt="Snipaste_2026-01-06_16-19-38" src="https://github.com/user-attachments/assets/5ae6fc12-077e-4813-9763-eb414030a80e" />
+<img width="1200" height="800" alt="Snipaste_2026-01-06_16-19-38" src="https://github.com/user-attachments/assets/5ae6fc12-077e-4813-9763-eb414030a80e" />
 
 
 ### Main Features
@@ -42,7 +42,7 @@ ripgrep-gui is a graphical interface search tool built on the command-line tool 
     ```
     If it displays a version number (e.g., `ripgrep 15.1.0`), it means it's already installed; otherwise, you need to install it.
 ### 2.2 Installer Installation
-1. Download the installer from the release page (currently only supports macOS Apple Silicon)
+1. Download the installer from the release page
 2. Compile and install, refer to 3. Development Configuration
 
 ## 3. Development Configuration
