@@ -38,6 +38,10 @@ async fn search(
     // 构建ripgrep命令
     let mut cmd = Command::new("rg");
 
+    // Windows系统：设置隐藏窗口标志
+    #[cfg(target_os = "windows")]
+    cmd.creation_flags(CREATE_NO_WINDOW);
+
     // 添加搜索模式
     if !regex {
         cmd.arg(pattern);
