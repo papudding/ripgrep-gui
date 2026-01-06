@@ -267,6 +267,48 @@ async fn search_filename(
     Ok(results)
 }
 
+#[tauri::command]
+async fn open_file_with_app(file_path: &str, app: &str) -> Result<(), String> {
+    let output = match cfg!(target_os = "windows") {
+        // Windows系统：使用start命令
+        true => {
+            let mut cmd = Command::new("cmd");
+            cmd.arg("/C");
+            cmd.arg("start");
+            cmd.arg(""); // 空标题
+            cmd.arg(app);
+            cmd.arg(file_path);
+            cmd.output()
+        },
+        // macOS系统：使用open -a命令
+        false if cfg!(target_os = "macos") => {
+            let mut cmd = Command::new("open");
+            cmd.arg("-a");
+            cmd.arg(app);
+            cmd.arg(file_path);
+            cmd.output()
+        },
+        // Linux系统：直接使用应用命令
+        false => {
+            let mut cmd = Command::new(app);
+            cmd.arg(file_path);
+            cmd.output()
+        }
+    };
+
+    match output {
+        Ok(output) => {
+            if output.status.success() {
+                Ok(())
+            } else {
+                let stderr = from_utf8(&output.stderr).unwrap_or("无法解析错误信息");
+                Err(format!("打开文件失败: {}", stderr))
+            }
+        },
+        Err(e) => Err(format!("执行命令失败: {}", e))
+    }
+}
+
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     // Fix PATH environment variable on macOS to ensure commands like ripgrep are found
@@ -274,11 +316,12 @@ pub fn run() {
     let _ = fix_path_env::fix();
 
     tauri::Builder::default()
+        .plugin(tauri_plugin_shell::init())
         .plugin(tauri_plugin_os::init())
         .plugin(tauri_plugin_dialog::init())
         .plugin(tauri_plugin_opener::init())
         .plugin(tauri_plugin_fs::init())
-        .invoke_handler(tauri::generate_handler![greet, search, search_filename])
+        .invoke_handler(tauri::generate_handler![greet, search, search_filename, open_file_with_app])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }

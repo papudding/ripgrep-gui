@@ -84,7 +84,8 @@ export async function createDefaultConfig(): Promise<ConfigState | null> {
       historyPath: await join(configDir, 'history'),
       userConfig: {
         darkMode: window.matchMedia('(prefers-color-scheme: dark)').matches,
-        language: navigator.language
+        language: navigator.language,
+        fileAssociations: []
       }
     };
     
@@ -143,7 +144,8 @@ export async function loadConfig(): Promise<ConfigState> {
       historyPath: parsedConfig.historyPath || null,
       userConfig: {
         darkMode: parsedConfig.userConfig?.darkMode ?? window.matchMedia('(prefers-color-scheme: dark)').matches,
-        language: parsedConfig.userConfig?.language ?? navigator.language
+        language: parsedConfig.userConfig?.language ?? navigator.language,
+        fileAssociations: parsedConfig.userConfig?.fileAssociations ?? []
       }
     };
     
@@ -156,7 +158,8 @@ export async function loadConfig(): Promise<ConfigState> {
       historyPath: null,
       userConfig: {
         darkMode: window.matchMedia('(prefers-color-scheme: dark)').matches,
-        language: navigator.language
+        language: navigator.language,
+        fileAssociations: []
       }
     };
   }
@@ -226,7 +229,8 @@ export async function initializeConfig(): Promise<ConfigState> {
       historyPath: null,
       userConfig: {
         darkMode: window.matchMedia('(prefers-color-scheme: dark)').matches,
-        language: navigator.language
+        language: navigator.language,
+        fileAssociations: []
       }
     };
   }

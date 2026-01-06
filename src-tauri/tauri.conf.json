@@ -24,7 +24,8 @@
   "plugins": {
     "fs": {
       "requireLiteralLeadingDot": false
-    }
+    },
+    "opener": {}
   },
   "bundle": {
     "active": true,

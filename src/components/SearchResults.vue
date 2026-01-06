@@ -4,6 +4,7 @@ import { useStore } from 'vuex';
 import type { SearchResult } from '../types';
 import { highlightMatch } from '../utils/highlight';
 import Pagination from './Pagination.vue';
+import { openPath } from '@tauri-apps/plugin-opener';
 
 const store = useStore();
 
@@ -18,6 +19,10 @@ const currentPage = ref(1);
 
 // 页签切换
 const activeTab = ref("content"); // content, filename
+
+// 加载状态管理
+const loadingFiles = ref<Record<string, boolean>>({});
+const errorMessages = ref<Record<string, string>>({});
 
 // 计算属性
 const isSearching = computed(() => store.state.search.isSearching);
@@ -135,6 +140,79 @@ function loadMoreResults() {
     currentPage.value++;
   }
 }
+
+// 检查文件是否有匹配的关联应用
+function hasMatchingAssociation(filePath: string): boolean {
+  const fileExtension = filePath.split('.').pop()?.toLowerCase();
+  const fileAssociations = store.state.config.userConfig.fileAssociations;
+  
+  if (fileExtension) {
+    const matchingAssociation = fileAssociations.find((assoc: { extension: string; }) => 
+      assoc.extension.toLowerCase() === fileExtension
+    );
+    return !!matchingAssociation;
+  }
+  
+  return false;
+}
+
+// 打开文件
+async function openFile(result: SearchResult, event: MouseEvent) {
+  // 阻止事件冒泡，避免触发选择结果的操作
+  event.stopPropagation();
+  
+  const filePath = result.file;
+  
+  // 清除之前的错误信息
+  delete errorMessages.value[filePath];
+  
+  // 设置加载状态
+  loadingFiles.value[filePath] = true;
+  
+  try {
+    // 获取文件扩展名
+    const fileExtension = filePath.split('.').pop()?.toLowerCase();
+    
+    // 从store获取文件关联配置
+    const fileAssociations = store.state.config.userConfig.fileAssociations;
+    
+    // 查找匹配的文件关联
+    let tool: string | undefined;
+    if (fileExtension) {
+      const matchingAssociation = fileAssociations.find((assoc: { extension: string; }) => 
+        assoc.extension.toLowerCase() === fileExtension
+      );
+      if (matchingAssociation) {
+        tool = matchingAssociation.appPath;
+      }
+    }
+    
+    // 根据是否找到匹配的工具来打开文件
+    if (tool) {
+      // 动态导入invoke函数
+      const { invoke } = await import('@tauri-apps/api/core');
+      // 使用新的Tauri命令打开文件
+      await invoke('open_file_with_app', {
+        filePath: filePath,
+        app: tool
+      });
+    } else {
+      // 如果没有找到匹配的工具，使用默认方式打开
+      await openPath(filePath);
+    }
+  } catch (error) {
+    console.error('Failed to open file:', error);
+    errorMessages.value[filePath] = `打开文件失败: ${error instanceof Error ? error.message : String(error)}`;
+    
+    // 3秒后清除错误信息
+    setTimeout(() => {
+      delete errorMessages.value[filePath];
+    }, 3000);
+  } finally {
+    // 清除加载状态
+    loadingFiles.value[filePath] = false;
+  }
+}
 </script>
 
 <template>
@@ -203,21 +281,41 @@ function loadMoreResults() {
     
     <div class="results-list">
       <div 
-        v-for="(result, index) in paginatedResults" 
-        :key="index"
-        class="result-item"
-        :class="{ 'selected': selectedResult === result }"
-        @click="selectResult(result)"
-      >
-        <div class="result-file">{{ result.file }}</div>
-        <div v-if="activeTab === 'content'" class="result-line">{{ result.line }}:{{ result.column }}</div>
-        <div v-else class="result-line">文件名匹配</div>
-        <div 
-          v-if="activeTab === 'content'" 
-          class="result-content" 
-          v-html="highlightMatch(result.content, result.match)"
-        ></div>
-      </div>
+          v-for="(result, index) in paginatedResults" 
+          :key="index"
+          class="result-item"
+          :class="{ 'selected': selectedResult === result }"
+          @click="selectResult(result)"
+        >
+          <div class="result-item-content">
+            <div class="result-file">{{ result.file }}</div>
+            <div v-if="activeTab === 'content'" class="result-line">{{ result.line }}:{{ result.column }}</div>
+            <div v-else class="result-line">文件名匹配</div>
+            <div 
+              v-if="activeTab === 'content'" 
+              class="result-content" 
+              v-html="highlightMatch(result.content, result.match)"
+            ></div>
+          </div>
+          <div class="result-item-actions">
+            <button 
+              v-if="hasMatchingAssociation(result.file)"
+              @click="openFile(result, $event)"
+              class="open-file-btn"
+              :disabled="loadingFiles[result.file]"
+              :class="{ 'loading': loadingFiles[result.file] }"
+              title="使用app打开"
+            >
+              <span v-if="!loadingFiles[result.file]">
+                <img src="/app.svg" alt="打开" class="open-icon" />
+              </span>
+              <span v-else>⏳</span>
+            </button>
+          </div>
+          <div v-if="errorMessages[result.file]" class="error-message">
+            {{ errorMessages[result.file] }}
+          </div>
+        </div>
       
       <div v-if="searchError" class="search-error">
         <p>{{ searchError }}</p>
@@ -444,10 +542,23 @@ function loadMoreResults() {
   cursor: pointer;
   transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   display: flex;
-  flex-direction: column;
-  gap: 4px;
+  align-items: flex-start;
+  gap: 12px;
   position: relative;
   overflow: hidden;
+}
+
+.result-item-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.result-item-actions {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
 }
 
 .result-item::before {
@@ -496,6 +607,56 @@ function loadMoreResults() {
   color: var(--text-primary);
   white-space: pre-wrap;
   word-break: break-all;
+}
+
+/* 打开文件按钮样式 */
+.open-file-btn {
+  padding: 6px;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--accent-color);
+  border: none;
+  border-radius: 6px;
+  color: white;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+/* 打开图标样式 */
+.open-icon {
+  width: 16px;
+  height: 16px;
+  object-fit: contain;
+}
+
+.open-file-btn:hover:not(:disabled) {
+  background-color: var(--accent-hover);
+  box-shadow: 0 2px 8px rgba(57, 108, 216, 0.3);
+  transform: scale(1.05);
+}
+
+.open-file-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.open-file-btn.loading {
+  background-color: var(--accent-light);
+}
+
+/* 错误信息样式 */
+.error-message {
+  font-size: 12px;
+  color: #e74c3c;
+  margin-top: 4px;
+  padding: 4px 8px;
+  background-color: rgba(231, 76, 60, 0.1);
+  border-radius: 4px;
+  width: 100%;
 }
 
 .no-results,

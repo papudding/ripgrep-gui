@@ -1,5 +1,5 @@
 import { Module } from 'vuex';
-import type { RootState, ConfigState } from '../types';
+import type { RootState, ConfigState, FileAssociation } from '../types';
 import { saveConfig, loadConfig, validateConfig, mergeConfig } from '../utils/configUtils';
 
 // 配置模块
@@ -10,7 +10,8 @@ const configModule: Module<{ config: ConfigState }, RootState> = {
     historyPath: null,
     userConfig: {
       darkMode: window.matchMedia('(prefers-color-scheme: dark)').matches,
-      language: navigator.language
+      language: navigator.language,
+      fileAssociations: []
     }
   },
   mutations: {
@@ -43,6 +44,37 @@ const configModule: Module<{ config: ConfigState }, RootState> = {
      */
     updateUserConfig(state: ConfigState, userConfig: Partial<ConfigState['userConfig']>) {
       state.userConfig = { ...state.userConfig, ...userConfig };
+    },
+    
+    /**
+     * 设置文件关联配置
+     */
+    setFileAssociations(state: ConfigState, fileAssociations: FileAssociation[]) {
+      state.userConfig.fileAssociations = fileAssociations;
+    },
+    
+    /**
+     * 添加文件关联
+     */
+    addFileAssociation(state: ConfigState, fileAssociation: FileAssociation) {
+      state.userConfig.fileAssociations.push(fileAssociation);
+    },
+    
+    /**
+     * 更新文件关联
+     */
+    updateFileAssociation(state: ConfigState, { extension, appPath }: FileAssociation) {
+      const index = state.userConfig.fileAssociations.findIndex(assoc => assoc.extension === extension);
+      if (index !== -1) {
+        state.userConfig.fileAssociations[index] = { extension, appPath };
+      }
+    },
+    
+    /**
+     * 删除文件关联
+     */
+    removeFileAssociation(state: ConfigState, extension: string) {
+      state.userConfig.fileAssociations = state.userConfig.fileAssociations.filter(assoc => assoc.extension !== extension);
     }
   },
   actions: {
@@ -132,6 +164,30 @@ const configModule: Module<{ config: ConfigState }, RootState> = {
     async updateUserConfig({ commit, dispatch }, userConfig: Partial<ConfigState['userConfig']>) {
       commit('updateUserConfig', userConfig);
       await dispatch('saveConfigToFile');
+    },
+    
+    /**
+     * 更新文件关联配置
+     */
+    async updateFileAssociations({ commit, dispatch }, fileAssociations: FileAssociation[]) {
+      commit('setFileAssociations', fileAssociations);
+      await dispatch('saveConfigToFile');
+    },
+    
+    /**
+     * 添加文件关联
+     */
+    async addFileAssociation({ commit, dispatch }, fileAssociation: FileAssociation) {
+      commit('addFileAssociation', fileAssociation);
+      await dispatch('saveConfigToFile');
+    },
+    
+    /**
+     * 删除文件关联
+     */
+    async removeFileAssociation({ commit, dispatch }, extension: string) {
+      commit('removeFileAssociation', extension);
+      await dispatch('saveConfigToFile');
     }
   },
   getters: {
@@ -153,7 +209,12 @@ const configModule: Module<{ config: ConfigState }, RootState> = {
     /**
      * 获取用户配置
      */
-    getUserConfig: (state: ConfigState) => state.userConfig
+    getUserConfig: (state: ConfigState) => state.userConfig,
+    
+    /**
+     * 获取文件关联配置
+     */
+    getFileAssociations: (state: ConfigState) => state.userConfig.fileAssociations
   }
 };
 

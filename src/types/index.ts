@@ -56,6 +56,17 @@ export interface SearchHistory {
 }
 
 /**
+ * 文件关联类型定义
+ * 表示文件扩展名与默认应用的关联
+ */
+export interface FileAssociation {
+  /** 文件扩展名（不含点号） */
+  extension: string;
+  /** 默认应用程序路径 */
+  appPath: string;
+}
+
+/**
  * 用户配置类型定义
  * 表示用户基本配置信息
  */
@@ -64,6 +75,8 @@ export interface UserConfig {
   darkMode: boolean;
   /** 应用程序语言 */
   language: string;
+  /** 文件扩展名与默认应用的关联配置 */
+  fileAssociations: FileAssociation[];
 }
 
 /**

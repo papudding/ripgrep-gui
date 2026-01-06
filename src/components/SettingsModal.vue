@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref } from "vue";
+import { ref, computed } from "vue";
 import { useStore } from 'vuex';
 import { open } from '@tauri-apps/plugin-dialog';
 
@@ -21,6 +21,15 @@ const defaultSearchPath = ref(store.state.config.defaultSearchPath);
 const historyPath = ref(store.state.config.historyPath);
 const darkMode = ref(store.state.config.userConfig.darkMode);
 const language = ref(store.state.config.userConfig.language);
+
+// 文件关联配置
+const activeTab = ref('general'); // general, fileAssociations
+const fileAssociations = ref(store.state.config.userConfig.fileAssociations || []);
+const newFileAssociation = ref({ extension: '', appPath: '' });
+const editingAssociation = ref<{ extension: string; appPath: string } | null>(null);
+const fileAssociationFilter = ref('');
+const importExportError = ref('');
+const importExportSuccess = ref('');
 
 // 表单验证错误
 const errors = ref<Record<string, string>>({});
@@ -92,7 +101,8 @@ async function saveConfig() {
       historyPath: historyPath.value,
       userConfig: {
         darkMode: darkMode.value,
-        language: language.value
+        language: language.value,
+        fileAssociations: fileAssociations.value
       }
     });
     
@@ -114,6 +124,185 @@ async function saveConfig() {
 function closeModal() {
   emit('close');
 }
+
+// 添加文件关联
+function addFileAssociation() {
+  if (!newFileAssociation.value.extension.trim()) {
+    errors.value.extension = '扩展名不能为空';
+    return;
+  }
+  if (!newFileAssociation.value.appPath.trim()) {
+    errors.value.appPath = '应用路径不能为空';
+    return;
+  }
+  
+  // 检查是否已存在相同扩展名的关联
+  const existingIndex = fileAssociations.value.findIndex(
+    assoc => assoc.extension.toLowerCase() === newFileAssociation.value.extension.toLowerCase()
+  );
+  
+  if (existingIndex !== -1) {
+    // 更新现有关联
+    fileAssociations.value[existingIndex] = { ...newFileAssociation.value };
+  } else {
+    // 添加新关联
+    fileAssociations.value.push({ ...newFileAssociation.value });
+  }
+  
+  // 重置表单
+  newFileAssociation.value = { extension: '', appPath: '' };
+  delete errors.value.extension;
+  delete errors.value.appPath;
+}
+
+// 编辑文件关联
+function editFileAssociation(association: { extension: string; appPath: string }) {
+  editingAssociation.value = { ...association };
+}
+
+// 保存编辑的文件关联
+function saveEditedAssociation() {
+  if (!editingAssociation.value) return;
+  
+  if (!editingAssociation.value.extension.trim()) {
+    errors.value.editExtension = '扩展名不能为空';
+    return;
+  }
+  if (!editingAssociation.value.appPath.trim()) {
+    errors.value.editAppPath = '应用路径不能为空';
+    return;
+  }
+  
+  // 找到并更新关联
+  const index = fileAssociations.value.findIndex(
+    assoc => assoc.extension === editingAssociation.value!.extension
+  );
+  
+  if (index !== -1) {
+    fileAssociations.value[index] = { ...editingAssociation.value };
+  }
+  
+  // 关闭编辑模式
+  editingAssociation.value = null;
+  delete errors.value.editExtension;
+  delete errors.value.editAppPath;
+}
+
+// 取消编辑
+function cancelEdit() {
+  editingAssociation.value = null;
+  delete errors.value.editExtension;
+  delete errors.value.editAppPath;
+}
+
+// 删除文件关联
+function deleteFileAssociation(extension: string) {
+  fileAssociations.value = fileAssociations.value.filter(
+    assoc => assoc.extension !== extension
+  );
+}
+
+// 选择应用程序路径
+async function selectAppPath(type: 'new' | 'edit') {
+  try {
+    const selected = await open({
+      directory: false,
+      multiple: false,
+      title: '选择应用程序'
+    });
+    
+    if (selected && typeof selected === 'string') {
+      if (type === 'new') {
+        newFileAssociation.value.appPath = selected;
+        delete errors.value.appPath;
+      } else if (editingAssociation.value) {
+        editingAssociation.value.appPath = selected;
+        delete errors.value.editAppPath;
+      }
+    }
+  } catch (error) {
+    console.error('Failed to open file picker:', error);
+    alert('打开文件选择器失败，请检查应用权限');
+  }
+}
+
+// 过滤后的文件关联
+const filteredFileAssociations = computed(() => {
+  if (!fileAssociationFilter.value) {
+    return fileAssociations.value;
+  }
+  
+  const filter = fileAssociationFilter.value.toLowerCase();
+  return fileAssociations.value.filter(
+    assoc => assoc.extension.toLowerCase().includes(filter)
+  );
+});
+
+// 导出文件关联配置
+function exportFileAssociations() {
+  try {
+    const dataStr = JSON.stringify(fileAssociations.value, null, 2);
+    const dataBlob = new Blob([dataStr], { type: 'application/json' });
+    const url = URL.createObjectURL(dataBlob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = 'file-associations.json';
+    link.click();
+    URL.revokeObjectURL(url);
+    
+    importExportSuccess.value = '文件关联配置导出成功';
+    setTimeout(() => {
+      importExportSuccess.value = '';
+    }, 3000);
+  } catch (error) {
+    console.error('Failed to export file associations:', error);
+    importExportError.value = '导出失败: ' + (error instanceof Error ? error.message : String(error));
+    setTimeout(() => {
+      importExportError.value = '';
+    }, 3000);
+  }
+}
+
+// 导入文件关联配置
+function importFileAssociations() {
+  const input = document.createElement('input');
+  input.type = 'file';
+  input.accept = '.json';
+  
+  input.onchange = async (e) => {
+    const target = e.target as HTMLInputElement;
+    if (!target.files || target.files.length === 0) return;
+    
+    try {
+      const file = target.files[0];
+      const text = await file.text();
+      const importedAssociations = JSON.parse(text);
+      
+      if (Array.isArray(importedAssociations)) {
+        // 验证导入的数据格式
+        const validAssociations = importedAssociations.filter(
+          (assoc: any) => assoc.extension && assoc.appPath
+        );
+        
+        fileAssociations.value = validAssociations;
+        importExportSuccess.value = '文件关联配置导入成功';
+        setTimeout(() => {
+          importExportSuccess.value = '';
+        }, 3000);
+      } else {
+        throw new Error('无效的文件格式');
+      }
+    } catch (error) {
+      console.error('Failed to import file associations:', error);
+      importExportError.value = '导入失败: ' + (error instanceof Error ? error.message : String(error));
+      setTimeout(() => {
+        importExportError.value = '';
+      }, 3000);
+    }
+  };
+  
+  input.click();
+}
 </script>
 
 <template>
@@ -126,8 +315,25 @@ function closeModal() {
         </button>
       </div>
       
+      <div class="modal-tabs">
+        <button 
+          @click="activeTab = 'general'"
+          class="tab-btn"
+          :class="{ active: activeTab === 'general' }"
+        >
+          基本设置
+        </button>
+        <button 
+          @click="activeTab = 'fileAssociations'"
+          class="tab-btn"
+          :class="{ active: activeTab === 'fileAssociations' }"
+        >
+          文件关联
+        </button>
+      </div>
+      
       <div class="modal-content">
-        <form class="settings-form">
+        <form v-if="activeTab === 'general'" class="settings-form">
           <!-- 默认搜索路径 -->
           <div class="form-group">
             <label for="defaultSearchPath" class="form-label">默认搜索路径</label>
@@ -209,6 +415,161 @@ function closeModal() {
           </div>
         </form>
         
+        <!-- 文件关联配置 -->
+        <div v-else-if="activeTab === 'fileAssociations'" class="file-associations-tab">
+          <!-- 导入/导出按钮 -->
+          <div class="import-export-buttons">
+            <button @click="importFileAssociations" class="import-btn">
+              导入配置
+            </button>
+            <button @click="exportFileAssociations" class="export-btn">
+              导出配置
+            </button>
+          </div>
+          
+          <!-- 导入/导出状态消息 -->
+          <div v-if="importExportSuccess" class="success-message">
+            {{ importExportSuccess }}
+          </div>
+          <div v-if="importExportError" class="error-message">
+            {{ importExportError }}
+          </div>
+          
+          <!-- 文件关联搜索 -->
+          <div class="file-association-search">
+            <input
+              v-model="fileAssociationFilter"
+              type="text"
+              class="form-input"
+              placeholder="搜索扩展名..."
+            />
+          </div>
+          
+          <!-- 添加文件关联表单 -->
+          <div class="add-file-association-form">
+            <h3>添加文件关联</h3>
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label">扩展名</label>
+                <input
+                  v-model="newFileAssociation.extension"
+                  type="text"
+                  class="form-input"
+                  placeholder="例如：txt"
+                />
+                <div v-if="errors.extension" class="error-message">
+                  {{ errors.extension }}
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="form-label">默认应用</label>
+                <div class="input-with-button">
+                  <input
+                    v-model="newFileAssociation.appPath"
+                    type="text"
+                    class="form-input"
+                    placeholder="选择应用程序"
+                  />
+                  <button 
+                    type="button" 
+                    @click="selectAppPath('new')"
+                    class="path-select-btn"
+                  >
+                    选择
+                  </button>
+                </div>
+                <div v-if="errors.appPath" class="error-message">
+                  {{ errors.appPath }}
+                </div>
+              </div>
+              <div class="form-group add-button-group">
+                <label class="form-label">&nbsp;</label>
+                <button 
+                  type="button" 
+                  @click="addFileAssociation"
+                  class="add-btn"
+                >
+                  添加
+                </button>
+              </div>
+            </div>
+          </div>
+          
+          <!-- 文件关联列表 -->
+          <div class="file-associations-list">
+            <h3>已配置的文件关联</h3>
+            <div v-if="filteredFileAssociations.length === 0" class="no-associations">
+              <p>暂无文件关联配置</p>
+            </div>
+            <table v-else class="associations-table">
+              <thead>
+                <tr>
+                  <th>扩展名</th>
+                  <th>默认应用</th>
+                  <th>操作</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr v-for="association in filteredFileAssociations" :key="association.extension">
+                  <td v-if="!editingAssociation || editingAssociation.extension !== association.extension">
+                    {{ association.extension }}
+                  </td>
+                  <td v-else>
+                    <input
+                      v-model="editingAssociation.extension"
+                      type="text"
+                      class="form-input"
+                    />
+                    <div v-if="errors.editExtension" class="error-message">
+                      {{ errors.editExtension }}
+                    </div>
+                  </td>
+                  <td v-if="!editingAssociation || editingAssociation.extension !== association.extension">
+                    {{ association.appPath }}
+                  </td>
+                  <td v-else>
+                    <div class="input-with-button">
+                      <input
+                        v-model="editingAssociation.appPath"
+                        type="text"
+                        class="form-input"
+                      />
+                      <button 
+                        type="button" 
+                        @click="selectAppPath('edit')"
+                        class="path-select-btn"
+                      >
+                        选择
+                      </button>
+                    </div>
+                    <div v-if="errors.editAppPath" class="error-message">
+                      {{ errors.editAppPath }}
+                    </div>
+                  </td>
+                  <td>
+                    <div v-if="!editingAssociation || editingAssociation.extension !== association.extension" class="association-actions">
+                      <button @click="editFileAssociation(association)" class="edit-btn">
+                        编辑
+                      </button>
+                      <button @click="deleteFileAssociation(association.extension)" class="delete-btn">
+                        删除
+                      </button>
+                    </div>
+                    <div v-else class="edit-actions">
+                      <button @click="saveEditedAssociation" class="save-btn">
+                        保存
+                      </button>
+                      <button @click="cancelEdit" class="cancel-btn">
+                        取消
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        
         <!-- 保存状态 -->
         <div v-if="saveSuccess" class="success-message">
           配置保存成功！
@@ -248,6 +609,36 @@ function closeModal() {
   justify-content: center;
   z-index: 1000;
   animation: fadeIn 0.3s ease;
+}
+
+/* 标签页样式 */
+.modal-tabs {
+  display: flex;
+  border-bottom: 1px solid var(--border-color);
+  background-color: var(--bg-secondary);
+}
+
+.tab-btn {
+  padding: 12px 20px;
+  background-color: transparent;
+  border: none;
+  border-bottom: 2px solid transparent;
+  color: var(--text-secondary);
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.tab-btn:hover {
+  color: var(--text-primary);
+  background-color: var(--bg-hover);
+}
+
+.tab-btn.active {
+  color: var(--accent-color);
+  border-bottom-color: var(--accent-color);
+  background-color: var(--bg-primary);
 }
 
 /* 模态对话框 */
@@ -529,6 +920,187 @@ function closeModal() {
   cursor: not-allowed;
 }
 
+/* 文件关联配置标签页样式 */
+.file-associations-tab {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* 导入/导出按钮 */
+.import-export-buttons {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+
+.import-btn,
+.export-btn {
+  padding: 8px 16px;
+  background-color: var(--bg-primary);
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  color: var(--text-primary);
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.import-btn:hover,
+.export-btn:hover {
+  background-color: var(--bg-hover);
+  border-color: var(--border-hover);
+}
+
+/* 文件关联搜索 */
+.file-association-search {
+  margin-bottom: 10px;
+}
+
+/* 添加文件关联表单 */
+.add-file-association-form {
+  background-color: var(--bg-secondary);
+  padding: 16px;
+  border-radius: 8px;
+  border: 1px solid var(--border-color);
+}
+
+.add-file-association-form h3,
+.file-associations-list h3 {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 0 0 16px 0;
+}
+
+.form-row {
+  display: flex;
+  gap: 12px;
+  align-items: flex-end;
+}
+
+.form-row .form-group {
+  flex: 1;
+}
+
+.add-button-group {
+  min-width: 80px;
+}
+
+.add-btn {
+  padding: 10px 16px;
+  background-color: var(--accent-color);
+  border: none;
+  border-radius: 6px;
+  color: white;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  width: 100%;
+}
+
+.add-btn:hover {
+  background-color: var(--accent-hover);
+  box-shadow: 0 2px 8px rgba(57, 108, 216, 0.2);
+}
+
+/* 文件关联列表 */
+.file-associations-list {
+  background-color: var(--bg-secondary);
+  padding: 16px;
+  border-radius: 8px;
+  border: 1px solid var(--border-color);
+}
+
+.no-associations {
+  text-align: center;
+  padding: 40px 20px;
+  color: var(--text-secondary);
+}
+
+.associations-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 10px;
+}
+
+.associations-table th,
+.associations-table td {
+  padding: 12px;
+  text-align: left;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.associations-table th {
+  background-color: var(--bg-primary);
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.associations-table tr:hover {
+  background-color: var(--bg-hover);
+}
+
+/* 操作按钮 */
+.association-actions,
+.edit-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.edit-btn,
+.delete-btn,
+.save-btn,
+.cancel-btn {
+  padding: 6px 12px;
+  border: none;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.edit-btn {
+  background-color: var(--accent-light);
+  color: var(--accent-color);
+}
+
+.edit-btn:hover {
+  background-color: var(--accent-color);
+  color: white;
+}
+
+.delete-btn {
+  background-color: rgba(231, 76, 60, 0.1);
+  color: #e74c3c;
+}
+
+.delete-btn:hover {
+  background-color: #e74c3c;
+  color: white;
+}
+
+.save-btn {
+  background-color: var(--accent-color);
+  color: white;
+}
+
+.save-btn:hover {
+  background-color: var(--accent-hover);
+}
+
+.cancel-btn {
+  background-color: var(--bg-primary);
+  border: 1px solid var(--border-color);
+  color: var(--text-primary);
+}
+
+.cancel-btn:hover {
+  background-color: var(--bg-hover);
+}
+
 /* 响应式设计 */
 @media (max-width: 768px) {
   .settings-modal {
@@ -543,6 +1115,33 @@ function closeModal() {
   }
   
   .input-with-button {
+    flex-direction: column;
+  }
+  
+  .form-row {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .add-button-group {
+    min-width: unset;
+  }
+  
+  .import-export-buttons {
+    flex-direction: column;
+  }
+  
+  .associations-table {
+    font-size: 12px;
+  }
+  
+  .associations-table th,
+  .associations-table td {
+    padding: 8px;
+  }
+  
+  .association-actions,
+  .edit-actions {
     flex-direction: column;
   }
 }
