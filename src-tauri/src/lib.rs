@@ -1,3 +1,4 @@
+use std::f64::consts::E;
 // Learn more about Tauri commands at https://tauri.app/develop/calling-rust/
 use std::process::Command;
 use std::str::from_utf8;
@@ -31,7 +32,9 @@ async fn search(
     let mut cmd = Command::new("rg");
 
     // 添加搜索模式
-    cmd.arg(pattern);
+    if !regex {
+        cmd.arg(pattern);
+    }
 
     // 添加搜索路径
     cmd.arg(path);
@@ -46,10 +49,11 @@ async fn search(
     }
 
     if regex {
-        cmd.arg("-E");
-    }
+        cmd.arg("-e");
+        cmd.arg(pattern);
+    } 
 
-    if ignore_hidden {
+    if !ignore_hidden {
         cmd.arg("--hidden");
     }
 
@@ -243,12 +247,10 @@ async fn search_filename(
 
         // 解析输出
         let stdout = from_utf8(&output.stdout).unwrap_or("");
-        println!("{}", stdout);
         for line in stdout.lines() {
             if results.len() >= MAX_RESULTS {
                 break;
             }
-            println!("{}", line);
 
             // 清理行尾换行符和空格
             let file_path = line.trim();

@@ -94,8 +94,23 @@ const historyModule: Module<Partial<HistoryState>, RootState> = {
         
         if (fileExists) {
           const historyData = await readTextFile(filePath);
-          const history: SearchHistory[] = JSON.parse(historyData);
+          let history: SearchHistory[] = JSON.parse(historyData);
+          
+          // 数据验证和过滤
+          history = history.filter(item => {
+            return item && 
+                   typeof item.id === 'string' && 
+                   typeof item.pattern === 'string' && 
+                   typeof item.path === 'string' && 
+                   typeof item.options === 'object' && 
+                   typeof item.timestamp === 'number';
+          });
+          
+          // 按照时间戳降序排序（最新的在前）
+          history.sort((a, b) => b.timestamp - a.timestamp);
+          
           commit('setSearchHistory', history);
+          console.log(`成功加载 ${history.length} 条搜索历史记录`, history);
         } else {
           console.warn('搜索历史文件不存在，使用默认值');
         }

@@ -248,7 +248,7 @@ onMounted(() => {
 
 /* 历史记录项 */
 .history-item {
-  padding: 12px 16px;
+  padding: 12px 16px 12px 16px;
   background-color: var(--bg-secondary);
   border: 1px solid var(--border-color);
   border-radius: 6px;
@@ -259,6 +259,7 @@ onMounted(() => {
   gap: 4px;
   position: relative;
   overflow: hidden;
+  min-height: 90px;
 }
 
 .history-item::before {
@@ -306,9 +307,12 @@ onMounted(() => {
 }
 
 .history-options {
+  position: absolute;
+  top: 8px;
+  right: 8px;
   display: flex;
   gap: 4px;
-  margin-top: 4px;
+  z-index: 1;
 }
 
 .option-tag {

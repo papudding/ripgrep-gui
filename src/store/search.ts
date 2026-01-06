@@ -104,10 +104,11 @@ const searchModule: Module<Partial<SearchState>, RootState> = {
         
         // 添加到搜索历史前检查是否与所有历史记录重复
         // 重复判断标准：pattern、path和options完全相同
+        // 注意：这里需要创建options的深拷贝，避免历史记录受后续选项修改的影响
         const newSearchConfig = {
           pattern: state.searchPattern,
           path: state.searchPath,
-          options: state.searchOptions
+          options: JSON.parse(JSON.stringify(state.searchOptions))
         };
         
         // 优化查询：使用some()方法，找到重复项后立即返回，避免遍历所有记录

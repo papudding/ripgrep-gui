@@ -136,16 +136,16 @@ ripgrep-gui 的配置文件会自动创建和管理，默认存储在以下位�
 
 1. ✅ bug:没搜索到报错弹窗重复
 2. ✅ feat:高亮
-3. 🔧 feat:整体样式 重构
+3. ✅ feat:整体样式 重构
 4. ✅ refactor:拆分文件
 5. 🔧 bug:HTML文件不预览 
 6. ✅ feat:历史记录持久化
 7. 🔧 feat:i18n（国际化支持）
 8. 🔧 feat:图标更换
-9. 🔧 feat:快速打开文件
+9. ✅ feat:快速打开文件
 10. ✅ feat:Windows 系统适配
 11. 🔧 feat:内部集成 ripgrep
-12. 🔧 feat:用户配置修改
+12. ✅ feat:用户配置修改
 13. 🔧 feat:二进制文件预览
 
 标记说明：

@@ -1,0 +1,25 @@
+{
+  "$schema": "../gen/schemas/desktop-schema.json",
+  "identifier": "opener-windows",
+  "description": "Opener capabilities for Windows",
+  "windows": ["main"],
+  "permissions": [
+    "opener:default",
+    {
+      "identifier": "opener:allow-open-path",
+       "allow": [
+        {"path": "C:\\**"},
+        {"path": "D:\\**"},
+        {"path": "E:\\**"},
+        {"path": "F:\\**"},
+        {"path": "G:\\**"},
+        {"path": "H:\\**"}
+      ],
+      "deny": [
+        {"path": "C:\\Windows\\**"},
+        {"path": "C:\\ProgramData\\**"}
+      ]
+    }
+  ],
+  "platforms": ["windows"]
+}
