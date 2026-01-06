@@ -65,7 +65,7 @@ ripgrep-gui is a graphical interface search tool built on the command-line tool 
 1. **Clone the project**
 
    ```bash
-   git clone https://github.com/yourusername/ripgrep-gui.git
+   git clone https://github.com/papudding/ripgrep-gui.git
    cd ripgrep-gui
    ```
 
@@ -111,7 +111,8 @@ The configuration file uses JSON format and contains the following main configur
   "historyPath": "/Users/yourusername/.config/ripgrep-gui/history",
   "userConfig": {
     "darkMode": true,
-    "language": "en-US"
+    "language": "en-US",
+    "fileAssociations": []
   }
 }
 ```
@@ -120,9 +121,10 @@ The configuration file uses JSON format and contains the following main configur
 
 - `defaultSearchPath`: Default search path, set to the user's home directory on first launch
 - `historyPath`: Search history storage path
-- `userConfig`: User configuration (not yet used)
+- `userConfig`: User configuration
   - `darkMode`: Whether to enable dark mode (default is automatically determined based on system theme) (not yet used)
   - `language`: Application language (default uses browser language) (not yet used)
+  - `fileAssociations`: File extension to default application associations
 
 ### Configuration File Management
 
@@ -141,7 +143,7 @@ The following is the project's development plan and to-do items:
 5. 🔧 bug: HTML files not previewing
 6. ✅ feat: History persistence
 7. 🔧 feat: i18n (internationalization support)
-8. 🔧 feat: Icon replacement
+8. ✅ feat: Icon replacement
 9. ✅ feat: Quick file opening
 10. ✅ feat: Windows system adaptation
 11. 🔧 feat: Internal ripgrep integration

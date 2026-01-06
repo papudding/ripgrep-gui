@@ -183,8 +183,15 @@ async fn search_filename(
             // 检查是否为隐藏文件
             let is_hidden = if cfg!(target_os = "windows") {
                 // Windows: 检查文件属性
-                use std::os::windows::fs::MetadataExt;
-                metadata.file_attributes() & 2 != 0 // FILE_ATTRIBUTE_HIDDEN
+                #[cfg(target_os = "windows")]
+                {
+                    use std::os::windows::fs::MetadataExt;
+                    metadata.file_attributes() & 2 != 0 // FILE_ATTRIBUTE_HIDDEN
+                }
+                #[cfg(not(target_os = "windows"))]
+                {
+                    false
+                }
             } else {
                 // Unix-like: 检查文件名是否以点开头
                 filename.starts_with('.')
@@ -259,6 +266,7 @@ async fn open_file_with_app(file_path: &str, app: &str) -> Result<(), String> {
             cmd.arg(file_path);
             
             // Windows系统：设置隐藏窗口标志
+            #[cfg(target_os = "windows")]
             cmd.creation_flags(CREATE_NO_WINDOW);
             
             cmd.output()

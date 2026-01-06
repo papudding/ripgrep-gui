@@ -75,7 +75,10 @@ onMounted(() => {
 <template>
   <div class="search-config">
     <div class="search-header">
-      <h1>ripgrep GUI</h1>
+      <h1>
+        <img src="../../src-tauri/icons/icon.png" alt="Icon" class="app-icon">
+        ripgrep GUI
+      </h1>
       <button 
         @click="$emit('toggleSettings')" 
         class="settings-btn"
@@ -208,6 +211,16 @@ onMounted(() => {
   font-weight: 600;
   margin: 0 0 16px 0;
   color: var(--text-primary);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.app-icon {
+  width: 50px;
+  height: 50px;
+  border-radius: 6px;
+  object-fit: cover;
 }
 
 .search-input-section {
@@ -254,6 +267,12 @@ onMounted(() => {
   .search-header h1 {
     font-size: 20px;
     margin-bottom: 12px;
+    gap: 10px;
+  }
+  
+  .app-icon {
+    width: 24px;
+    height: 24px;
   }
   
   .search-input-group {
@@ -278,6 +297,7 @@ onMounted(() => {
   color: var(--text-primary);
   font-size: 14px;
   transition: all 0.2s ease;
+  width: 100%;
 }
 
 .search-input:focus {

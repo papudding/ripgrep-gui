@@ -65,7 +65,7 @@ ripgrep-gui 是一个图形界面搜索工具，基于命令行工具 ripgrep (r
 1. **克隆项目**
 
    ```bash
-   git clone https://github.com/yourusername/ripgrep-gui.git
+   git clone https://github.com/papudding/ripgrep-gui.git
    cd ripgrep-gui
    ```
 
@@ -111,7 +111,8 @@ ripgrep-gui 的配置文件会自动创建和管理，默认存储在以下位�
   "historyPath": "/Users/yourusername/.config/ripgrep-gui/history",
   "userConfig": {
     "darkMode": true,
-    "language": "zh-CN"
+    "language": "zh-CN",
+    "fileAssociations": []
   }
 }
 ```
@@ -120,9 +121,10 @@ ripgrep-gui 的配置文件会自动创建和管理，默认存储在以下位�
 
 - `defaultSearchPath`: 默认搜索路径，首次启动时设置为用户主目录
 - `historyPath`: 搜索历史记录存储路径
-- `userConfig`: 用户配置（暂未使用）
+- `userConfig`: 用户配置
   - `darkMode`: 是否启用深色模式（默认根据系统主题自动判断）（暂未使用）
   - `language`: 应用程序语言（默认使用浏览器语言）（暂未使用）
+  - `fileAssociations`: 文件扩展名与默认应用的关联配置
 
 ### 配置文件管理
 
@@ -141,7 +143,7 @@ ripgrep-gui 的配置文件会自动创建和管理，默认存储在以下位�
 5. 🔧 bug:HTML文件不预览 
 6. ✅ feat:历史记录持久化
 7. 🔧 feat:i18n（国际化支持）
-8. 🔧 feat:图标更换
+8. ✅ feat:图标更换
 9. ✅ feat:快速打开文件
 10. ✅ feat:Windows 系统适配
 11. 🔧 feat:内部集成 ripgrep
