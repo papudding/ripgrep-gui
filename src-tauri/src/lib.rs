@@ -2,6 +2,14 @@
 use std::process::Command;
 use std::str::from_utf8;
 
+// 导入Windows特定的process扩展
+#[cfg(target_os = "windows")]
+use std::os::windows::process::CommandExt;
+
+// Windows特定的创建标志，用于隐藏控制台窗口
+#[cfg(target_os = "windows")]
+const CREATE_NO_WINDOW: u32 = 0x08000000;
+
 // 搜索结果结构
 #[derive(serde::Serialize)]
 struct SearchResult {
@@ -180,6 +188,10 @@ async fn search_filename(
         cmd.arg("-Command");
         cmd.arg(search_cmd);
 
+        // Windows系统：设置隐藏窗口标志
+        #[cfg(target_os = "windows")]
+        cmd.creation_flags(CREATE_NO_WINDOW);
+
         // 执行命令
         let output = match cmd.output() {
             Ok(output) => output,
@@ -188,11 +200,12 @@ async fn search_filename(
 
         // 解析输出
         let stdout = from_utf8(&output.stdout).unwrap_or("");
+        println!("{}", stdout);
         for line in stdout.lines() {
             if results.len() >= MAX_RESULTS {
                 break;
             }
-
+            println!("{}", line);
             // 清理行尾换行符和空格
             let file_path = line.trim();
             if !file_path.is_empty() {
@@ -279,6 +292,10 @@ async fn open_file_with_app(file_path: &str, app: &str) -> Result<(), String> {
             cmd.arg(""); // 空标题
             cmd.arg(app);
             cmd.arg(file_path);
+            
+            // Windows系统：设置隐藏窗口标志
+            cmd.creation_flags(CREATE_NO_WINDOW);
+            
             cmd.output()
         },
         // macOS系统：使用open -a命令
