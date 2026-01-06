@@ -1,4 +1,3 @@
-use std::f64::consts::E;
 // Learn more about Tauri commands at https://tauri.app/develop/calling-rust/
 use std::process::Command;
 use std::str::from_utf8;

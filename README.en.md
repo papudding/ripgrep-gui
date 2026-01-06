@@ -8,6 +8,8 @@ A cross-platform ripgrep graphical interface application developed with Tauri + 
 
 ripgrep-gui is a graphical interface search tool built on the command-line tool ripgrep (rg). It provides a GUI interface that allows users to easily configure search options, view search results, and preview file contents.
 
+<img width="789" height="968" alt="Snipaste_2025-12-31_18-02-51" src="https://github.com/user-attachments/assets/a05e1636-dddf-484c-bcaf-cc54139e010b" />
+
 
 ### Main Features
 
@@ -134,16 +136,20 @@ The following is the project's development plan and to-do items:
 
 1. ✅ bug: Duplicate error popups when no results found
 2. ✅ feat: Highlighting
-3. 🔧 feat: Overall style refactoring
+3. ✅ feat: Overall style refactoring
 4. ✅ refactor: Split files
 5. 🔧 bug: HTML files not previewing
 6. ✅ feat: History persistence
 7. 🔧 feat: i18n (internationalization support)
 8. 🔧 feat: Icon replacement
-9. 🔧 feat: Quick file opening
-10. 🔧 feat: Windows system adaptation
+9. ✅ feat: Quick file opening
+10. ✅ feat: Windows system adaptation
 11. 🔧 feat: Internal ripgrep integration
-12. 🔧 feat: User configuration modification
+12. ✅ feat: User configuration modification
+13. 🔧 feat: Binary file preview (pdf/docx, etc.)
+14. 🔧 feat: Dark mode
+15. 🔧 feat: File association extensions multiple in one configuration
+16. 🔧 feat: Page style experience optimization - eliminate excess scrollbars
 
 Marking instructions:
 - ✅ Completed
