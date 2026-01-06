@@ -98,7 +98,7 @@ The ripgrep-gui configuration file is automatically created and managed, and is 
 
 **Windows systems:**
 ```
-%APPDATA%\ripgrep-gui\config.json
+%APPDATA%\com.papudding.ripgrep-gui\config.json
 ```
 
 ### Configuration File Content Format

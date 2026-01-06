@@ -98,7 +98,7 @@ ripgrep-gui 的配置文件会自动创建和管理，默认存储在以下位�
 
 **Windows 系统：**
 ```
-%APPDATA%\ripgrep-gui\config.json
+%APPDATA%\com.papudding.ripgrep-gui\config.json
 ```
 
 ### 配置文件内容格式
