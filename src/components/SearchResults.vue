@@ -5,6 +5,7 @@ import type { SearchResult } from '../types';
 import { highlightMatch } from '../utils/highlight';
 import Pagination from './Pagination.vue';
 import { openPath } from '@tauri-apps/plugin-opener';
+import { platform } from '@tauri-apps/plugin-os';
 
 const store = useStore();
 
@@ -213,6 +214,51 @@ async function openFile(result: SearchResult, event: MouseEvent) {
     loadingFiles.value[filePath] = false;
   }
 }
+
+// 在文件系统中打开文件或文件夹
+async function openInFileSystem(result: SearchResult, event: MouseEvent) {
+  // 阻止事件冒泡，避免触发选择结果的操作
+  event.stopPropagation();
+  
+  const filePath = result.file;
+  
+  // 清除之前的错误信息
+  delete errorMessages.value[filePath];
+  
+  // 设置加载状态
+  loadingFiles.value[filePath] = true;
+  
+  try {
+    // 获取当前操作系统平台
+    const currentPlatform = await platform();
+    
+    // 根据平台获取文件路径的上级目录
+    let directoryPath: string;
+    if (currentPlatform === 'windows') {
+      // Windows 系统使用反斜杠作为路径分隔符
+      const lastSlashIndex = filePath.lastIndexOf('\\');
+      directoryPath = lastSlashIndex !== -1 ? filePath.substring(0, lastSlashIndex) : filePath;
+    } else {
+      // macOS 和 Linux 系统使用正斜杠作为路径分隔符
+      const lastSlashIndex = filePath.lastIndexOf('/');
+      directoryPath = lastSlashIndex !== -1 ? filePath.substring(0, lastSlashIndex) : filePath;
+    }
+    
+    // 使用 Tauri 的 openPath API 在文件系统中打开目录
+    await openPath(directoryPath);
+  } catch (error) {
+    console.error('Failed to open in file system:', error);
+    errorMessages.value[filePath] = `在文件系统中打开失败: ${error instanceof Error ? error.message : String(error)}`;
+    
+    // 3秒后清除错误信息
+    setTimeout(() => {
+      delete errorMessages.value[filePath];
+    }, 3000);
+  } finally {
+    // 清除加载状态
+    loadingFiles.value[filePath] = false;
+  }
+}
 </script>
 
 <template>
@@ -308,6 +354,18 @@ async function openFile(result: SearchResult, event: MouseEvent) {
             >
               <span v-if="!loadingFiles[result.file]">
                 <img src="/app.svg" alt="打开" class="open-icon" />
+              </span>
+              <span v-else>⏳</span>
+            </button>
+            <button 
+              @click="openInFileSystem(result, $event)"
+              class="open-file-btn"
+              :disabled="loadingFiles[result.file]"
+              :class="{ 'loading': loadingFiles[result.file] }"
+              title="在文件系统中打开"
+            >
+              <span v-if="!loadingFiles[result.file]">
+                <img src="/folder.svg" alt="文件系统打开" class="open-icon" />
               </span>
               <span v-else>⏳</span>
             </button>
@@ -625,6 +683,7 @@ async function openFile(result: SearchResult, event: MouseEvent) {
   cursor: pointer;
   transition: all 0.2s ease;
 }
+
 
 /* 打开图标样式 */
 .open-icon {

@@ -152,6 +152,7 @@ The following is the project's development plan and to-do items:
 14. 🔧 feat: Dark mode
 15. 🔧 feat: File association extensions multiple in one configuration
 16. 🔧 feat: Page style experience optimization - eliminate excess scrollbars
+17. ✅ feat: Open directory in file system
 
 Marking instructions:
 - ✅ Completed
