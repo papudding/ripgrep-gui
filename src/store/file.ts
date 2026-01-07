@@ -4,6 +4,9 @@ import type { FileState, RootState } from '../types';
 // 导入Tauri fs相关API
 import { readTextFile } from '@tauri-apps/plugin-fs';
 
+// 导入非文本文件扩展名列表
+import { nonTextFileExtensions } from '../utils/fileTypes';
+
 // 文件相关的状态管理模块
 const fileModule: Module<Partial<FileState>, RootState> = {
   namespaced: true,
@@ -28,6 +31,15 @@ const fileModule: Module<Partial<FileState>, RootState> = {
       commit('setIsLoadingFile', true);
       
       try {
+        // 检查文件类型，排除非文本文件类型
+        
+        const fileExtension = filePath.toLowerCase().substring(filePath.lastIndexOf('.'));
+        
+        if (nonTextFileExtensions.includes(fileExtension)) {
+          commit('setFileContent', '该文件暂不支持预览');
+          return;
+        }
+        
         // 读取文件内容
         const content = await readTextFile(filePath);
         
