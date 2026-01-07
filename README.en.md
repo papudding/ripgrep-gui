@@ -35,15 +35,16 @@ ripgrep-gui is a graphical interface search tool built on the command-line tool 
 
 ## 2. Installation and Setup
 ### 2.1 Prerequisites
-- **ripgrep**: Ensure the ripgrep tool is installed on your system (core search engine)
+- **ripgrep**: This project relies on the ripgrep tool to provide core search functionality. It is recommended to install the latest version of ripgrep yourself.
   **Verification Method**: Open a terminal/command line tool and run the following command to check if it's installed:
     ```bash
     rg --version
     ```
-    If it displays a version number (e.g., `ripgrep 15.1.0`), it means it's already installed; otherwise, you need to install it.
+    If it displays a version number (e.g., `ripgrep 15.1.0`), it means it's already installed.
+  If not installed, the project's built-in ripgrep version (current: 15.1.0) will be used.
 ### 2.2 Installer Installation
-1. Download the installer from the release page
-2. Compile and install, refer to 3. Development Configuration
+1. Download the installer from the [release page](https://github.com/papudding/ripgrep-gui/releases)
+2. Or: Compile and install, refer to 3. Development Configuration
 
 ## 3. Development Configuration
 ### Prerequisites
@@ -140,15 +141,15 @@ The following is the project's development plan and to-do items:
 2. ✅ feat: Highlighting
 3. ✅ feat: Overall style refactoring
 4. ✅ refactor: Split files
-5. 🔧 bug: HTML files not previewing
+5. ✅ bug: HTML files not previewing
 6. ✅ feat: History persistence
 7. 🔧 feat: i18n (internationalization support)
 8. ✅ feat: Icon replacement
 9. ✅ feat: Quick file opening
 10. ✅ feat: Windows system adaptation
-11. 🔧 feat: Internal ripgrep integration
+11. ✅ feat: Internal ripgrep integration
 12. ✅ feat: User configuration modification
-13. 🔧 feat: Binary file preview (pdf/docx, etc.)
+13. ❌ feat: Binary file preview (pdf/docx, etc.)
 14. 🔧 feat: Dark mode
 15. 🔧 feat: File association extensions multiple in one configuration
 16. 🔧 feat: Page style experience optimization - eliminate excess scrollbars
@@ -157,6 +158,7 @@ The following is the project's development plan and to-do items:
 Marking instructions:
 - ✅ Completed
 - 🔧 To be completed
+- ❌ Canceled
 
 ## 6. Acknowledgments
 
