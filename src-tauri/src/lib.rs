@@ -26,15 +26,14 @@ struct SearchResult {
 /// 检测系统是否安装了 rg (ripgrep) 工具
 fn check_rg_availability() -> bool {
     // 尝试执行 rg --version 命令来检测系统是否安装了 rg 工具
-    let output = Command::new("rg")
-        .creation_flags(if cfg!(target_os = "windows") {
-            CREATE_NO_WINDOW
-        } else {
-            0
-        })
-        .arg("--version")
-        .output();
-
+    let mut cmd = Command::new("rg");
+    
+    // 只在 Windows 系统上设置隐藏窗口标志
+    #[cfg(target_os = "windows")]
+    cmd.creation_flags(CREATE_NO_WINDOW);
+    
+    let output = cmd.arg("--version").output();
+    
     match output {
         Ok(output) => output.status.success(),
         Err(_) => false, // 命令执行失败，说明系统没有安装 rg 工具
