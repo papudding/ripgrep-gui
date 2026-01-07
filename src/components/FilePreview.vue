@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref } from "vue";
+import { computed, ref, watch } from "vue";
 import { useStore } from 'vuex';
 import { highlightMatch } from '../utils/highlight';
 
@@ -29,6 +29,44 @@ const handleScroll = () => {
     lineNumbersRef.value.scrollTop = codeContentRef.value.scrollTop;
   }
 };
+
+// 滚动到指定行
+const scrollToLine = (lineNumber: number) => {
+  // 使用setTimeout确保所有DOM元素都已渲染完成
+  setTimeout(() => {
+    if (codeContentRef.value) {
+      // 通过data-line属性查找行元素
+      const lineElement = codeContentRef.value.querySelector(`[data-line="${lineNumber}"]`) as HTMLElement;
+      if (lineElement) {
+        // 计算滚动位置，使目标行居中显示
+        const containerHeight = codeContentRef.value.clientHeight;
+        const lineTop = lineElement.offsetTop;
+        const lineHeight = lineElement.clientHeight;
+        const scrollPosition = lineTop - (containerHeight / 2) + (lineHeight / 2);
+        
+        // 平滑滚动
+        codeContentRef.value.scrollTo({
+          top: Math.max(0, scrollPosition),
+          behavior: 'smooth'
+        });
+      }
+    }
+  }, 100); // 增加100ms延迟，确保DOM渲染完成
+};
+
+// 监听selectedResult变化，滚动到对应行
+watch(selectedResult, (newResult) => {
+  if (newResult && newResult.line) {
+    scrollToLine(newResult.line);
+  }
+}, { immediate: true });
+
+// 监听fileContent变化，确保文件内容加载完成后滚动到对应行
+watch(fileContent, () => {
+  if (selectedResult.value && selectedResult.value.line) {
+    scrollToLine(selectedResult.value.line);
+  }
+});
 </script>
 
 <template>
@@ -53,15 +91,25 @@ const handleScroll = () => {
         </div>
         
         <!-- 代码内容区域 -->
-        <pre 
+        <div 
           ref="codeContentRef"
           class="code-content"
           @scroll="handleScroll"
         >
-          <code v-if="isLoadingFile">加载文件内容中...</code>
-          <code v-else-if="fileContent" v-html="highlightMatch(fileContent, searchPattern)"></code>
-          <code v-else>无法加载文件内容</code>
-        </pre>
+          <div v-if="isLoadingFile">加载文件内容中...</div>
+          <div v-else-if="fileContent">
+            <div 
+              v-for="(line, index) in fileContent.split('\n')" 
+              :key="index"
+              :data-line="index + 1"
+              class="code-line"
+              :class="{ 'highlighted-line': selectedResult && selectedResult.line === index + 1 }"
+            >
+              <code v-html="highlightMatch(line, searchPattern)"></code>
+            </div>
+          </div>
+          <div v-else>无法加载文件内容</div>
+        </div>
       </div>
     </div>
   </div>
@@ -163,16 +211,30 @@ const handleScroll = () => {
 .code-content {
   padding: 12px 12px 12px 8px;
   flex: 1;
-  white-space: pre-wrap;
-  word-break: break-all;
-  line-height: 1.5;
-  margin: 0;
   overflow: auto;
   background: var(--bg-primary);
   font-size: 13px;
   color: var(--text-primary);
   font-family: 'Consolas', 'Monaco', monospace;
   transition: all 0.2s ease;
+}
+
+/* 代码行样式 */
+.code-line {
+  white-space: pre;
+  line-height: 1.5;
+  font-family: 'Consolas', 'Monaco', monospace;
+  font-size: 13px;
+  padding: 0;
+  margin: 0;
+}
+
+/* 高亮行样式 */
+.highlighted-line {
+  background-color: rgba(57, 108, 216, 0.1);
+  border-left: 3px solid var(--accent-color);
+  padding-left: 5px !important;
+  margin-left: -8px !important;
 }
 
 .code-content code {
