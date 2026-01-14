@@ -113,11 +113,6 @@ function closeDialog() {
   transform: translateY(0);
 }
 
-/* 内联切换按钮 */
-.advanced-toggle.inline-toggle {
-  /* 使用gap属性控制间距，不再需要margin-right */
-}
-
 /* 对话框覆盖层 */
 .dialog-overlay {
   position: fixed;

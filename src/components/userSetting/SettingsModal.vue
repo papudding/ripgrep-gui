@@ -323,6 +323,9 @@ function importFileAssociations() {
           :class="{ active: activeTab === 'fileAssociations' }">
           文件关联
         </button>
+        <button @click="activeTab = 'about'" class="tab-btn" :class="{ active: activeTab === 'about' }">
+          关于
+        </button>
       </div>
 
       <div class="modal-content">
@@ -509,6 +512,41 @@ function importFileAssociations() {
         </div>
         <div v-if="errors.save" class="error-message">
           {{ errors.save }}
+        </div>
+
+        <!-- 关于标签页 -->
+        <div v-else-if="activeTab === 'about'" class="about-tab">
+          <div class="about-content">
+            <div class="app-info">
+              <h3>Ripgrep GUI</h3>
+              <p class="app-description">一个基于 Tauri 和 Vue 3 的跨平台文件搜索工具</p>
+              <p class="app-version">版本: 1.0.0</p>
+            </div>
+            
+            <div class="author-info">
+              <h4>作者信息</h4>
+              <p>作者: papudding</p>
+            </div>
+            
+            <div class="repository-info">
+              <h4>项目信息</h4>
+              <p>仓库地址: <a href="https://github.com/papudding/ripgrep-gui" target="_blank" rel="noopener noreferrer">https://github.com/papudding/ripgrep-gui</a></p>
+            </div>
+            
+            <div class="technology-info">
+              <h4>技术栈</h4>
+              <ul class="tech-stack">
+                <li>前端: Vue 3 + TypeScript + Vite</li>
+                <li>后端: Rust + Tauri 2.0</li>
+                <li>搜索引擎: Ripgrep</li>
+              </ul>
+            </div>
+            
+            <div class="license-info">
+              <h4>许可证</h4>
+              <p>MIT License</p>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -1185,6 +1223,161 @@ function importFileAssociations() {
   .no-associations {
     padding: 20px 10px;
     font-size: 13px;
+  }
+}
+
+/* 关于标签页样式 */
+.about-tab {
+  padding: 20px;
+}
+
+.about-content {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.app-info {
+  text-align: center;
+  padding: 20px;
+  background-color: var(--bg-secondary);
+  border-radius: 12px;
+  border: 1px solid var(--border-color);
+}
+
+.app-info h3 {
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0 0 12px 0;
+}
+
+.app-description {
+  font-size: 16px;
+  color: var(--text-secondary);
+  margin: 0 0 12px 0;
+}
+
+.app-version {
+  font-size: 14px;
+  color: var(--accent-color);
+  font-weight: 500;
+  margin: 0;
+}
+
+.author-info,
+.repository-info,
+.technology-info,
+.license-info {
+  background-color: var(--bg-secondary);
+  padding: 16px;
+  border-radius: 8px;
+  border: 1px solid var(--border-color);
+}
+
+.author-info h4,
+.repository-info h4,
+.technology-info h4,
+.license-info h4 {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 0 0 12px 0;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.author-info p,
+.repository-info p,
+.license-info p {
+  font-size: 14px;
+  color: var(--text-primary);
+  margin: 0;
+  line-height: 1.5;
+}
+
+.repository-info a {
+  color: var(--accent-color);
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.repository-info a:hover {
+  color: var(--accent-hover);
+  text-decoration: underline;
+}
+
+.tech-stack {
+  font-size: 14px;
+  color: var(--text-primary);
+  margin: 0;
+  padding-left: 20px;
+  line-height: 1.6;
+}
+
+.tech-stack li {
+  margin-bottom: 6px;
+}
+
+.tech-stack li:last-child {
+  margin-bottom: 0;
+}
+
+/* 关于标签页响应式样式 */
+@media (max-width: 768px) {
+  .about-content {
+    gap: 16px;
+  }
+
+  .app-info {
+    padding: 16px;
+  }
+
+  .app-info h3 {
+    font-size: 20px;
+  }
+
+  .app-description {
+    font-size: 14px;
+  }
+
+  .author-info,
+  .repository-info,
+  .technology-info,
+  .license-info {
+    padding: 12px;
+  }
+
+  .author-info h4,
+  .repository-info h4,
+  .technology-info h4,
+  .license-info h4 {
+    font-size: 14px;
+  }
+
+  .author-info p,
+  .repository-info p,
+  .license-info p,
+  .tech-stack {
+    font-size: 13px;
+  }
+}
+
+@media (max-width: 480px) {
+  .about-tab {
+    padding: 12px;
+  }
+
+  .app-info h3 {
+    font-size: 18px;
+  }
+
+  .app-description {
+    font-size: 13px;
+  }
+
+  .app-version {
+    font-size: 12px;
   }
 }
 </style>
