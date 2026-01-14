@@ -37,9 +37,6 @@ async function startApp() {
       await store.commit('search/setSearchPath', config.defaultSearchPath);
     }
     
-    // 设置深色模式偏好
-    store.state.isDarkMode = config.userConfig.darkMode;
-    
     // 挂载应用
     app.mount("#app");
     

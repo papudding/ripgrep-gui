@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted } from "vue";
+import { ref, onMounted, onUnmounted, watch } from "vue";
+import { useStore } from "vuex";
 
 // 导入组件
 import SearchConfig from './components/searchConfig/SearchConfig.vue';
@@ -7,6 +8,8 @@ import SearchHistory from './components/SearchHistory.vue';
 import SearchResults from './components/SearchResults.vue';
 import FilePreview from './components/FilePreview.vue';
 import SettingsModal from './components/userSetting/SettingsModal.vue';
+
+const store = useStore();
 
 // 搜索历史面板显示状态
 const showHistory = ref(false);
@@ -99,6 +102,15 @@ onUnmounted(() => {
   document.removeEventListener('mousemove', handleMouseMove);
   document.removeEventListener('mouseup', handleMouseUp);
 });
+
+// 监听深色模式变化并应用主题
+watch(() => store.state.config.userConfig.darkMode, (isDark) => {
+  if (isDark) {
+    document.documentElement.classList.add('dark-mode');
+  } else {
+    document.documentElement.classList.remove('dark-mode');
+  }
+}, { immediate: true });
 </script>
 
 <template>
@@ -147,6 +159,21 @@ onUnmounted(() => {
   --accent-light: #e8f0fe;
 }
 
+/* 深色模式覆盖样式 */
+.dark-mode {
+  --bg-primary: #1e1e1e;
+  --bg-secondary: #252526;
+  --bg-hover: #2a2d2e;
+  --border-color: #3e3e42;
+  --border-hover: #4e4e53;
+  --text-primary: #cccccc;
+  --text-secondary: #969696;
+  --text-muted: #6a6a6a;
+  --accent-color: #007acc;
+  --accent-hover: #1f8ad6;
+  --accent-light: rgba(0, 122, 204, 0.1);
+}
+
 @media (prefers-color-scheme: dark) {
   :root {
     /* 深色模式 */
@@ -185,6 +212,16 @@ onUnmounted(() => {
 }
 
 /* 深色模式下的匹配高亮 */
+.dark-mode .match-highlight {
+  background-color: #ffc107;
+  color: #000;
+}
+
+.dark-mode .preview-content pre code .match-line {
+  background-color: rgba(255, 193, 7, 0.2);
+  border-left: 3px solid #ffc107;
+}
+
 @media (prefers-color-scheme: dark) {
   .match-highlight {
     background-color: #ffc107;

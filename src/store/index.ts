@@ -23,8 +23,10 @@ export const store = createStore<RootState>({
    * 包含不适合放在特定模块的共享状态
    */
   state: {
-    /** 是否启用深色模式 */
-    isDarkMode: window.matchMedia('(prefers-color-scheme: dark)').matches
+    // 当前预览的文件内容
+    fileContent: '',
+    // 是否正在加载文件内容
+    isLoadingFile: false,
   },
   /**
    * 功能模块
