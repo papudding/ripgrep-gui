@@ -31,7 +31,9 @@ const filteredHistory = computed(() => {
 function useHistory(history: SearchHistory) {
   store.commit('search/setSearchPath', history.path);
   store.commit('search/setSearchPattern', history.pattern);
-  store.commit('search/setSearchOptions', history.options);
+  store.commit('search/setContentSearchOptions', history.contentSearchOptions);
+  store.commit('search/setFilenameSearchOptions', history.filenameSearchOptions);
+
   // 自动执行搜索
   store.dispatch('search/performSearch');
 }
@@ -92,10 +94,10 @@ onMounted(() => {
             <div class="history-pattern">{{ history.pattern }}</div>
             <div class="history-path">{{ history.path }}</div>
             <div class="history-options">
-              <span v-if="history.options.caseInsensitive" class="option-tag">i</span>
-              <span v-if="history.options.wholeWord" class="option-tag">w</span>
-              <span v-if="history.options.regex" class="option-tag">r</span>
-              <span v-if="history.options.ignoreHidden" class="option-tag">h</span>
+              <span v-if="history.contentSearchOptions.caseInsensitive" class="option-tag">i</span>
+              <span v-if="history.contentSearchOptions.wholeWord" class="option-tag">w</span>
+              <span v-if="history.contentSearchOptions.regex" class="option-tag">r</span>
+              <span v-if="history.contentSearchOptions.ignoreHidden" class="option-tag">h</span>
             </div>
             <div class="history-time">{{ new Date(history.timestamp).toLocaleString() }}</div>
           </div>

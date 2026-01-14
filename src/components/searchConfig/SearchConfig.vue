@@ -2,6 +2,8 @@
 import { computed, onMounted } from "vue";
 import { useStore } from 'vuex';
 import { open } from '@tauri-apps/plugin-dialog';
+import ContentSearchOptions from './contentSearch/SearchOptions.vue';
+import FilenameSearchOptions from './filenameSearch/SearchOptions.vue';
 
 
 const store = useStore();
@@ -15,11 +17,6 @@ const searchPath = computed({
 const searchPattern = computed({
   get: () => store.state.search.searchPattern,
   set: (value) => store.commit('search/setSearchPattern', value)
-});
-
-const searchOptions = computed({
-  get: () => store.state.search.searchOptions,
-  set: (value) => store.commit('search/setSearchOptions', value)
 });
 
 const isSearching = computed(() => store.state.search.isSearching);
@@ -76,7 +73,7 @@ onMounted(() => {
   <div class="search-config">
     <div class="search-header">
       <h1>
-        <img src="../../src-tauri/icons/icon.png" alt="Icon" class="app-icon">
+        <img src="../../../src-tauri/icons/icon.png" alt="Icon" class="app-icon">
         ripgrep GUI
       </h1>
       <button 
@@ -127,59 +124,12 @@ onMounted(() => {
     
     <!-- 搜索选项配置 -->
     <div class="search-options">
-      <div class="option-group">
-        <label class="option-label">
-          <input 
-            type="checkbox" 
-            v-model="searchOptions.caseInsensitive"
-          />
-          忽略大小写
-        </label>
+      <div class="search-options-section">
+        <!-- 内容搜索选项 -->
+        <ContentSearchOptions />
         
-        <label class="option-label">
-          <input 
-            type="checkbox" 
-            v-model="searchOptions.wholeWord"
-          />
-          全字匹配
-        </label>
-        
-        <label class="option-label">
-          <input 
-            type="checkbox" 
-            v-model="searchOptions.regex"
-          />
-          正则表达式
-        </label>
-        
-        <label class="option-label">
-          <input 
-            type="checkbox" 
-            v-model="searchOptions.ignoreHidden"
-          />
-          忽略隐藏文件
-        </label>
-        
-        <label class="option-label">
-          <input 
-            type="checkbox" 
-            v-model="searchOptions.filenameExactMatch"
-          />
-          文件名精确匹配
-        </label>
-      </div>
-      
-      <div class="option-group">
-        <div class="depth-control">
-          <label>搜索深度:</label>
-          <input 
-            type="number" 
-            min="0" 
-            v-model.number="searchOptions.maxDepth"
-            @input="store.commit('setSearchOptions', { maxDepth: searchOptions.maxDepth })"
-          />
-          <span class="depth-hint">(0 = 无限制)</span>
-        </div>
+        <!-- 文件名搜索选项 -->
+        <FilenameSearchOptions />
       </div>
     </div>
     
@@ -429,79 +379,8 @@ onMounted(() => {
   box-shadow: none;
 }
 
-/* 搜索选项 */
-.search-options {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  margin-bottom: 12px;
-}
 
-.option-group {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 14px;
-  align-items: center;
-  padding: 8px 0;
-  border-top: 1px solid var(--border-color);
-}
 
-.option-group:first-child {
-  border-top: none;
-}
-
-.option-label {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  cursor: pointer;
-  font-size: 13px;
-  color: var(--text-secondary);
-  transition: all 0.2s ease;
-  padding: 4px 0;
-}
-
-.option-label:hover {
-  color: var(--text-primary);
-  transform: translateY(-1px);
-}
-
-.option-label input[type="checkbox"] {
-  width: 16px;
-  height: 16px;
-  accent-color: var(--accent-color);
-  transition: all 0.2s ease;
-}
-
-.option-label input[type="checkbox"]:hover {
-  transform: scale(1.1);
-}
-
-.depth-control {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.depth-control label {
-  font-size: 14px;
-  color: var(--text-secondary);
-}
-
-.depth-control input {
-  width: 60px;
-  padding: 6px 8px;
-  background-color: var(--bg-primary);
-  border: 1px solid var(--border-color);
-  border-radius: 6px;
-  color: var(--text-primary);
-  font-size: 14px;
-}
-
-.depth-hint {
-  font-size: 12px;
-  color: var(--text-muted);
-}
 
 /* 搜索进度 */
 .search-progress {

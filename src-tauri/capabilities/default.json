@@ -12,6 +12,10 @@
         {
           "name": "rg",
           "sidecar": true
+        },
+        {
+          "name": "fd",
+          "sidecar": true
         }
       ]
     }

@@ -2,11 +2,11 @@
 import { ref, onMounted, onUnmounted } from "vue";
 
 // 导入组件
-import SearchConfig from './components/SearchConfig.vue';
+import SearchConfig from './components/searchConfig/SearchConfig.vue';
 import SearchHistory from './components/SearchHistory.vue';
 import SearchResults from './components/SearchResults.vue';
 import FilePreview from './components/FilePreview.vue';
-import SettingsModal from './components/SettingsModal.vue';
+import SettingsModal from './components/userSetting/SettingsModal.vue';
 
 // 搜索历史面板显示状态
 const showHistory = ref(false);

@@ -28,44 +28,38 @@ async fn check_rg_availability(app: &tauri::AppHandle) -> Result<bool, String> {
 
 /// 构建搜索参数
 fn build_search_args(
-    pattern: &str,
-    path: &str,
-    case_insensitive: bool,
-    whole_word: bool,
-    regex: bool,
-    ignore_hidden: bool,
-    max_depth: u32,
+    content_search_params: &ContentSearchParams,
 ) -> Vec<String> {
     let mut args = Vec::new();
 
     // 添加搜索模式
-    if !regex {
-        args.push(pattern.to_string());
+    if !content_search_params.regex {
+        args.push(content_search_params.pattern.to_string());
     }
 
     // 添加搜索路径
-    args.push(path.to_string());
+    args.push(content_search_params.path.to_string());
 
     // 添加搜索选项
-    if case_insensitive {
+    if content_search_params.case_insensitive {
         args.push("-i".to_string());
     }
 
-    if whole_word {
+    if content_search_params.whole_word {
         args.push("-w".to_string());
     }
 
-    if regex {
+    if content_search_params.regex {
         args.push("-e".to_string());
-        args.push(pattern.to_string());
+        args.push(content_search_params.pattern.to_string());
     }
 
-    if !ignore_hidden {
+    if !content_search_params.ignore_hidden {
         args.push("--hidden".to_string());
     }
 
-    if max_depth > 0 {
-        args.push(format!("--max-depth={}", max_depth));
+    if content_search_params.max_depth > 0 {
+        args.push(format!("--max-depth={}", content_search_params.max_depth));
     }
 
     // 设置输出格式: 文件路径:行号:列号:内容
@@ -94,15 +88,7 @@ pub async fn search(
     };
 
     // 构建命令参数
-    let args = build_search_args(
-        &content_search_params.pattern,
-        &content_search_params.path,
-        content_search_params.case_insensitive,
-        content_search_params.whole_word,
-        content_search_params.regex,
-        content_search_params.ignore_hidden,
-        content_search_params.max_depth,
-    );
+    let args = build_search_args(&content_search_params);
 
     // 执行 Sidecar 命令
     let (rx, mut _child) = cmd

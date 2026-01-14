@@ -7,7 +7,7 @@ const searchModule: Module<Partial<SearchState>, RootState> = {
   state: {
     searchPath: '',
     searchPattern: '',
-    searchOptions: {
+    contentSearchOptions: {
       caseInsensitive: false,
       wholeWord: false,
       regex: false,
@@ -16,6 +16,27 @@ const searchModule: Module<Partial<SearchState>, RootState> = {
       excludeTypes: [],
       maxDepth: 0,
       filenameExactMatch: false
+    },
+    filenameSearchOptions: {
+      caseInsensitive: false,
+      wholeWord: false,
+      regex: false,
+      ignoreHidden: true,
+      includeTypes: [],
+      excludeTypes: [],
+      maxDepth: 0,
+      filenameExactMatch: false,
+      caseSensitive: false,
+      noIgnore: false,
+      noIgnoreVcs: false,
+      followSymlinks: false,
+      fileTypes: [],
+      extensions: [],
+      excludePatterns: [],
+      minDepth: 0,
+      fileSize: "",
+      changedWithin: "",
+      changedBefore: ""
     },
     searchResults: [],
     filenameSearchResults: [],
@@ -30,8 +51,11 @@ const searchModule: Module<Partial<SearchState>, RootState> = {
     setSearchPattern(state: SearchState, pattern: string) {
       state.searchPattern = pattern;
     },
-    setSearchOptions(state: SearchState, options: Partial<SearchState['searchOptions']>) {
-      state.searchOptions = { ...state.searchOptions, ...options };
+    setContentSearchOptions(state: SearchState, options: Partial<SearchState['contentSearchOptions']>) {
+      state.contentSearchOptions = { ...state.contentSearchOptions, ...options };
+    },
+    setFilenameSearchOptions(state: SearchState, options: Partial<SearchState['filenameSearchOptions']>) {
+      state.filenameSearchOptions = { ...state.filenameSearchOptions, ...options };
     },
     setSearchResults(state: SearchState, results: SearchResult[]) {
       state.searchResults = results;
@@ -64,20 +88,33 @@ const searchModule: Module<Partial<SearchState>, RootState> = {
             contentSearchParams: {
               path: state.searchPath,
               pattern: state.searchPattern,
-              case_insensitive: state.searchOptions.caseInsensitive,
-              whole_word: state.searchOptions.wholeWord,
-              regex: state.searchOptions.regex,
-              ignore_hidden: state.searchOptions.ignoreHidden,
-              max_depth: state.searchOptions.maxDepth
+              case_insensitive: state.contentSearchOptions.caseInsensitive,
+              whole_word: state.contentSearchOptions.wholeWord,
+              regex: state.contentSearchOptions.regex,
+              ignore_hidden: state.contentSearchOptions.ignoreHidden,
+              max_depth: state.contentSearchOptions.maxDepth
             }
           }),
           // 调用文件名搜索命令
           invoke<any[]>('search_filename', {
-            path: state.searchPath,
-            pattern: state.searchPattern,
-            exactMatch: state.searchOptions.filenameExactMatch,
-            ignoreHidden: state.searchOptions.ignoreHidden,
-            maxDepth: state.searchOptions.maxDepth
+            filenameSearchParams: {
+              path: state.searchPath,
+              pattern: state.searchPattern,
+              exact_match: state.filenameSearchOptions.filenameExactMatch,
+              ignore_hidden: state.filenameSearchOptions.ignoreHidden,
+              max_depth: state.filenameSearchOptions.maxDepth,
+              case_sensitive: state.filenameSearchOptions.caseSensitive,
+              no_ignore: state.filenameSearchOptions.noIgnore,
+              no_ignore_vcs: state.filenameSearchOptions.noIgnoreVcs,
+              follow_symlinks: state.filenameSearchOptions.followSymlinks,
+              file_types: state.filenameSearchOptions.fileTypes,
+              extensions: state.filenameSearchOptions.extensions,
+              exclude_patterns: state.filenameSearchOptions.excludePatterns,
+              min_depth: state.filenameSearchOptions.minDepth,
+              file_size: state.filenameSearchOptions.fileSize,
+              changed_within: state.filenameSearchOptions.changedWithin,
+              changed_before: state.filenameSearchOptions.changedBefore
+            }
           })
         ]);
         
@@ -109,14 +146,16 @@ const searchModule: Module<Partial<SearchState>, RootState> = {
         const newSearchConfig = {
           pattern: state.searchPattern,
           path: state.searchPath,
-          options: JSON.parse(JSON.stringify(state.searchOptions))
+          contentSearchOptions: JSON.parse(JSON.stringify(state.contentSearchOptions)),
+          filenameSearchOptions: JSON.parse(JSON.stringify(state.filenameSearchOptions))
         };
         
         // 优化查询：使用some()方法，找到重复项后立即返回，避免遍历所有记录
         const isDuplicate = rootState.history.searchHistory.some(history => {
           return history.pattern === newSearchConfig.pattern &&
                  history.path === newSearchConfig.path &&
-                 JSON.stringify(history.options) === JSON.stringify(newSearchConfig.options);
+                 JSON.stringify(history.contentSearchOptions) === JSON.stringify(newSearchConfig.contentSearchOptions) &&
+                 JSON.stringify(history.filenameSearchOptions) === JSON.stringify(newSearchConfig.filenameSearchOptions);
         });
         
         if (!isDuplicate) {

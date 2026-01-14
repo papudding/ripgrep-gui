@@ -19,7 +19,7 @@ export interface SearchResult {
  * 搜索选项类型定义
  * 用于配置搜索行为
  */
-export interface SearchOptions {
+export interface ContentSearchOptions {
   /** 是否忽略大小写 */
   caseInsensitive: boolean;
   /** 是否全字匹配 */
@@ -34,8 +34,49 @@ export interface SearchOptions {
   excludeTypes: string[];
   /** 最大搜索深度（0表示无限制） */
   maxDepth: number;
-  /** 文件名搜索是否精确匹配 */
+}
+
+/**
+ * 搜索选项类型定义
+ * 用于配置搜索行为
+ */
+export interface FilenameSearchOptions {
+  /** 是否忽略大小写 */
+  caseInsensitive: boolean;
+  /** 是否全字匹配 */
+  wholeWord: boolean;
+  /** 是否忽略隐藏文件 */
+  ignoreHidden: boolean;
+  /** 包含的文件类型 */
+  includeTypes: string[];
+  /** 排除的文件类型 */
+  excludeTypes: string[];
+  /** 最大搜索深度（0表示无限制） */
+  maxDepth: number;
+  /** 文件名精确匹配 */
   filenameExactMatch: boolean;
+  /** 大小写敏感搜索 */
+  caseSensitive: boolean;
+  /** 包含被忽略的文件 */
+  noIgnore: boolean;
+  /** 包含 VCS 忽略的文件 */
+  noIgnoreVcs: boolean;
+  /** 跟随符号链接 */
+  followSymlinks: boolean;
+  /** 文件类型过滤 */
+  fileTypes: string[];
+  /** 文件扩展名过滤 */
+  extensions: string[];
+  /** 排除模式 */
+  excludePatterns: string[];
+  /** 最小搜索深度 */
+  minDepth: number;
+  /** 文件大小过滤 */
+  fileSize: string;
+  /** 最近修改时间 */
+  changedWithin: string;
+  /** 之前修改时间 */
+  changedBefore: string;
 }
 
 /**
@@ -49,8 +90,10 @@ export interface SearchHistory {
   pattern: string;
   /** 搜索路径 */
   path: string;
-  /** 搜索选项 */
-  options: SearchOptions;
+  /** 内容搜索选项 */
+  contentSearchOptions: ContentSearchOptions;
+  /** 文件名搜索选项 */
+  filenameSearchOptions: FilenameSearchOptions;
   /** 搜索时间戳 */
   timestamp: number;
 }
@@ -100,7 +143,8 @@ export interface HistoryState {
 export interface SearchState {
   searchPath: string;
   searchPattern: string;
-  searchOptions: SearchOptions;
+  contentSearchOptions: ContentSearchOptions;
+  filenameSearchOptions: FilenameSearchOptions;
   searchResults: SearchResult[];
   filenameSearchResults: SearchResult[];
   isSearching: boolean;

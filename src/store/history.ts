@@ -102,7 +102,8 @@ const historyModule: Module<Partial<HistoryState>, RootState> = {
                    typeof item.id === 'string' && 
                    typeof item.pattern === 'string' && 
                    typeof item.path === 'string' && 
-                   typeof item.options === 'object' && 
+                   typeof item.contentSearchOptions === 'object' && 
+                   typeof item.filenameSearchOptions === 'object' && 
                    typeof item.timestamp === 'number';
           });
           
