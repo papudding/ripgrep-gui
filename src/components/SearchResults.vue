@@ -206,7 +206,7 @@ async function openFile(result: SearchResult, event: MouseEvent) {
     }
   } catch (error) {
     console.error('Failed to open file:', error);
-    errorMessages.value[filePath] = `打开文件失败: ${error instanceof Error ? error.message : String(error)}`;
+    errorMessages.value[filePath] = t('results.errors.openFileFailed', { error: error instanceof Error ? error.message : String(error) });
 
     // 3秒后清除错误信息
     setTimeout(() => {
@@ -251,7 +251,7 @@ async function openInFileSystem(result: SearchResult, event: MouseEvent) {
     await openPath(directoryPath);
   } catch (error) {
     console.error('Failed to open in file system:', error);
-    errorMessages.value[filePath] = `在文件系统中打开失败: ${error instanceof Error ? error.message : String(error)}`;
+    errorMessages.value[filePath] = t('results.errors.openFileSystemFailed', { error: error instanceof Error ? error.message : String(error) });
 
     // 3秒后清除错误信息
     setTimeout(() => {
@@ -271,11 +271,11 @@ async function openInFileSystem(result: SearchResult, event: MouseEvent) {
       <div class="results-tabs">
         <button @click="activeTab = 'content'" class="tab-btn" :class="{ active: activeTab === 'content' }"
           :data-count="filteredContentResults.length">
-          内容匹配
+          {{ t('results.tabs.content') }}
         </button>
         <button @click="activeTab = 'filename'" class="tab-btn" :class="{ active: activeTab === 'filename' }"
           :data-count="filteredFilenameResults.length">
-          文件名匹配
+          {{ t('results.tabs.filename') }}
         </button>
       </div>
 
@@ -284,13 +284,13 @@ async function openInFileSystem(result: SearchResult, event: MouseEvent) {
 
         <!-- 结果筛选 -->
         <div class="results-filter">
-          <input v-model="resultFilter" type="text" placeholder="筛选结果..." class="filter-input" />
+          <input v-model="resultFilter" type="text" :placeholder="t('results.filter.placeholder')" class="filter-input" />
         </div>
       </div>
 
       <!-- 结果排序 -->
       <div class="results-sort">
-        <span class="sort-label">排序:</span>
+        <span class="sort-label">{{ t('results.sort.label') }}</span>
         <button @click="toggleSort('file')" class="sort-btn" :class="{ active: sortBy === 'file' }">
           {{ t('results.file') }} {{ sortBy === 'file' ? (sortOrder === 'asc' ? '↑' : '↓') : '' }}
         </button>
@@ -309,22 +309,22 @@ async function openInFileSystem(result: SearchResult, event: MouseEvent) {
         <div class="result-item-content">
           <div class="result-file">{{ result.file }}</div>
           <div v-if="activeTab === 'content'" class="result-line">{{ result.line }}:{{ result.column }}</div>
-          <div v-else class="result-line">文件名匹配</div>
+          <div v-else class="result-line">{{ t('results.sort.filenameMatch') }}</div>
           <div v-if="activeTab === 'content'" class="result-content"
             v-html="highlightMatch(result.content, result.match)"></div>
         </div>
         <div class="result-item-actions">
           <button v-if="hasMatchingAssociation(result.file)" @click="openFile(result, $event)" class="open-file-btn"
-            :disabled="loadingFiles[result.file]" :class="{ 'loading': loadingFiles[result.file] }" title="使用app打开">
+            :disabled="loadingFiles[result.file]" :class="{ 'loading': loadingFiles[result.file] }" :title="t('results.actions.openWithApp')">
             <span v-if="!loadingFiles[result.file]">
-              <img src="/app.svg" alt="打开" class="open-icon" />
+              <img src="/app.svg" :alt="t('results.actions.open')" class="open-icon" />
             </span>
             <span v-else>⏳</span>
           </button>
           <button @click="openInFileSystem(result, $event)" class="open-file-btn" :disabled="loadingFiles[result.file]"
-            :class="{ 'loading': loadingFiles[result.file] }" title="在文件系统中打开">
+            :class="{ 'loading': loadingFiles[result.file] }" :title="t('results.actions.openInFileSystem')">
             <span v-if="!loadingFiles[result.file]">
-              <img src="/folder.svg" alt="文件系统打开" class="open-icon" />
+              <img src="/folder.svg" :alt="t('results.actions.openInFileSystemAlt')" class="open-icon" />
             </span>
             <span v-else>⏳</span>
           </button>
@@ -340,16 +340,16 @@ async function openInFileSystem(result: SearchResult, event: MouseEvent) {
 
       <div v-else-if="filteredResults.length === 0 && !isSearching" class="no-results">
         <div class="no-results-content">
-          <h3>{{ resultFilter ? '没有匹配的筛选结果' : t('results.noResults') }}</h3>
+          <h3>{{ resultFilter ? t('results.filter.noMatches') : t('results.noResults') }}</h3>
           <p v-if="!resultFilter" class="no-results-suggestions">
-            尝试以下建议：<br>
-            • 检查搜索关键词是否正确<br>
-            • 调整搜索选项（如忽略大小写）<br>
-            • 放宽搜索条件（如减少搜索深度）<br>
-            • 尝试不同的关键词或搜索模式
+            {{ t('results.suggestions.title') }}<br>
+            • {{ t('results.suggestions.checkKeywords') }}<br>
+            • {{ t('results.suggestions.adjustOptions') }}<br>
+            • {{ t('results.suggestions.relaxConditions') }}<br>
+            • {{ t('results.suggestions.tryDifferentKeywords') }}
           </p>
           <p v-else class="no-results-suggestions">
-            尝试调整筛选条件或使用更宽泛的关键词
+            {{ t('results.suggestions.adjustFilter') }}
           </p>
         </div>
       </div>

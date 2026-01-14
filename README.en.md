@@ -42,6 +42,14 @@ ripgrep-gui is a graphical interface search tool built on the command-line tool 
     ```
     If it displays a version number (e.g., `ripgrep 15.1.0`), it means it's already installed.
   If not installed, the project's built-in ripgrep version (current: 15.1.0) will be used.
+
+- **fd**: This project relies on the fd tool to provide file search functionality. It is recommended to install the latest version of fd yourself.
+  **Verification Method**: Open a terminal/command line tool and run the following command to check if it's installed:
+    ```bash
+    fd --version
+    ```
+    If it displays a version number (e.g., `fd 10.3.0`), it means it's already installed.
+  If not installed, the project's built-in fd version (current: 10.3.0) will be used.
 ### 2.2 Installer Installation
 1. Download the installer from the [release page](https://github.com/papudding/ripgrep-gui/releases)
 2. Or: Compile and install, refer to 3. Development Configuration
@@ -56,10 +64,7 @@ ripgrep-gui is a graphical interface search tool built on the command-line tool 
 - **Node.js**: Use Node.js 22 version
   - Installation URL: [Node.js Official Download Page](https://nodejs.org/en/)
 
-- **yarn**: Use yarn as the package manager
-  - Installation URL: [yarn Official Installation Page](https://yarnpkg.com/getting-started/install)
-
-- **ripgrep**: Ensure the ripgrep tool is installed on your system (core search engine)
+- **yarn**: Use yarn 1.22.22 as the package manager
 
 ### Installation Steps
 
@@ -123,8 +128,8 @@ The configuration file uses JSON format and contains the following main configur
 - `defaultSearchPath`: Default search path, set to the user's home directory on first launch
 - `historyPath`: Search history storage path
 - `userConfig`: User configuration
-  - `darkMode`: Whether to enable dark mode (default is automatically determined based on system theme) (not yet used)
-  - `language`: Application language (default uses browser language) (not yet used)
+  - `darkMode`: Whether to enable dark mode (default is automatically determined based on system theme) 
+  - `language`: Application language (default uses browser language)
   - `fileAssociations`: File extension to default application associations
 
 ### Configuration File Management
@@ -143,17 +148,18 @@ The following is the project's development plan and to-do items:
 4. ✅ refactor: Split files
 5. ✅ bug: HTML files not previewing
 6. ✅ feat: History persistence
-7. 🔧 feat: i18n (internationalization support)
+7. ✅ feat: i18n (internationalization support)
 8. ✅ feat: Icon replacement
 9. ✅ feat: Quick file opening
 10. ✅ feat: Windows system adaptation
 11. ✅ feat: Internal ripgrep integration
 12. ✅ feat: User configuration modification
 13. ❌ feat: Binary file preview (pdf/docx, etc.)
-14. 🔧 feat: Dark mode
+14. ✅ feat: Dark mode
 15. 🔧 feat: File association extensions multiple in one configuration
 16. 🔧 feat: Page style experience optimization - eliminate excess scrollbars
 17. ✅ feat: Open directory in file system
+18. ✅ feat: Add log output
 
 Marking instructions:
 - ✅ Completed
@@ -163,5 +169,8 @@ Marking instructions:
 ## 6. Acknowledgments
 
 - [ripgrep](https://github.com/BurntSushi/ripgrep) - A powerful command-line search tool
+- [fd](https://github.com/sharkdp/fd) - A fast file search tool
 - [Tauri](https://tauri.app/) - A modern cross-platform desktop application framework
 - [Vue.js](https://vuejs.org/) - A progressive JavaScript framework
+- [Vuex](https://vuex.vuejs.org/) - State management pattern
+- [Vite](https://vitejs.dev/) - A fast frontend build tool

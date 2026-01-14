@@ -91,7 +91,32 @@ export default {
     darkMode: 'Dark Mode',
     save: 'Save',
     cancel: 'Cancel',
-    success: 'Settings saved successfully!'
+    success: 'Settings saved successfully!',
+    // 通用设置标签
+    generalSettings: {
+      defaultSearchPath: 'Default Search Path',
+      historyPath: 'History Save Path',
+      logPath: 'Log Save Path',
+      selectPath: 'Select',
+      restartHint: 'Log path has been updated, restart the application to take effect',
+      // 目录选择器标题
+      dialogTitles: {
+        defaultSearchPath: 'Select Default Search Directory',
+        historyPath: 'Select History Save Directory',
+        logPath: 'Select Log Save Directory'
+      },
+      // 输入框占位符
+      placeholders: {
+        defaultSearchPath: 'Select default search directory',
+        historyPath: 'Select history save directory',
+        logPath: 'Select log save directory'
+      },
+      // 语言选项
+      languages: {
+        zhCN: '简体中文',
+        en: 'English'
+      }
+    }
   },
   
   // 搜索结果
@@ -102,7 +127,43 @@ export default {
     matchesFound: '{count} matches found',
     file: 'File',
     line: 'Line',
-    match: 'Match'
+    match: 'Match',
+    // 结果标签
+    tabs: {
+      content: 'Content Matches',
+      filename: 'Filename Matches'
+    },
+    // 结果筛选
+    filter: {
+      placeholder: 'Filter results...',
+      noMatches: 'No matching filter results'
+    },
+    // 结果排序
+    sort: {
+      label: 'Sort:',
+      filenameMatch: 'Filename match'
+    },
+    // 结果操作
+    actions: {
+      openWithApp: 'Open with app',
+      open: 'Open',
+      openInFileSystem: 'Open in file system',
+      openInFileSystemAlt: 'Open in file system'
+    },
+    // 无结果建议
+    suggestions: {
+      title: 'Try these suggestions:',
+      checkKeywords: 'Check if the search keywords are correct',
+      adjustOptions: 'Adjust search options (e.g., case insensitive)',
+      relaxConditions: 'Relax search conditions (e.g., reduce search depth)',
+      tryDifferentKeywords: 'Try different keywords or search patterns',
+      adjustFilter: 'Try adjusting the filter criteria or using broader keywords'
+    },
+    // 错误信息
+    errors: {
+      openFileFailed: 'Failed to open file: {error}',
+      openFileSystemFailed: 'Failed to open in file system: {error}'
+    }
   },
   
   // 文件预览
@@ -117,7 +178,16 @@ export default {
     title: 'Search History',
     clear: 'Clear History',
     empty: 'History is empty',
-    confirmClear: 'Are you sure you want to clear all search history?'
+    confirmClear: 'Are you sure you want to clear all search history?',
+    // 历史记录筛选
+    filter: {
+      placeholder: 'Filter history records...',
+      noMatches: 'No matching history records'
+    },
+    // 确认对话框
+    dialog: {
+      confirmClear: 'Confirm Clear'
+    }
   },
   
   // 错误信息

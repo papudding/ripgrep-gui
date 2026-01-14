@@ -66,11 +66,11 @@ const selectPath = async (type: 'default' | 'history' | 'log') => {
   try {
     let title = '';
     if (type === 'default') {
-      title = '选择默认搜索目录';
+      title = t('settings.generalSettings.dialogTitles.defaultSearchPath');
     } else if (type === 'history') {
-      title = '选择历史记录保存目录';
+      title = t('settings.generalSettings.dialogTitles.historyPath');
     } else {
-      title = '选择日志保存目录';
+      title = t('settings.generalSettings.dialogTitles.logPath');
     }
     const selected = await open({
       directory: true,
@@ -97,12 +97,12 @@ const selectPath = async (type: 'default' | 'history' | 'log') => {
   <form class="settings-form">
     <!-- 默认搜索路径 -->
     <div class="form-group">
-      <label for="defaultSearchPath" class="form-label">默认搜索路径</label>
+      <label for="defaultSearchPath" class="form-label">{{ t('settings.generalSettings.defaultSearchPath') }}</label>
       <div class="input-with-button">
         <input id="defaultSearchPath" v-model="defaultSearchPath" type="text" class="form-input"
-          placeholder="选择默认搜索目录" />
+          :placeholder="t('settings.generalSettings.placeholders.defaultSearchPath')" />
         <button type="button" @click="selectPath('default')" class="path-select-btn">
-          选择
+          {{ t('settings.generalSettings.selectPath') }}
         </button>
       </div>
       <div v-if="errors.defaultSearchPath" class="error-message">
@@ -112,11 +112,11 @@ const selectPath = async (type: 'default' | 'history' | 'log') => {
 
     <!-- 历史记录保存路径 -->
     <div class="form-group">
-      <label for="historyPath" class="form-label">历史记录保存路径</label>
+      <label for="historyPath" class="form-label">{{ t('settings.generalSettings.historyPath') }}</label>
       <div class="input-with-button">
-        <input id="historyPath" v-model="historyPath" type="text" class="form-input" placeholder="选择历史记录保存目录" />
+        <input id="historyPath" v-model="historyPath" type="text" class="form-input" :placeholder="t('settings.generalSettings.placeholders.historyPath')" />
         <button type="button" @click="selectPath('history')" class="path-select-btn">
-          选择
+          {{ t('settings.generalSettings.selectPath') }}
         </button>
       </div>
       <div v-if="errors.historyPath" class="error-message">
@@ -126,18 +126,18 @@ const selectPath = async (type: 'default' | 'history' | 'log') => {
 
     <!-- 日志保存路径 -->
     <div class="form-group">
-      <label for="logPath" class="form-label">日志保存路径</label>
+      <label for="logPath" class="form-label">{{ t('settings.generalSettings.logPath') }}</label>
       <div class="input-with-button">
-        <input id="logPath" v-model="logPath" type="text" class="form-input" placeholder="选择日志保存目录" />
+        <input id="logPath" v-model="logPath" type="text" class="form-input" :placeholder="t('settings.generalSettings.placeholders.logPath')" />
         <button type="button" @click="selectPath('log')" class="path-select-btn">
-          选择
+          {{ t('settings.generalSettings.selectPath') }}
         </button>
       </div>
       <div v-if="errors.logPath" class="error-message">
         {{ errors.logPath }}
       </div>
       <div v-if="showRestartHint" class="restart-hint">
-        日志路径已更新，重启应用后生效
+        {{ t('settings.generalSettings.restartHint') }}
       </div>
     </div>
 
@@ -156,8 +156,8 @@ const selectPath = async (type: 'default' | 'history' | 'log') => {
     <div class="form-group">
       <label for="language" class="form-label">{{ t('settings.language') }}</label>
       <select id="language" v-model="language" class="form-select">
-        <option value="zh-CN">简体中文</option>
-        <option value="en">English</option>
+        <option value="zh-CN">{{ t('settings.generalSettings.languages.zhCN') }}</option>
+        <option value="en">{{ t('settings.generalSettings.languages.en') }}</option>
       </select>
       <div v-if="errors.language" class="error-message">
         {{ errors.language }}

@@ -45,7 +45,7 @@ function useHistory(history: SearchHistory) {
 // 清除搜索历史
 async function clearHistory() {
   const confirmed = await ask(t('history.confirmClear'), {
-    title: '确认清除',
+    title: t('history.dialog.confirmClear'),
     kind: 'warning'
   });
   if (confirmed) {
@@ -84,7 +84,7 @@ onMounted(() => {
 
       <div class="modal-content">
         <div class="history-filter">
-          <input v-model="historyFilter" type="text" placeholder="筛选历史记录..." class="history-filter-input" />
+          <input v-model="historyFilter" type="text" :placeholder="t('history.filter.placeholder')" class="history-filter-input" />
         </div>
 
         <div class="history-list">
@@ -101,7 +101,7 @@ onMounted(() => {
           </div>
 
           <div v-if="filteredHistory.length === 0" class="no-history">
-            <p>{{ historyFilter ? '没有匹配的历史记录' : t('history.empty') }}</p>
+            <p>{{ historyFilter ? t('history.filter.noMatches') : t('history.empty') }}</p>
           </div>
         </div>
       </div>

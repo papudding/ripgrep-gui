@@ -43,6 +43,14 @@ ripgrep-gui 是一个图形界面搜索工具，基于命令行工具 ripgrep (r
     ```
     如果显示版本号（如 `ripgrep 15.1.0`），则表示已安装。
   如果未安装，将使用项目内置的 ripgrep 版本（当前为 15.1.0）。
+
+- **fd**：本项目依赖 fd 工具提供文件搜索功能。推荐自行安装最新版本的 fd。
+  **验证方法**：打开终端/命令行工具，运行以下命令检查是否已安装：
+    ```bash
+    fd --version
+    ```
+    如果显示版本号（如 `fd 10.3.0`），则表示已安装。
+  如果未安装，将使用项目内置的 fd 版本（当前为 10.3.0）。
 ### 2.2 安装包安装
 1. 在[release 页面](https://github.com/papudding/ripgrep-gui/releases)下载安装包安装
 2. 或者：编译安装，参考3. 开发配置
@@ -57,10 +65,7 @@ ripgrep-gui 是一个图形界面搜索工具，基于命令行工具 ripgrep (r
 - **Node.js**：使用 Node.js 22 版本
   - 安装地址：[Node.js 官方下载页面](https://nodejs.org/zh-cn/)
 
-- **yarn**：使用 yarn 作为包管理器
-  - 安装地址：[yarn 官方安装页面](https://yarnpkg.com/getting-started/install)
-
-- **ripgrep**：确保系统已安装 ripgrep 工具（核心搜索引擎）
+- **yarn**：使用 yarn 1.22.22 作为包管理器
 
 ### 安装步骤
 
@@ -124,8 +129,8 @@ ripgrep-gui 的配置文件会自动创建和管理，默认存储在以下位�
 - `defaultSearchPath`: 默认搜索路径，首次启动时设置为用户主目录
 - `historyPath`: 搜索历史记录存储路径
 - `userConfig`: 用户配置
-  - `darkMode`: 是否启用深色模式（默认根据系统主题自动判断）（暂未使用）
-  - `language`: 应用程序语言（默认使用浏览器语言）（暂未使用）
+  - `darkMode`: 是否启用深色模式（默认根据系统主题自动判断）
+  - `language`: 应用程序语言（默认使用浏览器语言）
   - `fileAssociations`: 文件扩展名与默认应用的关联配置
 
 ### 配置文件管理
@@ -144,18 +149,18 @@ ripgrep-gui 的配置文件会自动创建和管理，默认存储在以下位�
 4. ✅ refactor:拆分文件
 5. ✅ bug:HTML文件不预览 
 6. ✅ feat:历史记录持久化
-7. 🔧 feat:i18n（国际化支持）
+7. ✅ feat:i18n（国际化支持）
 8. ✅ feat:图标更换
 9. ✅ feat:快速打开文件
 10. ✅ feat:Windows 系统适配
 11. ✅ feat:内部集成 ripgrep
 12. ✅ feat:用户配置修改
 13. ❌ feat:二进制文件预览(pdf/docx等)
-14. 🔧 feat:深色模式
+14. ✅ feat:深色模式
 15. 🔧 feat:文件关联扩展名多个放一个配置
 16. 🔧 feat:页面样式体验优化-消除多余滚动条
 17. ✅ feat:在文件系统中打开目录
-18. 🔧 feat:增加日志输出
+18. ✅ feat:增加日志输出
 
 标记说明：
 - ✅ 已完成
@@ -165,6 +170,9 @@ ripgrep-gui 的配置文件会自动创建和管理，默认存储在以下位�
 ## 6. 致谢
 
 - [ripgrep](https://github.com/BurntSushi/ripgrep) - 强大的命令行搜索工具
+- [fd](https://github.com/sharkdp/fd) - 快速的文件搜索工具
 - [Tauri](https://tauri.app/) - 现代化的跨平台桌面应用框架
 - [Vue.js](https://vuejs.org/) - 渐进式 JavaScript 框架
+- [Vuex](https://vuex.vuejs.org/) - 状态管理模式
+- [Vite](https://vitejs.dev/) - 快速的前端构建工具
 

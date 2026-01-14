@@ -91,7 +91,32 @@ export default {
     darkMode: '深色模式',
     save: '保存',
     cancel: '取消',
-    success: '设置保存成功！'
+    success: '设置保存成功！',
+    // 通用设置标签
+    generalSettings: {
+      defaultSearchPath: '默认搜索路径',
+      historyPath: '历史记录保存路径',
+      logPath: '日志保存路径',
+      selectPath: '选择',
+      restartHint: '日志路径已更新，重启应用后生效',
+      // 目录选择器标题
+      dialogTitles: {
+        defaultSearchPath: '选择默认搜索目录',
+        historyPath: '选择历史记录保存目录',
+        logPath: '选择日志保存目录'
+      },
+      // 输入框占位符
+      placeholders: {
+        defaultSearchPath: '选择默认搜索目录',
+        historyPath: '选择历史记录保存目录',
+        logPath: '选择日志保存目录'
+      },
+      // 语言选项
+      languages: {
+        zhCN: '简体中文',
+        en: 'English'
+      }
+    }
   },
   
   // 搜索结果
@@ -102,7 +127,43 @@ export default {
     matchesFound: '找到{count}个匹配',
     file: '文件',
     line: '行',
-    match: '匹配'
+    match: '匹配',
+    // 结果标签
+    tabs: {
+      content: '内容匹配',
+      filename: '文件名匹配'
+    },
+    // 结果筛选
+    filter: {
+      placeholder: '筛选结果...',
+      noMatches: '没有匹配的筛选结果'
+    },
+    // 结果排序
+    sort: {
+      label: '排序:',
+      filenameMatch: '文件名匹配'
+    },
+    // 结果操作
+    actions: {
+      openWithApp: '使用app打开',
+      open: '打开',
+      openInFileSystem: '在文件系统中打开',
+      openInFileSystemAlt: '在文件系统中打开'
+    },
+    // 无结果建议
+    suggestions: {
+      title: '尝试以下建议:',
+      checkKeywords: '检查搜索关键词是否正确',
+      adjustOptions: '调整搜索选项（如忽略大小写）',
+      relaxConditions: '放宽搜索条件（如减少搜索深度）',
+      tryDifferentKeywords: '尝试不同的关键词或搜索模式',
+      adjustFilter: '尝试调整筛选条件或使用更宽泛的关键词'
+    },
+    // 错误信息
+    errors: {
+      openFileFailed: '打开文件失败: {error}',
+      openFileSystemFailed: '在文件系统中打开失败: {error}'
+    }
   },
   
   // 文件预览
@@ -117,7 +178,16 @@ export default {
     title: '搜索历史',
     clear: '清空历史',
     empty: '历史记录为空',
-    confirmClear: '确定要清空所有搜索历史吗？'
+    confirmClear: '确定要清空所有搜索历史吗？',
+    // 历史记录筛选
+    filter: {
+      placeholder: '筛选历史记录...',
+      noMatches: '没有匹配的历史记录'
+    },
+    // 确认对话框
+    dialog: {
+      confirmClear: '确认清除'
+    }
   },
   
   // 错误信息
