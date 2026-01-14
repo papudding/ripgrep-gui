@@ -1,4 +1,5 @@
 // Learn more about Tauri commands at https://tauri.app/develop/calling-rust/
+use log::{debug, error, info, warn};
 use std::str::from_utf8;
 // 导入 Tauri Shell 扩展，用于 Sidecar 调用
 use crate::entity::{ContentSearchParams, SearchResult};
@@ -171,15 +172,19 @@ pub async fn search(
     app: tauri::AppHandle,
     content_search_params: ContentSearchParams,
 ) -> Result<Vec<SearchResult>, String> {
+    info!("开始内容搜索 - 模式: {}, 路径: {}", content_search_params.pattern, content_search_params.path);
+    
     // 检测系统是否安装了 rg 工具
     let system_rg_available = check_rg_availability(&app).await?;
+    debug!("系统 rg 工具可用: {}", system_rg_available);
 
     // 构建ripgrep命令
     let shell = app.shell();
     let cmd = if system_rg_available {
-        println!("使用系统安装的 rg 工具");
+        debug!("使用系统安装的 rg 工具");
         shell.command("rg")
     } else {
+        debug!("使用内置 rg sidecar");
         shell
             .sidecar("rg")
             .map_err(|e| format!("创建 rg Sidecar 命令失败: {}", e))?
@@ -187,12 +192,13 @@ pub async fn search(
 
     // 构建命令参数
     let args = build_search_args(&content_search_params);
+    debug!("rg 命令参数: {:?}", args);
 
     // 执行 Sidecar 命令
     let (rx, mut _child) = cmd
         .args(args)
         .spawn()
-        .map_err(|e| format!("执行内置 rg 命令失败: {}", e))?;
+        .map_err(|e| format!("执行 rg 命令失败: {}", e))?;
 
     // 收集输出
     let output = parse_output_from_rx(rx).await;
@@ -204,8 +210,10 @@ pub async fn search(
         // 只有当stderr有内容时才视为真正的错误
         // 否则，只是没有找到结果，返回空数组
         if !stderr.is_empty() {
+            error!("rg 命令执行出错: {}", stderr);
             return Err(format!("{}", stderr));
         }
+        warn!("rg 命令未找到匹配结果");
         // 没有结果，返回空数组
         return Ok(Vec::new());
     }
@@ -220,6 +228,7 @@ pub async fn search(
     for line in stdout.lines() {
         // 超过上限则停止解析
         if results.len() >= MAX_RESULTS {
+            warn!("搜索结果达到上限 {}，停止解析", MAX_RESULTS);
             break;
         }
 
@@ -229,6 +238,7 @@ pub async fn search(
         }
     }
 
+    info!("内容搜索完成 - 找到 {} 个结果", results.len());
     Ok(results)
 }
 

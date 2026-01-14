@@ -1,3 +1,4 @@
+use log::{debug, error, info, warn};
 use std::str::from_utf8;
 
 use crate::{entity::{FilenameSearchParams, SearchResult}, util::parse_output_from_rx};
@@ -130,19 +131,23 @@ pub async fn search_filename(
     app: AppHandle,
     filename_search_params: FilenameSearchParams,
 ) -> Result<Vec<SearchResult>, String> {
+    info!("开始文件名搜索 - 模式: {}, 路径: {}", filename_search_params.pattern, filename_search_params.path);
+    
     // 检测系统是否安装了 fd 工具
     let system_fd_available = check_fd_availability(&app).await?;
+    debug!("系统 fd 工具可用: {}", system_fd_available);
 
     let shell = app.shell();
     let cmd = if system_fd_available {
-        println!("使用系统安装的 fd 工具");
+        info!("使用系统安装的 fd 工具");
         shell.command("fd")
     } else {
-        println!("使用 find 工具");
+        info!("使用内置 fd sidecar");
         shell.sidecar("fd").map_err(|e| format!("创建 fd Sidecar 命令失败: {}", e))?
     };
 
     let args = build_fd_args(&filename_search_params);
+    debug!("fd 命令参数: {:?}", args);
     
     // 执行 Sidecar 命令
     let (rx, mut _child) = cmd
@@ -160,8 +165,10 @@ pub async fn search_filename(
         // 只有当stderr有内容时才视为真正的错误
         // 否则，只是没有找到结果，返回空数组
         if !stderr.is_empty() {
+            error!("fd 命令执行出错: {}", stderr);
             return Err(format!("{}", stderr));
         }
+        warn!("fd 命令未找到匹配结果");
         // 没有结果，返回空数组
         return Ok(Vec::new());
     }
@@ -174,6 +181,10 @@ pub async fn search_filename(
         if line.is_empty() {
             continue;
         }
+        if results.len() >= MAX_RESULTS {
+            warn!("搜索结果达到上限 {}，停止解析", MAX_RESULTS);
+            break;
+        }
         if results.len() < MAX_RESULTS {
             results.push(SearchResult {
                 file: line.to_string(),
@@ -185,5 +196,6 @@ pub async fn search_filename(
         }
     }
 
+    info!("文件名搜索完成 - 找到 {} 个结果", results.len());
     Ok(results)
 }

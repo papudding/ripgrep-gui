@@ -1,12 +1,17 @@
+use log::{debug, error, info};
 use std::process::{Command, Output};
 use std::str::from_utf8;
 use tauri::async_runtime::Receiver;
 use tauri_plugin_shell::process::CommandEvent;
+
 #[tauri::command]
 pub async fn open_file_with_app(file_path: &str, app: &str) -> Result<(), String> {
+    info!("打开文件 - 路径: {}, 应用: {}", file_path, app);
+    
     let output = match cfg!(target_os = "windows") {
         // Windows系统：使用start命令
         true => {
+            debug!("Windows系统：使用start命令打开文件");
             let mut cmd = Command::new("cmd");
             cmd.arg("/C");
             cmd.arg("start");
@@ -22,6 +27,7 @@ pub async fn open_file_with_app(file_path: &str, app: &str) -> Result<(), String
         }
         // macOS系统：使用open -a命令
         false if cfg!(target_os = "macos") => {
+            debug!("macOS系统：使用open -a命令打开文件");
             let mut cmd = Command::new("open");
             cmd.arg("-a");
             cmd.arg(app);
@@ -30,6 +36,7 @@ pub async fn open_file_with_app(file_path: &str, app: &str) -> Result<(), String
         }
         // Linux系统：直接使用应用命令
         false => {
+            debug!("Linux系统：直接使用应用命令打开文件");
             let mut cmd = Command::new(app);
             cmd.arg(file_path);
             cmd.output()
@@ -39,13 +46,18 @@ pub async fn open_file_with_app(file_path: &str, app: &str) -> Result<(), String
     match output {
         Ok(output) => {
             if output.status.success() {
+                info!("文件打开成功: {}", file_path);
                 Ok(())
             } else {
                 let stderr = from_utf8(&output.stderr).unwrap_or("无法解析错误信息");
+                error!("打开文件失败: {}", stderr);
                 Err(format!("打开文件失败: {}", stderr))
             }
         }
-        Err(e) => Err(format!("执行命令失败: {}", e)),
+        Err(e) => {
+            error!("执行命令失败: {}", e);
+            Err(format!("执行命令失败: {}", e))
+        }
     }
 }
 

@@ -8,9 +8,11 @@ const store = useStore();
 // 内部状态定义
 const defaultSearchPath = ref(store.state.config.defaultSearchPath || '');
 const historyPath = ref(store.state.config.historyPath || '');
+const logPath = ref(store.state.config.userConfig.logPath || '');
 const darkMode = ref(store.state.config.userConfig.darkMode || false);
 const language = ref(store.state.config.userConfig.language || 'zh-CN');
 const errors = ref<Record<string, string>>({});
+const showRestartHint = ref(false);
 
 // 监听状态变化并同步到store
 watch(defaultSearchPath, (newValue) => {
@@ -41,20 +43,30 @@ watch(language, (newValue) => {
   });
 });
 
+watch(logPath, (newValue) => {
+  store.dispatch('config/updateUserConfig', {
+    ...store.state.config.userConfig,
+    logPath: newValue
+  });
+ showRestartHint.value = true; 
+});
+
 // 选择路径的方法
-const selectPath = async (type: 'default' | 'history') => {
+const selectPath = async (type: 'default' | 'history' | 'log') => {
   try {
     const selected = await open({
       directory: true,
       multiple: false,
-      title: type === 'default' ? '选择默认搜索目录' : '选择历史记录保存目录'
+      title: type === 'default' ? '选择默认搜索目录' : type === 'history' ? '选择历史记录保存目录' : '选择日志保存目录'
     });
 
     if (selected && typeof selected === 'string') {
       if (type === 'default') {
         defaultSearchPath.value = selected;
-      } else {
+      } else if (type === 'history') {
         historyPath.value = selected;
+      } else {
+        logPath.value = selected;
       }
     }
   } catch (error) {
@@ -91,6 +103,23 @@ const selectPath = async (type: 'default' | 'history') => {
       </div>
       <div v-if="errors.historyPath" class="error-message">
         {{ errors.historyPath }}
+      </div>
+    </div>
+
+    <!-- 日志保存路径 -->
+    <div class="form-group">
+      <label for="logPath" class="form-label">日志保存路径</label>
+      <div class="input-with-button">
+        <input id="logPath" v-model="logPath" type="text" class="form-input" placeholder="选择日志保存目录" />
+        <button type="button" @click="selectPath('log')" class="path-select-btn">
+          选择
+        </button>
+      </div>
+      <div v-if="errors.logPath" class="error-message">
+        {{ errors.logPath }}
+      </div>
+      <div v-if="showRestartHint" class="restart-hint">
+        日志路径已更新，重启应用后生效
       </div>
     </div>
 
@@ -277,5 +306,16 @@ const selectPath = async (type: 'default' | 'history') => {
   font-size: 12px;
   color: #e74c3c;
   margin-top: 4px;
+}
+
+/* 重启提示 */
+.restart-hint {
+  font-size: 12px;
+  color: #f39c12;
+  margin-top: 4px;
+  padding: 6px 8px;
+  background-color: rgba(243, 156, 18, 0.1);
+  border-radius: 4px;
+  border-left: 3px solid #f39c12;
 }
 </style>

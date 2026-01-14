@@ -170,6 +170,8 @@ export interface UserConfig {
   language: string;
   /** 文件扩展名与默认应用的关联配置 */
   fileAssociations: FileAssociation[];
+  /** 日志保存路径 */
+  logPath: string | null;
 }
 
 /**
