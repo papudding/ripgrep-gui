@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from "vue";
 import { useStore } from 'vuex';
+import { ask } from '@tauri-apps/plugin-dialog';
 import type { SearchHistory } from '../types';
 
 const store = useStore();
@@ -39,8 +40,12 @@ function useHistory(history: SearchHistory) {
 }
 
 // 清除搜索历史
-function clearHistory() {
-  if (confirm('确定要清除所有搜索历史吗？')) {
+async function clearHistory() {
+  const confirmed = await ask('确定要清除所有搜索历史吗？', {
+    title: '确认清除',
+    kind: 'warning'
+  });
+  if (confirmed) {
     store.commit('history/clearSearchHistory');
   }
 }
