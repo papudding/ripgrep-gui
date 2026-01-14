@@ -1,8 +1,10 @@
 <script setup lang="ts">
 import { computed, ref } from "vue";
 import { useStore } from 'vuex';
+import { useI18n } from 'vue-i18n';
 import FilenameAdvancedOptionsDialog from './AdvancedOptionsDialog.vue';
 
+const { t } = useI18n();
 const store = useStore();
 
 // 对话框显示状态
@@ -28,25 +30,25 @@ function closeDialog() {
 <template>
   <div class="filename-search-options">
     <div class="option-group inline-header">
-      <span class="option-section-title">文件名搜索:</span>
+      <span class="option-section-title">{{ t('search.options.filenameSearch') }}</span>
 
       <label class="option-label">
         <input type="checkbox" v-model="filenameSearchOptions.filenameExactMatch" />
-        文件名精确匹配
+        {{ t('search.options.filenameExactMatch') }}
       </label>
 
       <label class="option-label">
         <input type="checkbox" v-model="filenameSearchOptions.ignoreHidden" />
-        忽略隐藏文件
+        {{ t('search.options.ignoreHidden') }}
       </label>
 
       <label class="option-label">
         <input type="checkbox" v-model="filenameSearchOptions.caseSensitive" />
-        大小写敏感
+        {{ t('search.options.caseSensitive') }}
       </label>
 
       <button class="advanced-toggle inline-toggle" @click="openDialog">
-        高级
+        {{ t('search.options.advanced') }}
       </button>
     </div>
 

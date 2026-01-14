@@ -1,7 +1,9 @@
 <script setup lang="ts">
 import { computed } from "vue";
 import { useStore } from 'vuex';
+import { useI18n } from 'vue-i18n';
 
+const { t } = useI18n();
 const emit = defineEmits(['close']);
 const store = useStore();
 
@@ -49,7 +51,7 @@ function closeDialog() {
 <template>
   <div class="dialog-content">
     <div class="dialog-header">
-      <h3>内容搜索高级选项</h3>
+      <h3>{{ t('search.advancedOptions.contentSearchTitle') }}</h3>
       <button class="dialog-close" @click="closeDialog">&times;</button>
     </div>
 
@@ -57,144 +59,144 @@ function closeDialog() {
       <div class="option-groups-container">
         <!-- 搜索模式相关选项 -->
         <div class="option-group">
-          <h4>搜索模式</h4>
+          <h4>{{ t('search.advancedOptions.searchMode') }}</h4>
 
           <label class="option-label">
             <input type="checkbox" v-model="contentSearchOptions.fixedStrings" />
-            固定字符串模式（非正则）
+            {{ t('search.advancedOptions.fixedStrings') }}
           </label>
 
           <label class="option-label">
             <input type="checkbox" v-model="contentSearchOptions.invertMatch" />
-            反转匹配（显示不匹配的行）
+            {{ t('search.advancedOptions.invertMatch') }}
           </label>
 
           <label class="option-label">
             <input type="checkbox" v-model="contentSearchOptions.lineRegexp" />
-            整行匹配
+            {{ t('search.advancedOptions.lineRegexp') }}
           </label>
 
           <label class="option-label">
             <input type="checkbox" v-model="contentSearchOptions.smartCase" />
-            智能大小写（全小写模式时不敏感）
+            {{ t('search.advancedOptions.smartCase') }}
           </label>
 
           <label class="option-label">
             <input type="checkbox" v-model="contentSearchOptions.text" />
-            搜索二进制文件作为文本
+            {{ t('search.advancedOptions.text') }}
           </label>
 
           <label class="option-label">
             <input type="checkbox" v-model="contentSearchOptions.multiline" />
-            多行搜索
+            {{ t('search.advancedOptions.multiline') }}
           </label>
 
           <label class="option-label">
             <input type="checkbox" v-model="contentSearchOptions.multilineDotall" />
-            多行搜索时 . 匹配换行符
+            {{ t('search.advancedOptions.multilineDotall') }}
           </label>
 
           <label class="option-label">
             <input type="checkbox" v-model="contentSearchOptions.pcre2" />
-            使用 PCRE2 正则引擎
+            {{ t('search.advancedOptions.pcre2') }}
           </label>
         </div>
 
         <!-- 文件过滤相关选项 -->
         <div class="option-group">
-          <h4>文件过滤</h4>
+          <h4>{{ t('search.advancedOptions.fileFilter') }}</h4>
 
           <div class="text-input-group">
-            <label>包含的文件模式:</label>
-            <input type="text" v-model="includePatterns" placeholder="例如: *.js,*.ts" />
+            <label>{{ t('search.advancedOptions.includePatterns') }}</label>
+            <input type="text" v-model="includePatterns" :placeholder="t('placeholders.exampleFilePatterns')" />
           </div>
 
           <div class="text-input-group">
-            <label>排除的文件模式:</label>
-            <input type="text" v-model="excludePatterns" placeholder="例如: *.log,*.tmp" />
+            <label>{{ t('search.advancedOptions.excludePatterns') }}</label>
+            <input type="text" v-model="excludePatterns" :placeholder="t('placeholders.exampleLogPatterns')" />
           </div>
 
           <div class="text-input-group">
-            <label>包含的文件类型:</label>
-            <input type="text" v-model="fileTypes" placeholder="例如: javascript,typescript" />
+            <label>{{ t('search.advancedOptions.fileTypes') }}</label>
+            <input type="text" v-model="fileTypes" :placeholder="t('placeholders.exampleFileTypes')" />
           </div>
 
           <div class="text-input-group">
-            <label>排除的文件类型:</label>
-            <input type="text" v-model="fileTypesNot" placeholder="例如: json,xml" />
+            <label>{{ t('search.advancedOptions.fileTypesNot') }}</label>
+            <input type="text" v-model="fileTypesNot" :placeholder="t('placeholders.exampleExcludeTypes')" />
           </div>
 
           <label class="option-label">
             <input type="checkbox" v-model="contentSearchOptions.noIgnore" />
-            不使用 ignore 文件
+            {{ t('search.advancedOptions.noIgnore') }}
           </label>
 
           <label class="option-label">
             <input type="checkbox" v-model="contentSearchOptions.noIgnoreVcs" />
-            不忽略 VCS 文件
+            {{ t('search.advancedOptions.noIgnoreVcs') }}
           </label>
 
           <label class="option-label">
             <input type="checkbox" v-model="contentSearchOptions.followSymlinks" />
-            跟随符号链接
+            {{ t('search.advancedOptions.followSymlinks') }}
           </label>
         </div>
 
         <!-- 搜索行为相关选项 -->
         <div class="option-group">
-          <h4>搜索行为</h4>
+          <h4>{{ t('search.advancedOptions.searchBehavior') }}</h4>
 
           <div class="number-input-group">
-            <label>最小搜索深度:</label>
+            <label>{{ t('search.advancedOptions.minDepth') }}</label>
             <input type="number" min="0" v-model.number="contentSearchOptions.minDepth" />
-            <span class="hint">(0 = 无限制)</span>
+            <span class="hint">{{ t('search.advancedOptions.unlimited') }}</span>
           </div>
 
           <div class="number-input-group">
-            <label>最大搜索深度:</label>
+            <label>{{ t('search.advancedOptions.maxDepth') }}</label>
             <input type="number" min="0" v-model.number="contentSearchOptions.maxDepth" />
-            <span class="hint">(0 = 无限制)</span>
+            <span class="hint">{{ t('search.advancedOptions.unlimited') }}</span>
           </div>
 
           <div class="number-input-group">
-            <label>使用的线程数:</label>
+            <label>{{ t('search.advancedOptions.threads') }}</label>
             <input type="number" min="0" v-model.number="contentSearchOptions.threads" />
-            <span class="hint">(0 = 自动)</span>
+            <span class="hint">{{ t('search.advancedOptions.auto') }}</span>
           </div>
 
           <div class="number-input-group">
-            <label>每个文件的最大匹配数:</label>
+            <label>{{ t('search.advancedOptions.maxCount') }}</label>
             <input type="number" min="0" v-model.number="contentSearchOptions.maxCount" />
-            <span class="hint">(0 = 无限制)</span>
+            <span class="hint">{{ t('search.advancedOptions.unlimited') }}</span>
           </div>
         </div>
 
         <!-- 输出相关选项 -->
         <div class="option-group">
-          <h4>输出选项</h4>
+          <h4>{{ t('search.advancedOptions.outputOptions') }}</h4>
 
           <label class="option-label">
             <input type="checkbox" v-model="contentSearchOptions.lineNumber" />
-            显示行号
+            {{ t('search.advancedOptions.lineNumber') }}
           </label>
 
           <label class="option-label">
             <input type="checkbox" v-model="contentSearchOptions.withFilename" />
-            显示文件名
+            {{ t('search.advancedOptions.withFilename') }}
           </label>
 
           <div class="number-input-group">
-            <label>显示匹配上下文行数:</label>
+            <label>{{ t('search.advancedOptions.context') }}</label>
             <input type="number" min="0" v-model.number="contentSearchOptions.context" />
           </div>
 
           <div class="number-input-group">
-            <label>显示匹配后上下文行数:</label>
+            <label>{{ t('search.advancedOptions.afterContext') }}</label>
             <input type="number" min="0" v-model.number="contentSearchOptions.afterContext" />
           </div>
 
           <div class="number-input-group">
-            <label>显示匹配前上下文行数:</label>
+            <label>{{ t('search.advancedOptions.beforeContext') }}</label>
             <input type="number" min="0" v-model.number="contentSearchOptions.beforeContext" />
           </div>
         </div>
@@ -202,7 +204,7 @@ function closeDialog() {
     </div>
 
     <div class="dialog-footer">
-      <button class="dialog-button" @click="closeDialog">关闭</button>
+      <button class="dialog-button" @click="closeDialog">{{ t('search.advancedOptions.close') }}</button>
     </div>
   </div>
 </template>
