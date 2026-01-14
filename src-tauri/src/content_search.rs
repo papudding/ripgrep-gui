@@ -9,7 +9,11 @@ use tauri_plugin_shell::ShellExt;
 async fn check_rg_availability(app: &tauri::AppHandle) -> Result<bool, String> {
     // 尝试执行 rg --version 命令来检测系统是否安装了 rg 工具
     let shell = app.shell();
-    let out_put = shell.command("rg").arg("--version").output().await
+    let out_put = shell
+        .command("rg")
+        .arg("--version")
+        .output()
+        .await
         .map_err(|e| format!("执行 rg 命令失败: {}", e))?;
 
     if out_put.status.success() {

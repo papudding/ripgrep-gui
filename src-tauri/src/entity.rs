@@ -1,5 +1,6 @@
+use serde::{Deserialize, Serialize};
 // 搜索结果结构
-#[derive(serde::Serialize)]
+#[derive(Serialize, Deserialize)]
 pub struct SearchResult {
     pub file: String,
     pub line: u32,
@@ -7,7 +8,7 @@ pub struct SearchResult {
     pub content: String,
     pub match_text: String,
 }
-#[derive(serde::Serialize, serde::Deserialize)]
+#[derive(Serialize, Deserialize)]
 pub struct ContentSearchParams {
     pub pattern: String,
     pub path: String,
