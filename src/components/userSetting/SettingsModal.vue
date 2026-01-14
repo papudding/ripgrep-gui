@@ -46,7 +46,7 @@ async function selectPath(type: 'default' | 'history') {
       multiple: false,
       title: type === 'default' ? '选择默认搜索目录' : '选择历史记录保存目录'
     });
-    
+
     if (selected && typeof selected === 'string') {
       if (type === 'default') {
         defaultSearchPath.value = selected;
@@ -65,22 +65,22 @@ async function selectPath(type: 'default' | 'history') {
 // 表单验证
 function validateForm() {
   const newErrors: Record<string, string> = {};
-  
+
   // 验证默认搜索路径（可选）
   if (defaultSearchPath.value && !defaultSearchPath.value.trim()) {
     newErrors.defaultSearchPath = '默认搜索路径不能为空';
   }
-  
+
   // 验证历史记录路径（可选）
   if (historyPath.value && !historyPath.value.trim()) {
     newErrors.historyPath = '历史记录路径不能为空';
   }
-  
+
   // 验证语言
   if (!language.value || !language.value.trim()) {
     newErrors.language = '语言不能为空';
   }
-  
+
   errors.value = newErrors;
   return Object.keys(newErrors).length === 0;
 }
@@ -90,10 +90,10 @@ async function saveConfig() {
   if (!validateForm()) {
     return;
   }
-  
+
   isSaving.value = true;
   saveSuccess.value = false;
-  
+
   try {
     // 更新配置
     await store.dispatch('config/updateConfig', {
@@ -105,7 +105,7 @@ async function saveConfig() {
         fileAssociations: fileAssociations.value
       }
     });
-    
+
     saveSuccess.value = true;
     setTimeout(() => {
       saveSuccess.value = false;
@@ -135,12 +135,12 @@ function addFileAssociation() {
     errors.value.appPath = '应用路径不能为空';
     return;
   }
-  
+
   // 检查是否已存在相同扩展名的关联
   const existingIndex = fileAssociations.value.findIndex(
     assoc => assoc.extension.toLowerCase() === newFileAssociation.value.extension.toLowerCase()
   );
-  
+
   if (existingIndex !== -1) {
     // 更新现有关联
     fileAssociations.value[existingIndex] = { ...newFileAssociation.value };
@@ -148,7 +148,7 @@ function addFileAssociation() {
     // 添加新关联
     fileAssociations.value.push({ ...newFileAssociation.value });
   }
-  
+
   // 重置表单
   newFileAssociation.value = { extension: '', appPath: '' };
   delete errors.value.extension;
@@ -163,7 +163,7 @@ function editFileAssociation(association: { extension: string; appPath: string }
 // 保存编辑的文件关联
 function saveEditedAssociation() {
   if (!editingAssociation.value) return;
-  
+
   if (!editingAssociation.value.extension.trim()) {
     errors.value.editExtension = '扩展名不能为空';
     return;
@@ -172,16 +172,16 @@ function saveEditedAssociation() {
     errors.value.editAppPath = '应用路径不能为空';
     return;
   }
-  
+
   // 找到并更新关联
   const index = fileAssociations.value.findIndex(
     assoc => assoc.extension === editingAssociation.value!.extension
   );
-  
+
   if (index !== -1) {
     fileAssociations.value[index] = { ...editingAssociation.value };
   }
-  
+
   // 关闭编辑模式
   editingAssociation.value = null;
   delete errors.value.editExtension;
@@ -210,7 +210,7 @@ async function selectAppPath(type: 'new' | 'edit') {
       multiple: false,
       title: '选择应用程序'
     });
-    
+
     if (selected && typeof selected === 'string') {
       if (type === 'new') {
         newFileAssociation.value.appPath = selected;
@@ -231,7 +231,7 @@ const filteredFileAssociations = computed(() => {
   if (!fileAssociationFilter.value) {
     return fileAssociations.value;
   }
-  
+
   const filter = fileAssociationFilter.value.toLowerCase();
   return fileAssociations.value.filter(
     assoc => assoc.extension.toLowerCase().includes(filter)
@@ -249,7 +249,7 @@ function exportFileAssociations() {
     link.download = 'file-associations.json';
     link.click();
     URL.revokeObjectURL(url);
-    
+
     importExportSuccess.value = '文件关联配置导出成功';
     setTimeout(() => {
       importExportSuccess.value = '';
@@ -268,22 +268,22 @@ function importFileAssociations() {
   const input = document.createElement('input');
   input.type = 'file';
   input.accept = '.json';
-  
+
   input.onchange = async (e) => {
     const target = e.target as HTMLInputElement;
     if (!target.files || target.files.length === 0) return;
-    
+
     try {
       const file = target.files[0];
       const text = await file.text();
       const importedAssociations = JSON.parse(text);
-      
+
       if (Array.isArray(importedAssociations)) {
         // 验证导入的数据格式
         const validAssociations = importedAssociations.filter(
           (assoc: any) => assoc.extension && assoc.appPath
         );
-        
+
         fileAssociations.value = validAssociations;
         importExportSuccess.value = '文件关联配置导入成功';
         setTimeout(() => {
@@ -300,7 +300,7 @@ function importFileAssociations() {
       }, 3000);
     }
   };
-  
+
   input.click();
 }
 </script>
@@ -314,42 +314,26 @@ function importFileAssociations() {
           &times;
         </button>
       </div>
-      
+
       <div class="modal-tabs">
-        <button 
-          @click="activeTab = 'general'"
-          class="tab-btn"
-          :class="{ active: activeTab === 'general' }"
-        >
+        <button @click="activeTab = 'general'" class="tab-btn" :class="{ active: activeTab === 'general' }">
           基本设置
         </button>
-        <button 
-          @click="activeTab = 'fileAssociations'"
-          class="tab-btn"
-          :class="{ active: activeTab === 'fileAssociations' }"
-        >
+        <button @click="activeTab = 'fileAssociations'" class="tab-btn"
+          :class="{ active: activeTab === 'fileAssociations' }">
           文件关联
         </button>
       </div>
-      
+
       <div class="modal-content">
         <form v-if="activeTab === 'general'" class="settings-form">
           <!-- 默认搜索路径 -->
           <div class="form-group">
             <label for="defaultSearchPath" class="form-label">默认搜索路径</label>
             <div class="input-with-button">
-              <input
-                id="defaultSearchPath"
-                v-model="defaultSearchPath"
-                type="text"
-                class="form-input"
-                placeholder="选择默认搜索目录"
-              />
-              <button 
-                type="button" 
-                @click="selectPath('default')"
-                class="path-select-btn"
-              >
+              <input id="defaultSearchPath" v-model="defaultSearchPath" type="text" class="form-input"
+                placeholder="选择默认搜索目录" />
+              <button type="button" @click="selectPath('default')" class="path-select-btn">
                 选择
               </button>
             </div>
@@ -357,23 +341,13 @@ function importFileAssociations() {
               {{ errors.defaultSearchPath }}
             </div>
           </div>
-          
+
           <!-- 历史记录保存路径 -->
           <div class="form-group">
             <label for="historyPath" class="form-label">历史记录保存路径</label>
             <div class="input-with-button">
-              <input
-                id="historyPath"
-                v-model="historyPath"
-                type="text"
-                class="form-input"
-                placeholder="选择历史记录保存目录"
-              />
-              <button 
-                type="button" 
-                @click="selectPath('history')"
-                class="path-select-btn"
-              >
+              <input id="historyPath" v-model="historyPath" type="text" class="form-input" placeholder="选择历史记录保存目录" />
+              <button type="button" @click="selectPath('history')" class="path-select-btn">
                 选择
               </button>
             </div>
@@ -381,30 +355,22 @@ function importFileAssociations() {
               {{ errors.historyPath }}
             </div>
           </div>
-          
+
           <!-- 深色模式 -->
           <div class="form-group">
             <label class="toggle-label">
               <span>深色模式</span>
               <div class="toggle-switch">
-                <input
-                  v-model="darkMode"
-                  type="checkbox"
-                  class="toggle-checkbox"
-                />
+                <input v-model="darkMode" type="checkbox" class="toggle-checkbox" />
                 <span class="toggle-slider"></span>
               </div>
             </label>
           </div>
-          
+
           <!-- 语言选择 -->
           <div class="form-group">
             <label for="language" class="form-label">语言</label>
-            <select
-              id="language"
-              v-model="language"
-              class="form-select"
-            >
+            <select id="language" v-model="language" class="form-select">
               <option value="zh-CN">简体中文</option>
               <option value="en-US">English</option>
               <option value="ja-JP">日本語</option>
@@ -414,7 +380,7 @@ function importFileAssociations() {
             </div>
           </div>
         </form>
-        
+
         <!-- 文件关联配置 -->
         <div v-else-if="activeTab === 'fileAssociations'" class="file-associations-tab">
           <!-- 导入/导出按钮 -->
@@ -426,7 +392,7 @@ function importFileAssociations() {
               导出配置
             </button>
           </div>
-          
+
           <!-- 导入/导出状态消息 -->
           <div v-if="importExportSuccess" class="success-message">
             {{ importExportSuccess }}
@@ -434,7 +400,7 @@ function importFileAssociations() {
           <div v-if="importExportError" class="error-message">
             {{ importExportError }}
           </div>
-          
+
           <!-- 添加文件关联表单 -->
           <div class="add-file-association-form">
             <div class="add-btn-container">
@@ -443,16 +409,11 @@ function importFileAssociations() {
                 添加
               </button>
             </div>
-            
+
             <div class="form-row">
               <div class="form-group">
                 <label class="form-label">扩展名</label>
-                <input
-                  v-model="newFileAssociation.extension"
-                  type="text"
-                  class="form-input"
-                  placeholder="例如：txt"
-                />
+                <input v-model="newFileAssociation.extension" type="text" class="form-input" placeholder="例如：txt" />
                 <div v-if="errors.extension" class="error-message">
                   {{ errors.extension }}
                 </div>
@@ -460,17 +421,8 @@ function importFileAssociations() {
               <div class="form-group">
                 <label class="form-label">默认应用</label>
                 <div class="input-with-button">
-                  <input
-                    v-model="newFileAssociation.appPath"
-                    type="text"
-                    class="form-input"
-                    placeholder="选择应用程序"
-                  />
-                  <button 
-                    type="button" 
-                    @click="selectAppPath('new')"
-                    class="path-select-btn"
-                  >
+                  <input v-model="newFileAssociation.appPath" type="text" class="form-input" placeholder="选择应用程序" />
+                  <button type="button" @click="selectAppPath('new')" class="path-select-btn">
                     选择
                   </button>
                 </div>
@@ -480,7 +432,7 @@ function importFileAssociations() {
               </div>
             </div>
           </div>
-          
+
           <!-- 文件关联列表 -->
           <div class="file-associations-list">
             <div class="file-association-search-container">
@@ -507,11 +459,7 @@ function importFileAssociations() {
                     {{ association.extension }}
                   </td>
                   <td v-else>
-                    <input
-                      v-model="editingAssociation.extension"
-                      type="text"
-                      class="form-input"
-                    />
+                    <input v-model="editingAssociation.extension" type="text" class="form-input" />
                     <div v-if="errors.editExtension" class="error-message">
                       {{ errors.editExtension }}
                     </div>
@@ -521,16 +469,8 @@ function importFileAssociations() {
                   </td>
                   <td v-else>
                     <div class="input-with-button">
-                      <input
-                        v-model="editingAssociation.appPath"
-                        type="text"
-                        class="form-input"
-                      />
-                      <button 
-                        type="button" 
-                        @click="selectAppPath('edit')"
-                        class="path-select-btn"
-                      >
+                      <input v-model="editingAssociation.appPath" type="text" class="form-input" />
+                      <button type="button" @click="selectAppPath('edit')" class="path-select-btn">
                         选择
                       </button>
                     </div>
@@ -539,7 +479,8 @@ function importFileAssociations() {
                     </div>
                   </td>
                   <td>
-                    <div v-if="!editingAssociation || editingAssociation.extension !== association.extension" class="association-actions">
+                    <div v-if="!editingAssociation || editingAssociation.extension !== association.extension"
+                      class="association-actions">
                       <button @click="editFileAssociation(association)" class="edit-btn">
                         编辑
                       </button>
@@ -561,7 +502,7 @@ function importFileAssociations() {
             </table>
           </div>
         </div>
-        
+
         <!-- 保存状态 -->
         <div v-if="saveSuccess" class="success-message">
           配置保存成功！
@@ -570,16 +511,12 @@ function importFileAssociations() {
           {{ errors.save }}
         </div>
       </div>
-      
+
       <div class="modal-footer">
         <button @click="closeModal" class="cancel-btn">
           取消
         </button>
-        <button 
-          @click="saveConfig" 
-          class="save-btn"
-          :disabled="isSaving"
-        >
+        <button @click="saveConfig" class="save-btn" :disabled="isSaving">
           {{ isSaving ? '保存中...' : '保存' }}
         </button>
       </div>
@@ -650,6 +587,7 @@ function importFileAssociations() {
   from {
     opacity: 0;
   }
+
   to {
     opacity: 1;
   }
@@ -660,6 +598,7 @@ function importFileAssociations() {
     opacity: 0;
     transform: translateY(20px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -776,7 +715,7 @@ function importFileAssociations() {
   .input-with-button {
     flex-direction: column;
   }
-  
+
   .path-select-btn {
     width: 100%;
   }
@@ -833,11 +772,11 @@ function importFileAssociations() {
   border-radius: 50%;
 }
 
-.toggle-checkbox:checked + .toggle-slider {
+.toggle-checkbox:checked+.toggle-slider {
   background-color: var(--accent-color);
 }
 
-.toggle-checkbox:checked + .toggle-slider:before {
+.toggle-checkbox:checked+.toggle-slider:before {
   transform: translateX(24px);
 }
 
@@ -1154,56 +1093,56 @@ function importFileAssociations() {
     width: 95%;
     max-height: 90vh;
   }
-  
+
   .modal-header,
   .modal-content,
   .modal-footer {
     padding: 16px;
   }
-  
+
   .input-with-button {
     flex-direction: column;
   }
-  
+
   .form-row {
     flex-direction: column;
     align-items: stretch;
   }
-  
+
   .form-row .form-group {
     min-width: unset;
   }
-  
+
   .add-button-group {
     min-width: unset;
   }
-  
+
   .import-export-buttons {
     flex-direction: column;
   }
-  
+
   .import-btn,
   .export-btn {
     flex: unset;
     width: 100%;
   }
-  
+
   .associations-table {
     font-size: 12px;
     min-width: unset;
   }
-  
+
   .associations-table th,
   .associations-table td {
     padding: 8px;
     font-size: 12px;
   }
-  
+
   .association-actions,
   .edit-actions {
     flex-direction: column;
   }
-  
+
   .edit-btn,
   .delete-btn,
   .save-btn,
@@ -1218,31 +1157,31 @@ function importFileAssociations() {
     width: 98%;
     max-height: 95vh;
   }
-  
+
   .modal-header h2 {
     font-size: 16px;
   }
-  
+
   .tab-btn {
     padding: 10px 12px;
     font-size: 13px;
   }
-  
+
   .form-label {
     font-size: 13px;
   }
-  
+
   .form-input,
   .form-select {
     font-size: 13px;
     padding: 8px 10px;
   }
-  
+
   .add-file-association-form h3,
   .file-associations-list h3 {
     font-size: 14px;
   }
-  
+
   .no-associations {
     padding: 20px 10px;
     font-size: 13px;

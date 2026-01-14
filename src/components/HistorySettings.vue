@@ -22,7 +22,7 @@ async function selectHistoryPath() {
       multiple: false,
       title: "选择历史记录保存目录"
     });
-    
+
     if (selected && typeof selected === 'string') {
       historyPathInput.value = selected;
       historyPath.value = selected;
@@ -44,12 +44,12 @@ function closePathSettingResult() {
 // 手动输入路径后确认设置
 async function confirmHistoryPath() {
   const result = await store.dispatch('config/updateHistoryPath', historyPathInput.value || null);
-  pathSettingResult.value = { 
-    show: true, 
-    success: result.success, 
-    message: result.message 
+  pathSettingResult.value = {
+    show: true,
+    success: result.success,
+    message: result.message
   };
-  
+
   // 3秒后自动关闭提示
   setTimeout(closePathSettingResult, 3000);
 }
@@ -71,13 +71,8 @@ onMounted(() => {
     <div class="path-setting">
       <label for="history-path">保存路径:</label>
       <div class="path-input-group">
-        <input
-          id="history-path"
-          v-model="historyPathInput"
-          type="text"
-          placeholder="输入历史记录保存路径或点击选择按钮"
-          class="path-input"
-        />
+        <input id="history-path" v-model="historyPathInput" type="text" placeholder="输入历史记录保存路径或点击选择按钮"
+          class="path-input" />
         <button @click="selectHistoryPath" class="browse-btn">
           浏览
         </button>
@@ -88,13 +83,10 @@ onMounted(() => {
       <div class="path-hint">
         当前保存路径: {{ historyPath || '未设置，使用默认路径' }}
       </div>
-      
+
       <!-- 路径设置结果提示 -->
-      <div 
-        v-if="pathSettingResult.show" 
-        class="setting-result"
-        :class="{ 'success': pathSettingResult.success, 'error': !pathSettingResult.success }"
-      >
+      <div v-if="pathSettingResult.show" class="setting-result"
+        :class="{ 'success': pathSettingResult.success, 'error': !pathSettingResult.success }">
         <span>{{ pathSettingResult.message }}</span>
         <button @click="closePathSettingResult" class="close-btn">&times;</button>
       </div>
@@ -163,7 +155,8 @@ onMounted(() => {
   outline: none;
 }
 
-.browse-btn, .confirm-btn {
+.browse-btn,
+.confirm-btn {
   padding: 6px 12px;
   background-color: var(--bg-secondary);
   border: 1px solid var(--border-color);
@@ -175,7 +168,8 @@ onMounted(() => {
   white-space: nowrap;
 }
 
-.browse-btn:hover, .confirm-btn:hover {
+.browse-btn:hover,
+.confirm-btn:hover {
   background-color: var(--bg-hover);
   border-color: var(--border-hover);
   color: var(--text-primary);
@@ -249,6 +243,7 @@ onMounted(() => {
     opacity: 0;
     transform: translateY(-10px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);

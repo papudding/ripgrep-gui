@@ -52,238 +52,155 @@ function closeDialog() {
       <h3>内容搜索高级选项</h3>
       <button class="dialog-close" @click="closeDialog">&times;</button>
     </div>
-    
+
     <div class="dialog-body">
       <div class="option-groups-container">
         <!-- 搜索模式相关选项 -->
         <div class="option-group">
           <h4>搜索模式</h4>
-          
+
           <label class="option-label">
-            <input 
-              type="checkbox" 
-              v-model="contentSearchOptions.fixedStrings"
-            />
+            <input type="checkbox" v-model="contentSearchOptions.fixedStrings" />
             固定字符串模式（非正则）
           </label>
-          
+
           <label class="option-label">
-            <input 
-              type="checkbox" 
-              v-model="contentSearchOptions.invertMatch"
-            />
+            <input type="checkbox" v-model="contentSearchOptions.invertMatch" />
             反转匹配（显示不匹配的行）
           </label>
-          
+
           <label class="option-label">
-            <input 
-              type="checkbox" 
-              v-model="contentSearchOptions.lineRegexp"
-            />
+            <input type="checkbox" v-model="contentSearchOptions.lineRegexp" />
             整行匹配
           </label>
-          
+
           <label class="option-label">
-            <input 
-              type="checkbox" 
-              v-model="contentSearchOptions.smartCase"
-            />
+            <input type="checkbox" v-model="contentSearchOptions.smartCase" />
             智能大小写（全小写模式时不敏感）
           </label>
-          
+
           <label class="option-label">
-            <input 
-              type="checkbox" 
-              v-model="contentSearchOptions.text"
-            />
+            <input type="checkbox" v-model="contentSearchOptions.text" />
             搜索二进制文件作为文本
           </label>
-          
+
           <label class="option-label">
-            <input 
-              type="checkbox" 
-              v-model="contentSearchOptions.multiline"
-            />
+            <input type="checkbox" v-model="contentSearchOptions.multiline" />
             多行搜索
           </label>
-          
+
           <label class="option-label">
-            <input 
-              type="checkbox" 
-              v-model="contentSearchOptions.multilineDotall"
-            />
+            <input type="checkbox" v-model="contentSearchOptions.multilineDotall" />
             多行搜索时 . 匹配换行符
           </label>
-          
+
           <label class="option-label">
-            <input 
-              type="checkbox" 
-              v-model="contentSearchOptions.pcre2"
-            />
+            <input type="checkbox" v-model="contentSearchOptions.pcre2" />
             使用 PCRE2 正则引擎
           </label>
         </div>
-        
+
         <!-- 文件过滤相关选项 -->
         <div class="option-group">
           <h4>文件过滤</h4>
-          
+
           <div class="text-input-group">
             <label>包含的文件模式:</label>
-            <input 
-              type="text" 
-              v-model="includePatterns"
-              placeholder="例如: *.js,*.ts"
-            />
+            <input type="text" v-model="includePatterns" placeholder="例如: *.js,*.ts" />
           </div>
-          
+
           <div class="text-input-group">
             <label>排除的文件模式:</label>
-            <input 
-              type="text" 
-              v-model="excludePatterns"
-              placeholder="例如: *.log,*.tmp"
-            />
+            <input type="text" v-model="excludePatterns" placeholder="例如: *.log,*.tmp" />
           </div>
-          
+
           <div class="text-input-group">
             <label>包含的文件类型:</label>
-            <input 
-              type="text" 
-              v-model="fileTypes"
-              placeholder="例如: javascript,typescript"
-            />
+            <input type="text" v-model="fileTypes" placeholder="例如: javascript,typescript" />
           </div>
-          
+
           <div class="text-input-group">
             <label>排除的文件类型:</label>
-            <input 
-              type="text" 
-              v-model="fileTypesNot"
-              placeholder="例如: json,xml"
-            />
+            <input type="text" v-model="fileTypesNot" placeholder="例如: json,xml" />
           </div>
-          
+
           <label class="option-label">
-            <input 
-              type="checkbox" 
-              v-model="contentSearchOptions.noIgnore"
-            />
+            <input type="checkbox" v-model="contentSearchOptions.noIgnore" />
             不使用 ignore 文件
           </label>
-          
+
           <label class="option-label">
-            <input 
-              type="checkbox" 
-              v-model="contentSearchOptions.noIgnoreVcs"
-            />
+            <input type="checkbox" v-model="contentSearchOptions.noIgnoreVcs" />
             不忽略 VCS 文件
           </label>
-          
+
           <label class="option-label">
-            <input 
-              type="checkbox" 
-              v-model="contentSearchOptions.followSymlinks"
-            />
+            <input type="checkbox" v-model="contentSearchOptions.followSymlinks" />
             跟随符号链接
           </label>
         </div>
-        
+
         <!-- 搜索行为相关选项 -->
         <div class="option-group">
           <h4>搜索行为</h4>
-          
+
           <div class="number-input-group">
             <label>最小搜索深度:</label>
-            <input 
-              type="number" 
-              min="0" 
-              v-model.number="contentSearchOptions.minDepth"
-            />
+            <input type="number" min="0" v-model.number="contentSearchOptions.minDepth" />
             <span class="hint">(0 = 无限制)</span>
           </div>
-          
+
           <div class="number-input-group">
             <label>最大搜索深度:</label>
-            <input 
-              type="number" 
-              min="0" 
-              v-model.number="contentSearchOptions.maxDepth"
-            />
+            <input type="number" min="0" v-model.number="contentSearchOptions.maxDepth" />
             <span class="hint">(0 = 无限制)</span>
           </div>
-          
+
           <div class="number-input-group">
             <label>使用的线程数:</label>
-            <input 
-              type="number" 
-              min="0" 
-              v-model.number="contentSearchOptions.threads"
-            />
+            <input type="number" min="0" v-model.number="contentSearchOptions.threads" />
             <span class="hint">(0 = 自动)</span>
           </div>
-          
+
           <div class="number-input-group">
             <label>每个文件的最大匹配数:</label>
-            <input 
-              type="number" 
-              min="0" 
-              v-model.number="contentSearchOptions.maxCount"
-            />
+            <input type="number" min="0" v-model.number="contentSearchOptions.maxCount" />
             <span class="hint">(0 = 无限制)</span>
           </div>
         </div>
-        
+
         <!-- 输出相关选项 -->
         <div class="option-group">
           <h4>输出选项</h4>
-          
+
           <label class="option-label">
-            <input 
-              type="checkbox" 
-              v-model="contentSearchOptions.lineNumber"
-            />
+            <input type="checkbox" v-model="contentSearchOptions.lineNumber" />
             显示行号
           </label>
-          
+
           <label class="option-label">
-            <input 
-              type="checkbox" 
-              v-model="contentSearchOptions.withFilename"
-            />
+            <input type="checkbox" v-model="contentSearchOptions.withFilename" />
             显示文件名
           </label>
-          
+
           <div class="number-input-group">
             <label>显示匹配上下文行数:</label>
-            <input 
-              type="number" 
-              min="0" 
-              v-model.number="contentSearchOptions.context"
-            />
+            <input type="number" min="0" v-model.number="contentSearchOptions.context" />
           </div>
-          
+
           <div class="number-input-group">
             <label>显示匹配后上下文行数:</label>
-            <input 
-              type="number" 
-              min="0" 
-              v-model.number="contentSearchOptions.afterContext"
-            />
+            <input type="number" min="0" v-model.number="contentSearchOptions.afterContext" />
           </div>
-          
+
           <div class="number-input-group">
             <label>显示匹配前上下文行数:</label>
-            <input 
-              type="number" 
-              min="0" 
-              v-model.number="contentSearchOptions.beforeContext"
-            />
+            <input type="number" min="0" v-model.number="contentSearchOptions.beforeContext" />
           </div>
         </div>
       </div>
     </div>
-    
+
     <div class="dialog-footer">
       <button class="dialog-button" @click="closeDialog">关闭</button>
     </div>
@@ -496,6 +413,7 @@ function closeDialog() {
     opacity: 0;
     transform: translateY(-20px) scale(0.95);
   }
+
   to {
     opacity: 1;
     transform: translateY(0) scale(1);

@@ -43,7 +43,7 @@ const scrollToLine = (lineNumber: number) => {
         const lineTop = lineElement.offsetTop;
         const lineHeight = lineElement.clientHeight;
         const scrollPosition = lineTop - (containerHeight / 2) + (lineHeight / 2);
-        
+
         // 平滑滚动
         codeContentRef.value.scrollTo({
           top: Math.max(0, scrollPosition),
@@ -79,32 +79,20 @@ watch(fileContent, () => {
       <!-- 使用flex布局实现行号区域与代码内容区域分离 -->
       <div class="code-container">
         <!-- 行号区域 -->
-        <div 
-          ref="lineNumbersRef" 
-          class="line-numbers"
-        >
+        <div ref="lineNumbersRef" class="line-numbers">
           <div v-if="isLoadingFile" class="loading-line-numbers">加载中...</div>
           <div v-else-if="fileContent" class="line-number" v-for="number in lineNumbers" :key="number">
             {{ number }}
           </div>
           <div v-else class="error-line-numbers">无法加载行号</div>
         </div>
-        
+
         <!-- 代码内容区域 -->
-        <div 
-          ref="codeContentRef"
-          class="code-content"
-          @scroll="handleScroll"
-        >
+        <div ref="codeContentRef" class="code-content" @scroll="handleScroll">
           <div v-if="isLoadingFile">加载文件内容中...</div>
           <div v-else-if="fileContent">
-            <div 
-              v-for="(line, index) in fileContent.split('\n')" 
-              :key="index"
-              :data-line="index + 1"
-              class="code-line"
-              :class="{ 'highlighted-line': selectedResult && selectedResult.line === index + 1 }"
-            >
+            <div v-for="(line, index) in fileContent.split('\n')" :key="index" :data-line="index + 1" class="code-line"
+              :class="{ 'highlighted-line': selectedResult && selectedResult.line === index + 1 }">
               <code v-html="highlightMatch(line, searchPattern)"></code>
             </div>
           </div>
@@ -248,20 +236,20 @@ watch(fileContent, () => {
   .file-preview {
     padding: 8px;
   }
-  
+
   .preview-header h3 {
     font-size: 12px;
   }
-  
+
   .code-container {
     font-size: 12px;
   }
-  
+
   .line-numbers {
     min-width: 40px;
     padding: 8px 5px 8px 8px;
   }
-  
+
   .code-content {
     padding: 8px 8px 8px 5px;
   }

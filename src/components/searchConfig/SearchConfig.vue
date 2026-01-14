@@ -40,7 +40,7 @@ async function selectSearchPath() {
       multiple: false,
       title: "选择搜索目录"
     });
-    
+
     if (selected && typeof selected === 'string') {
       searchPath.value = selected;
     }
@@ -76,14 +76,11 @@ onMounted(() => {
         <img src="../../../src-tauri/icons/icon.png" alt="Icon" class="app-icon">
         ripgrep GUI
       </h1>
-      <button 
-        @click="$emit('toggleSettings')" 
-        class="settings-btn"
-      >
+      <button @click="$emit('toggleSettings')" class="settings-btn">
         设置
       </button>
     </div>
-    
+
     <div class="search-input-section">
       <!-- 文件路径选择 -->
       <div class="path-selector">
@@ -91,55 +88,41 @@ onMounted(() => {
           {{ searchPath || '选择搜索目录' }}
         </button>
       </div>
-      
+
       <!-- 搜索模式输入 -->
       <div class="search-input-group">
         <div class="search-input-wrapper">
-          <input
-            v-model="searchPattern"
-            type="text"
-            placeholder="输入搜索模式... (至少2个字符)"
-            class="search-input"
-            @keyup.enter="performSearch"
-          />
+          <input v-model="searchPattern" type="text" placeholder="输入搜索模式... (至少2个字符)" class="search-input"
+            @keyup.enter="performSearch" />
           <div v-if="searchPattern && searchPattern.length < MIN_SEARCH_LENGTH" class="search-hint">
             至少需要输入{{ MIN_SEARCH_LENGTH }}个字符
           </div>
         </div>
-        <button 
-          @click="toggleHistory" 
-          class="history-btn"
-        >
+        <button @click="toggleHistory" class="history-btn">
           历史
         </button>
-        <button 
-          @click="performSearch" 
-          class="search-btn"
-          :disabled="isSearching || !searchPath || !searchPattern || searchPattern.length < MIN_SEARCH_LENGTH"
-        >
+        <button @click="performSearch" class="search-btn"
+          :disabled="isSearching || !searchPath || !searchPattern || searchPattern.length < MIN_SEARCH_LENGTH">
           {{ isSearching ? '搜索中...' : '搜索' }}
         </button>
       </div>
     </div>
-    
+
     <!-- 搜索选项配置 -->
     <div class="search-options">
       <div class="search-options-section">
         <!-- 内容搜索选项 -->
         <ContentSearchOptions />
-        
+
         <!-- 文件名搜索选项 -->
         <FilenameSearchOptions />
       </div>
     </div>
-    
+
     <!-- 搜索进度 -->
     <div v-if="isSearching" class="search-progress">
       <div class="progress-bar">
-        <div 
-          class="progress-fill" 
-          :style="{ width: `${searchProgress}%` }"
-        ></div>
+        <div class="progress-fill" :style="{ width: `${searchProgress}%` }"></div>
       </div>
       <div class="progress-text">{{ searchProgress }}%</div>
     </div>
@@ -213,26 +196,26 @@ onMounted(() => {
   .search-config {
     padding: 10px 12px;
   }
-  
+
   .search-header h1 {
     font-size: 20px;
     margin-bottom: 12px;
     gap: 10px;
   }
-  
+
   .app-icon {
     width: 24px;
     height: 24px;
   }
-  
+
   .search-input-group {
     flex-direction: column;
   }
-  
+
   .option-group {
     gap: 12px;
   }
-  
+
   .option-label {
     font-size: 13px;
   }

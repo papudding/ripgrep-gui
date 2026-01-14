@@ -55,26 +55,26 @@ function handleMouseMove(e: MouseEvent) {
   if (!isResizing.value || !resizer.value || !resultsContainer.value || !previewContainer.value) {
     return;
   }
-  
+
   // 获取父容器的位置和尺寸
   const parentEl = resizer.value.parentElement;
   if (!parentEl) return;
-  
+
   const parentRect = parentEl.getBoundingClientRect();
   const parentWidth = parentRect.width;
-  
+
   // 计算新的结果容器宽度（相对于父容器）
   const newResultsWidth = e.clientX - parentRect.left;
-  
+
   // 限制最小宽度（20%）和最大宽度（80%）
   const minWidth = parentWidth * 0.2;
   const maxWidth = parentWidth * 0.8;
   const clampedWidth = Math.max(minWidth, Math.min(maxWidth, newResultsWidth));
-  
+
   // 计算百分比宽度
   const resultsWidthPercent = (clampedWidth / parentWidth) * 100;
   const previewWidthPercent = 100 - resultsWidthPercent;
-  
+
   // 更新样式
   resultsContainer.value.style.flex = `0 0 ${resultsWidthPercent}%`;
   previewContainer.value.style.width = `${previewWidthPercent}%`;
@@ -105,34 +105,24 @@ onUnmounted(() => {
   <div class="app-container">
     <!-- 搜索配置区域 -->
     <div class="search-config-section">
-      <SearchConfig 
-        @toggle-history="toggleHistory" 
-        @toggle-settings="toggleSettings" 
-      />
+      <SearchConfig @toggle-history="toggleHistory" @toggle-settings="toggleSettings" />
       <SearchHistory :visible="showHistory" @close="closeHistory" />
       <!-- <HistorySettings /> -->
     </div>
-    
+
     <!-- 设置对话框 -->
-    <SettingsModal 
-      :visible="showSettings" 
-      @close="closeSettings" 
-    />
-    
+    <SettingsModal :visible="showSettings" @close="closeSettings" />
+
     <!-- 搜索结果区域 -->
     <div class="search-results-section">
       <!-- 结果列表容器 -->
       <div class="results-container">
         <SearchResults />
       </div>
-      
+
       <!-- 可调整大小的分割线 -->
-      <div 
-        class="resizer"
-        @mousedown="handleMouseDown"
-        ref="resizer"
-      ></div>
-      
+      <div class="resizer" @mousedown="handleMouseDown" ref="resizer"></div>
+
       <!-- 文件预览容器 -->
       <div class="preview-container">
         <FilePreview />
@@ -200,7 +190,7 @@ onUnmounted(() => {
     background-color: #ffc107;
     color: #000;
   }
-  
+
   .preview-content pre code .match-line {
     background-color: rgba(255, 193, 7, 0.2);
     border-left: 3px solid #ffc107;
@@ -294,19 +284,19 @@ body {
   .search-results-section {
     flex-direction: column;
   }
-  
+
   .results-container {
     width: 100%;
     height: 50%;
   }
-  
+
   .preview-container {
     width: 100%;
     height: 50%;
     border-left: none;
     border-top: 1px solid var(--border-color);
   }
-  
+
   .resizer {
     width: 100%;
     height: 4px;

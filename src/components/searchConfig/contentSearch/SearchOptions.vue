@@ -29,47 +29,32 @@ function closeDialog() {
   <div class="content-search-options">
     <div class="option-group inline-header">
       <span class="option-section-title">内容搜索:</span>
-      
+
       <label class="option-label">
-        <input 
-          type="checkbox" 
-          v-model="contentSearchOptions.caseInsensitive"
-        />
+        <input type="checkbox" v-model="contentSearchOptions.caseInsensitive" />
         忽略大小写
       </label>
-      
+
       <label class="option-label">
-        <input 
-          type="checkbox" 
-          v-model="contentSearchOptions.wholeWord"
-        />
+        <input type="checkbox" v-model="contentSearchOptions.wholeWord" />
         全字匹配
       </label>
-      
+
       <label class="option-label">
-        <input 
-          type="checkbox" 
-          v-model="contentSearchOptions.regex"
-        />
+        <input type="checkbox" v-model="contentSearchOptions.regex" />
         正则表达式
       </label>
-      
+
       <label class="option-label">
-        <input 
-          type="checkbox" 
-          v-model="contentSearchOptions.ignoreHidden"
-        />
+        <input type="checkbox" v-model="contentSearchOptions.ignoreHidden" />
         忽略隐藏文件
       </label>
-      
-      <button 
-        class="advanced-toggle inline-toggle" 
-        @click="openDialog"
-      >
+
+      <button class="advanced-toggle inline-toggle" @click="openDialog">
         高级
       </button>
     </div>
-    
+
     <!-- 高级选项对话框 -->
     <div v-if="showDialog" class="dialog-overlay" @click="closeDialog">
       <div class="dialog-container" @click.stop>
@@ -158,6 +143,7 @@ function closeDialog() {
   from {
     opacity: 0;
   }
+
   to {
     opacity: 1;
   }

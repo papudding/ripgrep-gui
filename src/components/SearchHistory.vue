@@ -19,10 +19,10 @@ const searchHistory = computed(() => store.state.history.searchHistory);
 // 筛选后的历史记录
 const filteredHistory = computed(() => {
   if (!historyFilter.value) return searchHistory.value;
-  
+
   const filter = historyFilter.value.toLowerCase();
-  return searchHistory.value.filter((history: SearchHistory) => 
-    history.pattern.toLowerCase().includes(filter) || 
+  return searchHistory.value.filter((history: SearchHistory) =>
+    history.pattern.toLowerCase().includes(filter) ||
     history.path.toLowerCase().includes(filter)
   );
 });
@@ -73,24 +73,14 @@ onMounted(() => {
           &times;
         </button>
       </div>
-      
+
       <div class="modal-content">
         <div class="history-filter">
-          <input
-            v-model="historyFilter"
-            type="text"
-            placeholder="筛选历史记录..."
-            class="history-filter-input"
-          />
+          <input v-model="historyFilter" type="text" placeholder="筛选历史记录..." class="history-filter-input" />
         </div>
-        
+
         <div class="history-list">
-          <div 
-            v-for="history in filteredHistory" 
-            :key="history.id"
-            class="history-item"
-            @click="useHistory(history)"
-          >
+          <div v-for="history in filteredHistory" :key="history.id" class="history-item" @click="useHistory(history)">
             <div class="history-pattern">{{ history.pattern }}</div>
             <div class="history-path">{{ history.path }}</div>
             <div class="history-options">
@@ -101,13 +91,13 @@ onMounted(() => {
             </div>
             <div class="history-time">{{ new Date(history.timestamp).toLocaleString() }}</div>
           </div>
-          
+
           <div v-if="filteredHistory.length === 0" class="no-history">
             <p>{{ historyFilter ? '没有匹配的历史记录' : '暂无搜索历史' }}</p>
           </div>
         </div>
       </div>
-      
+
       <div class="modal-footer">
         <button @click="clearHistory" class="clear-history-btn">
           清除所有历史
@@ -152,6 +142,7 @@ onMounted(() => {
   from {
     opacity: 0;
   }
+
   to {
     opacity: 1;
   }
@@ -163,6 +154,7 @@ onMounted(() => {
     opacity: 0;
     transform: translateY(20px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);

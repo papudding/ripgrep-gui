@@ -33,11 +33,11 @@ const selectedResult = computed(() => store.state.file.selectedResult);
 // 内容搜索筛选后的结果
 const filteredContentResults = computed(() => {
   let results = store.getters['search/filteredSearchResults'](resultFilter.value);
-  
+
   // 排序
   const sortedResults = [...results].sort((a, b) => {
     let comparison = 0;
-    
+
     switch (sortBy.value) {
       case 'file':
         comparison = a.file.localeCompare(b.file);
@@ -49,27 +49,27 @@ const filteredContentResults = computed(() => {
         comparison = a.match.localeCompare(b.match);
         break;
     }
-    
+
     return sortOrder.value === 'asc' ? comparison : -comparison;
   });
-  
+
   return sortedResults;
 });
 
 // 文件名搜索筛选后的结果
 const filteredFilenameResults = computed(() => {
   let results = store.state.search.filenameSearchResults;
-  
+
   // 应用筛选
   if (resultFilter.value) {
     const filter = resultFilter.value.toLowerCase();
     results = results.filter(result => result.file.toLowerCase().includes(filter));
   }
-  
+
   // 排序
   const sortedResults = [...results].sort((a, b) => {
     let comparison = 0;
-    
+
     switch (sortBy.value) {
       case 'file':
         comparison = a.file.localeCompare(b.file);
@@ -81,10 +81,10 @@ const filteredFilenameResults = computed(() => {
         comparison = a.line - b.line;
         break;
     }
-    
+
     return sortOrder.value === 'asc' ? comparison : -comparison;
   });
-  
+
   return sortedResults;
 });
 
@@ -92,7 +92,7 @@ const filteredFilenameResults = computed(() => {
 const filteredResults = computed(() => {
   // 重置分页
   resetPagination();
-  
+
   return activeTab.value === 'content' ? filteredContentResults.value : filteredFilenameResults.value;
 });
 
@@ -146,14 +146,14 @@ function loadMoreResults() {
 function hasMatchingAssociation(filePath: string): boolean {
   const fileExtension = filePath.split('.').pop()?.toLowerCase();
   const fileAssociations = store.state.config.userConfig.fileAssociations;
-  
+
   if (fileExtension) {
-    const matchingAssociation = fileAssociations.find((assoc: { extension: string; }) => 
+    const matchingAssociation = fileAssociations.find((assoc: { extension: string; }) =>
       assoc.extension.toLowerCase() === fileExtension
     );
     return !!matchingAssociation;
   }
-  
+
   return false;
 }
 
@@ -161,33 +161,33 @@ function hasMatchingAssociation(filePath: string): boolean {
 async function openFile(result: SearchResult, event: MouseEvent) {
   // 阻止事件冒泡，避免触发选择结果的操作
   event.stopPropagation();
-  
+
   const filePath = result.file;
-  
+
   // 清除之前的错误信息
   delete errorMessages.value[filePath];
-  
+
   // 设置加载状态
   loadingFiles.value[filePath] = true;
-  
+
   try {
     // 获取文件扩展名
     const fileExtension = filePath.split('.').pop()?.toLowerCase();
-    
+
     // 从store获取文件关联配置
     const fileAssociations = store.state.config.userConfig.fileAssociations;
-    
+
     // 查找匹配的文件关联
     let tool: string | undefined;
     if (fileExtension) {
-      const matchingAssociation = fileAssociations.find((assoc: { extension: string; }) => 
+      const matchingAssociation = fileAssociations.find((assoc: { extension: string; }) =>
         assoc.extension.toLowerCase() === fileExtension
       );
       if (matchingAssociation) {
         tool = matchingAssociation.appPath;
       }
     }
-    
+
     // 根据是否找到匹配的工具来打开文件
     if (tool) {
       // 动态导入invoke函数
@@ -204,7 +204,7 @@ async function openFile(result: SearchResult, event: MouseEvent) {
   } catch (error) {
     console.error('Failed to open file:', error);
     errorMessages.value[filePath] = `打开文件失败: ${error instanceof Error ? error.message : String(error)}`;
-    
+
     // 3秒后清除错误信息
     setTimeout(() => {
       delete errorMessages.value[filePath];
@@ -219,19 +219,19 @@ async function openFile(result: SearchResult, event: MouseEvent) {
 async function openInFileSystem(result: SearchResult, event: MouseEvent) {
   // 阻止事件冒泡，避免触发选择结果的操作
   event.stopPropagation();
-  
+
   const filePath = result.file;
-  
+
   // 清除之前的错误信息
   delete errorMessages.value[filePath];
-  
+
   // 设置加载状态
   loadingFiles.value[filePath] = true;
-  
+
   try {
     // 获取当前操作系统平台
     const currentPlatform = await platform();
-    
+
     // 根据平台获取文件路径的上级目录
     let directoryPath: string;
     if (currentPlatform === 'windows') {
@@ -243,13 +243,13 @@ async function openInFileSystem(result: SearchResult, event: MouseEvent) {
       const lastSlashIndex = filePath.lastIndexOf('/');
       directoryPath = lastSlashIndex !== -1 ? filePath.substring(0, lastSlashIndex) : filePath;
     }
-    
+
     // 使用 Tauri 的 openPath API 在文件系统中打开目录
     await openPath(directoryPath);
   } catch (error) {
     console.error('Failed to open in file system:', error);
     errorMessages.value[filePath] = `在文件系统中打开失败: ${error instanceof Error ? error.message : String(error)}`;
-    
+
     // 3秒后清除错误信息
     setTimeout(() => {
       delete errorMessages.value[filePath];
@@ -266,119 +266,75 @@ async function openInFileSystem(result: SearchResult, event: MouseEvent) {
     <div class="results-header">
       <!-- 页签切换 -->
       <div class="results-tabs">
-        <button 
-          @click="activeTab = 'content'"
-          class="tab-btn"
-          :class="{ active: activeTab === 'content' }"
-          :data-count="filteredContentResults.length"
-        >
+        <button @click="activeTab = 'content'" class="tab-btn" :class="{ active: activeTab === 'content' }"
+          :data-count="filteredContentResults.length">
           内容匹配
         </button>
-        <button 
-          @click="activeTab = 'filename'"
-          class="tab-btn"
-          :class="{ active: activeTab === 'filename' }"
-          :data-count="filteredFilenameResults.length"
-        >
+        <button @click="activeTab = 'filename'" class="tab-btn" :class="{ active: activeTab === 'filename' }"
+          :data-count="filteredFilenameResults.length">
           文件名匹配
         </button>
       </div>
-      
+
       <div class="results-header-top">
         <h2>搜索结果 ({{ filteredResults.length }})</h2>
-        
+
         <!-- 结果筛选 -->
         <div class="results-filter">
-          <input
-            v-model="resultFilter"
-            type="text"
-            placeholder="筛选结果..."
-            class="filter-input"
-          />
+          <input v-model="resultFilter" type="text" placeholder="筛选结果..." class="filter-input" />
         </div>
       </div>
-      
+
       <!-- 结果排序 -->
       <div class="results-sort">
         <span class="sort-label">排序:</span>
-        <button 
-          @click="toggleSort('file')"
-          class="sort-btn"
-          :class="{ active: sortBy === 'file' }"
-        >
+        <button @click="toggleSort('file')" class="sort-btn" :class="{ active: sortBy === 'file' }">
           文件 {{ sortBy === 'file' ? (sortOrder === 'asc' ? '↑' : '↓') : '' }}
         </button>
-        <button 
-          @click="toggleSort('line')"
-          class="sort-btn"
-          :class="{ active: sortBy === 'line' }"
-        >
+        <button @click="toggleSort('line')" class="sort-btn" :class="{ active: sortBy === 'line' }">
           行号 {{ sortBy === 'line' ? (sortOrder === 'asc' ? '↑' : '↓') : '' }}
         </button>
-        <button 
-          @click="toggleSort('match')"
-          class="sort-btn"
-          :class="{ active: sortBy === 'match' }"
-        >
+        <button @click="toggleSort('match')" class="sort-btn" :class="{ active: sortBy === 'match' }">
           匹配 {{ sortBy === 'match' ? (sortOrder === 'asc' ? '↑' : '↓') : '' }}
         </button>
       </div>
     </div>
-    
+
     <div class="results-list">
-      <div 
-          v-for="(result, index) in paginatedResults" 
-          :key="index"
-          class="result-item"
-          :class="{ 'selected': selectedResult === result }"
-          @click="selectResult(result)"
-        >
-          <div class="result-item-content">
-            <div class="result-file">{{ result.file }}</div>
-            <div v-if="activeTab === 'content'" class="result-line">{{ result.line }}:{{ result.column }}</div>
-            <div v-else class="result-line">文件名匹配</div>
-            <div 
-              v-if="activeTab === 'content'" 
-              class="result-content" 
-              v-html="highlightMatch(result.content, result.match)"
-            ></div>
-          </div>
-          <div class="result-item-actions">
-            <button 
-              v-if="hasMatchingAssociation(result.file)"
-              @click="openFile(result, $event)"
-              class="open-file-btn"
-              :disabled="loadingFiles[result.file]"
-              :class="{ 'loading': loadingFiles[result.file] }"
-              title="使用app打开"
-            >
-              <span v-if="!loadingFiles[result.file]">
-                <img src="/app.svg" alt="打开" class="open-icon" />
-              </span>
-              <span v-else>⏳</span>
-            </button>
-            <button 
-              @click="openInFileSystem(result, $event)"
-              class="open-file-btn"
-              :disabled="loadingFiles[result.file]"
-              :class="{ 'loading': loadingFiles[result.file] }"
-              title="在文件系统中打开"
-            >
-              <span v-if="!loadingFiles[result.file]">
-                <img src="/folder.svg" alt="文件系统打开" class="open-icon" />
-              </span>
-              <span v-else>⏳</span>
-            </button>
-          </div>
-          <div v-if="errorMessages[result.file]" class="error-message">
-            {{ errorMessages[result.file] }}
-          </div>
+      <div v-for="(result, index) in paginatedResults" :key="index" class="result-item"
+        :class="{ 'selected': selectedResult === result }" @click="selectResult(result)">
+        <div class="result-item-content">
+          <div class="result-file">{{ result.file }}</div>
+          <div v-if="activeTab === 'content'" class="result-line">{{ result.line }}:{{ result.column }}</div>
+          <div v-else class="result-line">文件名匹配</div>
+          <div v-if="activeTab === 'content'" class="result-content"
+            v-html="highlightMatch(result.content, result.match)"></div>
         </div>
-      
+        <div class="result-item-actions">
+          <button v-if="hasMatchingAssociation(result.file)" @click="openFile(result, $event)" class="open-file-btn"
+            :disabled="loadingFiles[result.file]" :class="{ 'loading': loadingFiles[result.file] }" title="使用app打开">
+            <span v-if="!loadingFiles[result.file]">
+              <img src="/app.svg" alt="打开" class="open-icon" />
+            </span>
+            <span v-else>⏳</span>
+          </button>
+          <button @click="openInFileSystem(result, $event)" class="open-file-btn" :disabled="loadingFiles[result.file]"
+            :class="{ 'loading': loadingFiles[result.file] }" title="在文件系统中打开">
+            <span v-if="!loadingFiles[result.file]">
+              <img src="/folder.svg" alt="文件系统打开" class="open-icon" />
+            </span>
+            <span v-else>⏳</span>
+          </button>
+        </div>
+        <div v-if="errorMessages[result.file]" class="error-message">
+          {{ errorMessages[result.file] }}
+        </div>
+      </div>
+
       <div v-if="searchError" class="search-error">
         <p>{{ searchError }}</p>
       </div>
-      
+
       <div v-else-if="filteredResults.length === 0 && !isSearching" class="no-results">
         <div class="no-results-content">
           <h3>{{ resultFilter ? '没有匹配的筛选结果' : '未找到匹配结果' }}</h3>
@@ -394,21 +350,15 @@ async function openInFileSystem(result: SearchResult, event: MouseEvent) {
           </p>
         </div>
       </div>
-      
+
       <div v-if="isSearching" class="searching-indicator">
         <p>正在搜索...</p>
       </div>
-      
+
       <!-- 分页控件 -->
-      <Pagination
-        v-if="filteredResults.length > 0 && !isSearching"
-        :current-page="currentPage"
-        :total-pages="totalPages"
-        :total-results="filteredResults.length"
-        :page-size="PAGE_SIZE"
-        @go-to-page="goToPage"
-        @load-more="loadMoreResults"
-      />
+      <Pagination v-if="filteredResults.length > 0 && !isSearching" :current-page="currentPage"
+        :total-pages="totalPages" :total-results="filteredResults.length" :page-size="PAGE_SIZE" @go-to-page="goToPage"
+        @load-more="loadMoreResults" />
     </div>
   </div>
 </template>
@@ -786,48 +736,48 @@ async function openInFileSystem(result: SearchResult, event: MouseEvent) {
     padding: 10px 12px;
     gap: 8px;
   }
-  
+
   .results-header-top {
     flex-direction: column;
     align-items: stretch;
     gap: 8px;
   }
-  
+
   .results-tabs {
     gap: 6px;
   }
-  
+
   .tab-btn {
     padding: 6px 12px;
     font-size: 12px;
   }
-  
+
   .filter-input {
     width: 100%;
   }
-  
+
   .results-sort {
     flex-wrap: wrap;
     gap: 6px;
   }
-  
+
   .results-list {
     padding: 6px;
   }
-  
+
   .result-item {
     padding: 10px;
     margin-bottom: 6px;
   }
-  
+
   .result-file {
     font-size: 13px;
   }
-  
+
   .result-line {
     font-size: 11px;
   }
-  
+
   .result-content {
     font-size: 12px;
   }

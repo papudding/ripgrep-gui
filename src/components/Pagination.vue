@@ -31,45 +31,26 @@ function loadMoreResults() {
 <template>
   <div class="pagination">
     <div class="pagination-info">
-      显示 {{ (currentPage - 1) * pageSize + 1 }} - {{ Math.min(currentPage * pageSize, totalResults) }} 条，共 {{ totalResults }} 条结果
+      显示 {{ (currentPage - 1) * pageSize + 1 }} - {{ Math.min(currentPage * pageSize, totalResults) }} 条，共 {{
+        totalResults }} 条结果
     </div>
     <div class="pagination-controls">
-      <button 
-        @click="goToPage(1)" 
-        :disabled="currentPage === 1"
-        class="pagination-btn"
-      >
+      <button @click="goToPage(1)" :disabled="currentPage === 1" class="pagination-btn">
         首页
       </button>
-      <button 
-        @click="goToPage(currentPage - 1)" 
-        :disabled="currentPage === 1"
-        class="pagination-btn"
-      >
+      <button @click="goToPage(currentPage - 1)" :disabled="currentPage === 1" class="pagination-btn">
         上一页
       </button>
       <span class="page-info">
         第 {{ currentPage }}/{{ totalPages }} 页
       </span>
-      <button 
-        @click="goToPage(currentPage + 1)" 
-        :disabled="currentPage === totalPages"
-        class="pagination-btn"
-      >
+      <button @click="goToPage(currentPage + 1)" :disabled="currentPage === totalPages" class="pagination-btn">
         下一页
       </button>
-      <button 
-        @click="goToPage(totalPages)" 
-        :disabled="currentPage === totalPages"
-        class="pagination-btn"
-      >
+      <button @click="goToPage(totalPages)" :disabled="currentPage === totalPages" class="pagination-btn">
         末页
       </button>
-      <button 
-        @click="loadMoreResults"
-        :disabled="currentPage === totalPages"
-        class="load-more-btn"
-      >
+      <button @click="loadMoreResults" :disabled="currentPage === totalPages" class="load-more-btn">
         加载更多
       </button>
     </div>

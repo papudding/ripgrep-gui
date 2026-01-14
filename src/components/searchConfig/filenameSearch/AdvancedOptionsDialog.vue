@@ -50,107 +50,69 @@ function closeDialog() {
       <h3>文件名搜索高级选项</h3>
       <button class="close-btn" @click="closeDialog">×</button>
     </div>
-    
+
     <div class="dialog-content">
       <div class="option-group">
         <label class="option-label">
-          <input 
-            type="checkbox" 
-            v-model="filenameSearchOptions.noIgnore"
-          />
+          <input type="checkbox" v-model="filenameSearchOptions.noIgnore" />
           包含忽略文件
         </label>
-        
+
         <label class="option-label">
-          <input 
-            type="checkbox" 
-            v-model="filenameSearchOptions.noIgnoreVcs"
-          />
+          <input type="checkbox" v-model="filenameSearchOptions.noIgnoreVcs" />
           包含VCS忽略文件
         </label>
-        
+
         <label class="option-label">
-          <input 
-            type="checkbox" 
-            v-model="filenameSearchOptions.followSymlinks"
-          />
+          <input type="checkbox" v-model="filenameSearchOptions.followSymlinks" />
           跟随符号链接
         </label>
       </div>
-      
+
       <div class="option-group">
         <div class="depth-control">
           <label>最大搜索深度:</label>
-          <input 
-            type="number" 
-            min="0" 
-            v-model.number="filenameSearchOptions.maxDepth"
-          />
+          <input type="number" min="0" v-model.number="filenameSearchOptions.maxDepth" />
           <span class="depth-hint">(0 = 无限制)</span>
         </div>
-        
+
         <div class="depth-control">
           <label>最小搜索深度:</label>
-          <input 
-            type="number" 
-            min="0" 
-            v-model.number="filenameSearchOptions.minDepth"
-          />
+          <input type="number" min="0" v-model.number="filenameSearchOptions.minDepth" />
         </div>
       </div>
-      
+
       <div class="option-group">
         <div class="input-control">
           <label>文件扩展名:</label>
-          <input 
-            type="text" 
-            placeholder="例如: js,ts,json"
-            v-model="extensionsInput"
-            @input="handleExtensionsInput"
-          />
+          <input type="text" placeholder="例如: js,ts,json" v-model="extensionsInput" @input="handleExtensionsInput" />
         </div>
-        
+
         <div class="input-control">
           <label>排除模式:</label>
-          <input 
-            type="text" 
-            placeholder="例如: node_modules,*.log"
-            v-model="excludePatternsInput"
-            @input="handleExcludePatternsInput"
-          />
+          <input type="text" placeholder="例如: node_modules,*.log" v-model="excludePatternsInput"
+            @input="handleExcludePatternsInput" />
         </div>
       </div>
-      
+
       <div class="option-group">
         <div class="input-control">
           <label>文件大小:</label>
-          <input 
-            type="text" 
-            placeholder="例如: +100k, -10M"
-            v-model="filenameSearchOptions.fileSize"
-          />
+          <input type="text" placeholder="例如: +100k, -10M" v-model="filenameSearchOptions.fileSize" />
         </div>
-        
+
         <div class="input-control">
           <label>最近修改时间:</label>
-          <input 
-            type="text" 
-            placeholder="例如: 1d, 2weeks"
-            v-model="filenameSearchOptions.changedWithin"
-          />
+          <input type="text" placeholder="例如: 1d, 2weeks" v-model="filenameSearchOptions.changedWithin" />
         </div>
-        
+
         <div class="input-control">
           <label>之前修改时间:</label>
-          <input 
-            type="text" 
-            placeholder="例如: 1d, 2weeks"
-            v-model="filenameSearchOptions.changedBefore"
-          />
+          <input type="text" placeholder="例如: 1d, 2weeks" v-model="filenameSearchOptions.changedBefore" />
         </div>
       </div>
     </div>
-    
+
     <div class="dialog-footer">
       <button class="cancel-btn" @click="closeDialog">取消</button>
       <button class="confirm-btn" @click="closeDialog">确定</button>
@@ -374,6 +336,7 @@ function closeDialog() {
     opacity: 0;
     transform: translateY(-20px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -386,13 +349,13 @@ function closeDialog() {
     width: 95vw;
     max-height: 90vh;
   }
-  
+
   .option-group {
     flex-direction: column;
     align-items: flex-start;
     gap: 12px;
   }
-  
+
   .depth-control,
   .input-control {
     width: 100%;
