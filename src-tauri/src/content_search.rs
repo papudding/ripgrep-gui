@@ -1,8 +1,8 @@
 // Learn more about Tauri commands at https://tauri.app/develop/calling-rust/
 use std::str::from_utf8;
-use tauri_plugin_shell::process::CommandEvent;
 // 导入 Tauri Shell 扩展，用于 Sidecar 调用
 use crate::entity::{ContentSearchParams, SearchResult};
+use crate::util::parse_output_from_rx;
 use tauri_plugin_shell::ShellExt;
 
 /// 检测系统是否安装了 rg (ripgrep) 工具
@@ -101,34 +101,13 @@ pub async fn search(
     );
 
     // 执行 Sidecar 命令
-    let (mut rx, mut _child) = cmd
+    let (rx, mut _child) = cmd
         .args(args)
         .spawn()
         .map_err(|e| format!("执行内置 rg 命令失败: {}", e))?;
 
     // 收集输出
-    let mut stdout = Vec::new();
-    let mut stderr = Vec::new();
-
-    // 处理命令执行事件
-    while let Some(event) = rx.recv().await {
-        match event {
-            CommandEvent::Stdout(line_bytes) => {
-                stdout.extend_from_slice(&line_bytes);
-            }
-            CommandEvent::Stderr(line_bytes) => {
-                stderr.extend_from_slice(&line_bytes);
-            }
-            _ => {}
-        }
-    }
-
-    // 转换为与系统命令相同的输出格式
-    let output = std::process::Output {
-        status: std::process::ExitStatus::default(),
-        stdout,
-        stderr,
-    };
+    let output = parse_output_from_rx(rx).await;
 
     // 检查命令是否成功执行
     // ripgrep在没有找到结果时返回非零状态码，这是正常行为，不是错误

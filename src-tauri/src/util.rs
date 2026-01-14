@@ -1,5 +1,7 @@
-use std::process::Command;
+use std::process::{Command, Output};
 use std::str::from_utf8;
+use tauri::async_runtime::Receiver;
+use tauri_plugin_shell::process::CommandEvent;
 #[tauri::command]
 pub async fn open_file_with_app(file_path: &str, app: &str) -> Result<(), String> {
     let output = match cfg!(target_os = "windows") {
@@ -44,5 +46,32 @@ pub async fn open_file_with_app(file_path: &str, app: &str) -> Result<(), String
             }
         }
         Err(e) => Err(format!("执行命令失败: {}", e)),
+    }
+}
+
+/// 从命令执行事件接收器中解析输出
+pub async fn parse_output_from_rx(mut rx: Receiver<CommandEvent>) -> Output {
+    // 收集输出
+    let mut stdout = Vec::new();
+    let mut stderr = Vec::new();
+
+    // 处理命令执行事件
+    while let Some(event) = rx.recv().await {
+        match event {
+            CommandEvent::Stdout(line_bytes) => {
+                stdout.extend_from_slice(&line_bytes);
+            }
+            CommandEvent::Stderr(line_bytes) => {
+                stderr.extend_from_slice(&line_bytes);
+            }
+            _ => {}
+        }
+    }
+
+    // 转换为与系统命令相同的输出格式
+    Output {
+        status: std::process::ExitStatus::default(),
+        stdout,
+        stderr,
     }
 }
