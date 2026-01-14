@@ -34,6 +34,56 @@ export interface ContentSearchOptions {
   excludeTypes: string[];
   /** 最大搜索深度（0表示无限制） */
   maxDepth: number;
+  // 搜索模式相关参数
+  /** 是否使用固定字符串模式（非正则） */
+  fixedStrings: boolean;
+  /** 是否反转匹配（显示不匹配的行） */
+  invertMatch: boolean;
+  /** 是否整行匹配 */
+  lineRegexp: boolean;
+  /** 是否智能大小写（全小写模式时不敏感） */
+  smartCase: boolean;
+  /** 是否搜索二进制文件作为文本 */
+  text: boolean;
+  /** 是否多行搜索 */
+  multiline: boolean;
+  /** 多行搜索时 . 是否匹配换行符 */
+  multilineDotall: boolean;
+  /** 是否使用 PCRE2 正则引擎 */
+  pcre2: boolean;
+  // 文件过滤相关参数
+  /** 包含的文件模式 */
+  include: string[];
+  /** 排除的文件模式 */
+  exclude: string[];
+  /** 包含的文件类型 */
+  fileTypes: string[];
+  /** 排除的文件类型 */
+  fileTypesNot: string[];
+  /** 是否不使用 ignore 文件 */
+  noIgnore: boolean;
+  /** 是否不忽略 VCS 文件 */
+  noIgnoreVcs: boolean;
+  /** 是否跟随符号链接 */
+  followSymlinks: boolean;
+  // 搜索行为相关参数
+  /** 最小搜索深度 */
+  minDepth: number;
+  /** 使用的线程数 */
+  threads: number;
+  /** 每个文件的最大匹配数 */
+  maxCount: number;
+  // 输出相关参数
+  /** 是否显示行号 */
+  lineNumber: boolean;
+  /** 是否显示文件名 */
+  withFilename: boolean;
+  /** 显示匹配上下文行数 */
+  context: number;
+  /** 显示匹配后上下文行数 */
+  afterContext: number;
+  /** 显示匹配前上下文行数 */
+  beforeContext: number;
 }
 
 /**

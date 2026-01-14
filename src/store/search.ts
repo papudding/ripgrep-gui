@@ -15,7 +15,33 @@ const searchModule: Module<Partial<SearchState>, RootState> = {
       includeTypes: [],
       excludeTypes: [],
       maxDepth: 0,
-      filenameExactMatch: false
+      // 搜索模式相关参数
+      fixedStrings: false,
+      invertMatch: false,
+      lineRegexp: false,
+      smartCase: false,
+      text: false,
+      multiline: false,
+      multilineDotall: false,
+      pcre2: false,
+      // 文件过滤相关参数
+      include: [],
+      exclude: [],
+      fileTypes: [],
+      fileTypesNot: [],
+      noIgnore: false,
+      noIgnoreVcs: false,
+      followSymlinks: false,
+      // 搜索行为相关参数
+      minDepth: 0,
+      threads: 0,
+      maxCount: 0,
+      // 输出相关参数
+      lineNumber: true,
+      withFilename: true,
+      context: 0,
+      afterContext: 0,
+      beforeContext: 0
     },
     filenameSearchOptions: {
       caseInsensitive: false,
@@ -72,7 +98,12 @@ const searchModule: Module<Partial<SearchState>, RootState> = {
     }
   },
   actions: {
-    async performSearch({ commit, state, dispatch, rootState }) {
+    async performSearch({ commit, state, dispatch, rootState }: {
+      commit: any;
+      state: SearchState;
+      dispatch: any;
+      rootState: RootState;
+    }) {
       commit('setIsSearching', true);
       commit('setSearchResults', []);
       commit('setFilenameSearchResults', []);
@@ -92,7 +123,34 @@ const searchModule: Module<Partial<SearchState>, RootState> = {
               whole_word: state.contentSearchOptions.wholeWord,
               regex: state.contentSearchOptions.regex,
               ignore_hidden: state.contentSearchOptions.ignoreHidden,
-              max_depth: state.contentSearchOptions.maxDepth
+              max_depth: state.contentSearchOptions.maxDepth,
+              // 搜索模式相关参数
+              fixed_strings: state.contentSearchOptions.fixedStrings,
+              invert_match: state.contentSearchOptions.invertMatch,
+              line_regexp: state.contentSearchOptions.lineRegexp,
+              smart_case: state.contentSearchOptions.smartCase,
+              text: state.contentSearchOptions.text,
+              multiline: state.contentSearchOptions.multiline,
+              multiline_dotall: state.contentSearchOptions.multilineDotall,
+              pcre2: state.contentSearchOptions.pcre2,
+              // 文件过滤相关参数
+              include: state.contentSearchOptions.include,
+              exclude: state.contentSearchOptions.exclude,
+              file_types: state.contentSearchOptions.fileTypes,
+              file_types_not: state.contentSearchOptions.fileTypesNot,
+              no_ignore: state.contentSearchOptions.noIgnore,
+              no_ignore_vcs: state.contentSearchOptions.noIgnoreVcs,
+              follow_symlinks: state.contentSearchOptions.followSymlinks,
+              // 搜索行为相关参数
+              min_depth: state.contentSearchOptions.minDepth,
+              threads: state.contentSearchOptions.threads,
+              max_count: state.contentSearchOptions.maxCount,
+              // 输出相关参数
+              line_number: state.contentSearchOptions.lineNumber,
+              with_filename: state.contentSearchOptions.withFilename,
+              context: state.contentSearchOptions.context,
+              after_context: state.contentSearchOptions.afterContext,
+              before_context: state.contentSearchOptions.beforeContext
             }
           }),
           // 调用文件名搜索命令

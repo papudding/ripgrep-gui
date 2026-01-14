@@ -32,15 +32,40 @@ fn build_search_args(
 ) -> Vec<String> {
     let mut args = Vec::new();
 
-    // 添加搜索模式
-    if !content_search_params.regex {
-        args.push(content_search_params.pattern.to_string());
+    // 添加搜索选项
+    // 搜索模式相关参数
+    if content_search_params.fixed_strings {
+        args.push("-F".to_string());
     }
 
-    // 添加搜索路径
-    args.push(content_search_params.path.to_string());
+    if content_search_params.invert_match {
+        args.push("-v".to_string());
+    }
 
-    // 添加搜索选项
+    if content_search_params.line_regexp {
+        args.push("-x".to_string());
+    }
+
+    if content_search_params.smart_case {
+        args.push("-S".to_string());
+    }
+
+    if content_search_params.text {
+        args.push("-a".to_string());
+    }
+
+    if content_search_params.multiline {
+        args.push("-U".to_string());
+    }
+
+    if content_search_params.multiline_dotall {
+        args.push("--multiline-dotall".to_string());
+    }
+
+    if content_search_params.pcre2 {
+        args.push("-P".to_string());
+    }
+
     if content_search_params.case_insensitive {
         args.push("-i".to_string());
     }
@@ -49,18 +74,91 @@ fn build_search_args(
         args.push("-w".to_string());
     }
 
-    if content_search_params.regex {
-        args.push("-e".to_string());
-        args.push(content_search_params.pattern.to_string());
+    // 文件过滤相关参数
+    for pattern in &content_search_params.include {
+        args.push("--include".to_string());
+        args.push(pattern.to_string());
+    }
+
+    for pattern in &content_search_params.exclude {
+        args.push("--exclude".to_string());
+        args.push(pattern.to_string());
+    }
+
+    for type_name in &content_search_params.file_types {
+        args.push("--type".to_string());
+        args.push(type_name.to_string());
+    }
+
+    for type_name in &content_search_params.file_types_not {
+        args.push("--type-not".to_string());
+        args.push(type_name.to_string());
+    }
+
+    if content_search_params.no_ignore {
+        args.push("--no-ignore".to_string());
+    }
+
+    if content_search_params.no_ignore_vcs {
+        args.push("--no-ignore-vcs".to_string());
+    }
+
+    if content_search_params.follow_symlinks {
+        args.push("-L".to_string());
+    }
+
+    // 搜索行为相关参数
+    if content_search_params.min_depth > 0 {
+        args.push(format!("--min-depth={}", content_search_params.min_depth));
+    }
+
+    if content_search_params.max_depth > 0 {
+        args.push(format!("--max-depth={}", content_search_params.max_depth));
+    }
+
+    if content_search_params.threads > 0 {
+        args.push(format!("-j{}", content_search_params.threads));
+    }
+
+    if content_search_params.max_count > 0 {
+        args.push(format!("-m{}", content_search_params.max_count));
+    }
+
+    // 输出相关参数
+    if content_search_params.line_number {
+        args.push("-n".to_string());
+    }
+
+    if content_search_params.with_filename {
+        args.push("-H".to_string());
+    }
+
+    if content_search_params.context > 0 {
+        args.push(format!("-C{}", content_search_params.context));
+    }
+
+    if content_search_params.after_context > 0 {
+        args.push(format!("-A{}", content_search_params.after_context));
+    }
+
+    if content_search_params.before_context > 0 {
+        args.push(format!("-B{}", content_search_params.before_context));
     }
 
     if !content_search_params.ignore_hidden {
         args.push("--hidden".to_string());
     }
 
-    if content_search_params.max_depth > 0 {
-        args.push(format!("--max-depth={}", content_search_params.max_depth));
+    // 添加搜索模式
+    if content_search_params.regex {
+        args.push("-e".to_string());
+        args.push(content_search_params.pattern.to_string());
+    } else {
+        args.push(content_search_params.pattern.to_string());
     }
+
+    // 添加搜索路径
+    args.push(content_search_params.path.to_string());
 
     // 设置输出格式: 文件路径:行号:列号:内容
     args.push("--vimgrep".to_string());
