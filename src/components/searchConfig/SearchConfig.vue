@@ -1,9 +1,12 @@
 <script setup lang="ts">
 import { computed, onMounted } from "vue";
 import { useStore } from 'vuex';
+import { useI18n } from 'vue-i18n';
 import { open } from '@tauri-apps/plugin-dialog';
 import ContentSearchOptions from './contentSearch/SearchOptions.vue';
 import FilenameSearchOptions from './filenameSearch/SearchOptions.vue';
+
+const { t } = useI18n();
 
 
 const store = useStore();
@@ -44,7 +47,7 @@ async function selectSearchPath() {
     const selected = await open({
       directory: true,
       multiple: false,
-      title: "选择搜索目录"
+      title: t('search.directoryPickerTitle')
     });
 
     if (selected && typeof selected === 'string') {
@@ -52,7 +55,7 @@ async function selectSearchPath() {
     }
   } catch (error) {
     console.error('Failed to open directory picker:', error);
-    alert('打开目录选择器失败，请检查应用权限');
+    alert(t('error.directoryPicker'));
   }
 }
 
@@ -80,10 +83,10 @@ onMounted(() => {
     <div class="search-header">
       <h1>
         <img src="../../../src-tauri/icons/icon.png" alt="Icon" class="app-icon">
-        ripgrep GUI
+        {{ t('app.title') }}
       </h1>
       <button @click="$emit('toggleSettings')" class="settings-btn">
-        设置
+        {{ t('settings.title') }}
       </button>
     </div>
 
@@ -91,30 +94,30 @@ onMounted(() => {
       <!-- 文件路径选择 -->
       <div class="path-selector">
         <button @click="selectSearchPath" class="path-btn">
-          {{ searchPath || '选择搜索目录' }}
+          {{ searchPath || t('search.selectDirectory') }}
         </button>
       </div>
 
       <!-- 搜索模式输入 -->
       <div class="search-input-group">
         <div class="search-input-wrapper">
-          <input v-model="searchPattern" type="text" placeholder="输入搜索模式... (至少2个字符)" class="search-input"
+          <input v-model="searchPattern" type="text" :placeholder="t('search.searchPattern')" class="search-input"
             @keyup.enter="performSearch" />
           <div v-if="searchPattern && searchPattern.length < MIN_SEARCH_LENGTH" class="search-hint">
-            至少需要输入{{ MIN_SEARCH_LENGTH }}个字符
+            {{ t('search.searchHint', { minLength: MIN_SEARCH_LENGTH }) }}
           </div>
         </div>
         <select v-model="searchScope" class="search-scope-select">
-          <option value="both">搜索内容和文件名</option>
-          <option value="content">仅内容</option>
-          <option value="filename">仅文件名</option>
+          <option value="both">{{ t('search.searchScope.both') }}</option>
+          <option value="content">{{ t('search.searchScope.content') }}</option>
+          <option value="filename">{{ t('search.searchScope.filename') }}</option>
         </select>
         <button @click="toggleHistory" class="history-btn">
-          历史
+          {{ t('search.history') }}
         </button>
         <button @click="performSearch" class="search-btn"
           :disabled="isSearching || !searchPath || !searchPattern || searchPattern.length < MIN_SEARCH_LENGTH">
-          {{ isSearching ? '搜索中...' : '搜索' }}
+          {{ isSearching ? t('search.searching') : t('search.search') }}
         </button>
       </div>
     </div>

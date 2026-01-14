@@ -1,8 +1,11 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from "vue";
 import { useStore } from 'vuex';
+import { useI18n } from 'vue-i18n';
 import { ask } from '@tauri-apps/plugin-dialog';
 import type { SearchHistory } from '../types';
+
+const { t } = useI18n();
 
 const store = useStore();
 
@@ -41,7 +44,7 @@ function useHistory(history: SearchHistory) {
 
 // 清除搜索历史
 async function clearHistory() {
-  const confirmed = await ask('确定要清除所有搜索历史吗？', {
+  const confirmed = await ask(t('history.confirmClear'), {
     title: '确认清除',
     kind: 'warning'
   });
@@ -73,7 +76,7 @@ onMounted(() => {
   <div v-if="visible" class="history-modal-overlay">
     <div class="history-modal">
       <div class="modal-header">
-        <h2>搜索历史</h2>
+        <h2>{{ t('history.title') }}</h2>
         <button @click="closeHistory" class="close-btn">
           &times;
         </button>
@@ -98,14 +101,14 @@ onMounted(() => {
           </div>
 
           <div v-if="filteredHistory.length === 0" class="no-history">
-            <p>{{ historyFilter ? '没有匹配的历史记录' : '暂无搜索历史' }}</p>
+            <p>{{ historyFilter ? '没有匹配的历史记录' : t('history.empty') }}</p>
           </div>
         </div>
       </div>
 
       <div class="modal-footer">
         <button @click="clearHistory" class="clear-history-btn">
-          清除所有历史
+          {{ t('history.clear') }}
         </button>
       </div>
     </div>

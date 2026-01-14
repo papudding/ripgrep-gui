@@ -1,7 +1,10 @@
 <script setup lang="ts">
 import { ref, computed } from "vue";
 import { useStore } from 'vuex';
+import { useI18n } from 'vue-i18n';
 import { open } from '@tauri-apps/plugin-dialog';
+
+const { t } = useI18n();
 
 const store = useStore();
 
@@ -34,12 +37,12 @@ const filteredFileAssociations = computed(() => {
 // 添加文件关联
 function addFileAssociation() {
   if (!newFileAssociation.value.extension.trim()) {
-    errors.value.extension = '扩展名不能为空';
+    errors.value.extension = t('error.extensionRequired');
     emit('update:errors', errors.value);
     return;
   }
   if (!newFileAssociation.value.appPath.trim()) {
-    errors.value.appPath = '应用路径不能为空';
+    errors.value.appPath = t('error.appPathRequired');
     emit('update:errors', errors.value);
     return;
   }
@@ -75,12 +78,12 @@ function saveEditedAssociation() {
   if (!editingAssociation.value) return;
 
   if (!editingAssociation.value.extension.trim()) {
-    errors.value.editExtension = '扩展名不能为空';
+    errors.value.editExtension = t('error.extensionRequired');
     emit('update:errors', errors.value);
     return;
   }
   if (!editingAssociation.value.appPath.trim()) {
-    errors.value.editAppPath = '应用路径不能为空';
+    errors.value.editAppPath = t('error.appPathRequired');
     emit('update:errors', errors.value);
     return;
   }
@@ -124,7 +127,7 @@ async function selectAppPath(type: 'new' | 'edit') {
     const selected = await open({
       directory: false,
       multiple: false,
-      title: '选择应用程序'
+      title: t('fileAssociations.selectApp')
     });
 
     if (selected && typeof selected === 'string') {
@@ -155,13 +158,13 @@ function exportFileAssociations() {
     link.click();
     URL.revokeObjectURL(url);
 
-    importExportSuccess.value = '文件关联配置导出成功';
+    importExportSuccess.value = t('fileAssociations.exportSuccess');
     setTimeout(() => {
       importExportSuccess.value = '';
     }, 3000);
   } catch (error) {
     console.error('Failed to export file associations:', error);
-    importExportError.value = '导出失败: ' + (error instanceof Error ? error.message : String(error));
+    importExportError.value = t('fileAssociations.exportFailed', { error: error instanceof Error ? error.message : String(error) });
     setTimeout(() => {
       importExportError.value = '';
     }, 3000);
@@ -190,17 +193,17 @@ function importFileAssociations() {
         );
 
         fileAssociations.value = validAssociations;
-        importExportSuccess.value = '文件关联配置导入成功';
+        importExportSuccess.value = t('fileAssociations.importSuccess');
         setTimeout(() => {
           importExportSuccess.value = '';
         }, 3000);
         emit('update:fileAssociations', fileAssociations.value);
       } else {
-        throw new Error('无效的文件格式');
+        throw new Error(t('error.invalidFileFormat'));
       }
     } catch (error) {
       console.error('Failed to import file associations:', error);
-      importExportError.value = '导入失败: ' + (error instanceof Error ? error.message : String(error));
+      importExportError.value = t('fileAssociations.importFailed', { error: error instanceof Error ? error.message : String(error) });
       setTimeout(() => {
         importExportError.value = '';
       }, 3000);
@@ -216,10 +219,10 @@ function importFileAssociations() {
     <!-- 导入/导出按钮 -->
     <div class="import-export-buttons">
       <button @click="importFileAssociations" class="import-btn">
-        导入配置
+        {{ t('fileAssociations.importConfig') }}
       </button>
       <button @click="exportFileAssociations" class="export-btn">
-        导出配置
+        {{ t('fileAssociations.exportConfig') }}
       </button>
     </div>
 
@@ -234,26 +237,26 @@ function importFileAssociations() {
     <!-- 添加文件关联表单 -->
     <div class="add-file-association-form">
       <div class="add-btn-container">
-        <h3>添加文件关联</h3>
+        <h3>{{ t('fileAssociations.addFileAssociation') }}</h3>
         <button type="button" @click="addFileAssociation" class="add-btn">
-          添加
+          {{ t('fileAssociations.add') }}
         </button>
       </div>
 
       <div class="form-row">
         <div class="form-group">
-          <label class="form-label">扩展名</label>
-          <input v-model="newFileAssociation.extension" type="text" class="form-input" placeholder="例如：txt" />
+          <label class="form-label">{{ t('fileAssociations.extension') }}</label>
+          <input v-model="newFileAssociation.extension" type="text" class="form-input" :placeholder="t('fileAssociations.extensionPlaceholder')" />
           <div v-if="errors.extension" class="error-message">
             {{ errors.extension }}
           </div>
         </div>
         <div class="form-group">
-          <label class="form-label">默认应用</label>
+          <label class="form-label">{{ t('fileAssociations.defaultApp') }}</label>
           <div class="input-with-button">
-            <input v-model="newFileAssociation.appPath" type="text" class="form-input" placeholder="选择应用程序" />
+            <input v-model="newFileAssociation.appPath" type="text" class="form-input" :placeholder="t('fileAssociations.selectApp')" />
             <button type="button" @click="selectAppPath('new')" class="path-select-btn">
-              选择
+              {{ t('fileAssociations.select') }}
             </button>
           </div>
           <div v-if="errors.appPath" class="error-message">
@@ -266,21 +269,21 @@ function importFileAssociations() {
     <!-- 文件关联列表 -->
     <div class="file-associations-list">
       <div class="file-association-search-container">
-        <h3>已配置的文件关联</h3>
+        <h3>{{ t('fileAssociations.selectedFileAssociations') }}</h3>
         <!-- 文件关联搜索 -->
         <div class="file-association-search">
-          <input v-model="fileAssociationFilter" type="text" class="form-input" placeholder="搜索扩展名..." />
+          <input v-model="fileAssociationFilter" type="text" :placeholder="t('fileAssociations.searchExtension')" class="form-input" />
         </div>
       </div>
       <div v-if="filteredFileAssociations.length === 0" class="no-associations">
-        <p>暂无文件关联配置</p>
+        <p>{{ t('fileAssociations.noAssociations') }}</p>
       </div>
       <table v-else class="associations-table">
         <thead>
           <tr>
-            <th>扩展名</th>
-            <th>默认应用</th>
-            <th>操作</th>
+            <th>{{ t('fileAssociations.extension') }}</th>
+            <th>{{ t('fileAssociations.defaultApp') }}</th>
+            <th>{{ t('fileAssociations.actions') }}</th>
           </tr>
         </thead>
         <tbody>
@@ -289,7 +292,7 @@ function importFileAssociations() {
               {{ association.extension }}
             </td>
             <td v-else>
-              <input v-model="editingAssociation.extension" type="text" class="form-input" />
+              <input v-model="editingAssociation.extension" type="text" class="form-input" :placeholder="t('fileAssociations.extensionPlaceholder')" />
               <div v-if="errors.editExtension" class="error-message">
                 {{ errors.editExtension }}
               </div>
@@ -299,9 +302,9 @@ function importFileAssociations() {
             </td>
             <td v-else>
               <div class="input-with-button">
-                <input v-model="editingAssociation.appPath" type="text" class="form-input" />
+                <input v-model="editingAssociation.appPath" type="text" class="form-input" :placeholder="t('fileAssociations.selectApp')" />
                 <button type="button" @click="selectAppPath('edit')" class="path-select-btn">
-                  选择
+                  {{ t('fileAssociations.select') }}
                 </button>
               </div>
               <div v-if="errors.editAppPath" class="error-message">
@@ -312,18 +315,18 @@ function importFileAssociations() {
               <div v-if="!editingAssociation || editingAssociation.extension !== association.extension"
                 class="association-actions">
                 <button @click="editFileAssociation(association)" class="edit-btn">
-                  编辑
+                  {{ t('fileAssociations.edit') }}
                 </button>
                 <button @click="deleteFileAssociation(association.extension)" class="delete-btn">
-                  删除
+                  {{ t('fileAssociations.delete') }}
                 </button>
               </div>
               <div v-else class="edit-actions">
                 <button @click="saveEditedAssociation" class="save-btn">
-                  保存
+                  {{ t('fileAssociations.save') }}
                 </button>
                 <button @click="cancelEdit" class="cancel-btn">
-                  取消
+                  {{ t('fileAssociations.cancel') }}
                 </button>
               </div>
             </td>

@@ -1,8 +1,11 @@
 <script setup lang="ts">
 import { ref } from "vue";
+import { useI18n } from 'vue-i18n';
 import GeneralTab from './tabs/GeneralTab.vue';
 import FileAssociationsTab from './tabs/FileAssociationsTab.vue';
 import AboutTab from './tabs/AboutTab.vue';
+
+const { t } = useI18n();
 
 
 // 定义组件属性
@@ -26,7 +29,7 @@ const activeTab = ref('general'); // general, fileAssociations
   <div v-if="visible" class="settings-modal-overlay">
     <div class="settings-modal">
       <div class="modal-header">
-        <h2>设置</h2>
+        <h2>{{ t('settings.title') }}</h2>
         <button @click="emit('close')" class="close-btn">
           &times;
         </button>
@@ -34,14 +37,14 @@ const activeTab = ref('general'); // general, fileAssociations
 
       <div class="modal-tabs">
         <button @click="activeTab = 'general'" class="tab-btn" :class="{ active: activeTab === 'general' }">
-          基本设置
+          {{ t('settings.general') }}
         </button>
         <button @click="activeTab = 'fileAssociations'" class="tab-btn"
           :class="{ active: activeTab === 'fileAssociations' }">
-          文件关联
+          {{ t('settings.fileAssociations') }}
         </button>
         <button @click="activeTab = 'about'" class="tab-btn" :class="{ active: activeTab === 'about' }">
-          关于
+          {{ t('settings.about') }}
         </button>
       </div>
 

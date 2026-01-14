@@ -11,7 +11,7 @@ pub fn setup_logger(_app: &tauri::AppHandle, log_dir: &Path) -> Result<(), Box<d
     info!("日志文件将保存到: {}", log_dir.display());
 
     // 配置 flexi_logger
-    let handle = Logger::try_with_env_or_str("info")?
+    Logger::try_with_env_or_str("info")?
         .log_to_file(
             FileSpec::default()
                 .directory(log_dir)

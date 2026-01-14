@@ -1,11 +1,14 @@
 <script setup lang="ts">
 import { ref, computed } from "vue";
 import { useStore } from 'vuex';
+import { useI18n } from 'vue-i18n';
 import type { SearchResult } from '../types';
 import { highlightMatch } from '../utils/highlight';
 import Pagination from './Pagination.vue';
 import { openPath } from '@tauri-apps/plugin-opener';
 import { platform } from '@tauri-apps/plugin-os';
+
+const { t } = useI18n();
 
 const store = useStore();
 
@@ -277,7 +280,7 @@ async function openInFileSystem(result: SearchResult, event: MouseEvent) {
       </div>
 
       <div class="results-header-top">
-        <h2>搜索结果 ({{ filteredResults.length }})</h2>
+        <h2>{{ t('results.filesFound', { count: filteredResults.length }) }}</h2>
 
         <!-- 结果筛选 -->
         <div class="results-filter">
@@ -289,13 +292,13 @@ async function openInFileSystem(result: SearchResult, event: MouseEvent) {
       <div class="results-sort">
         <span class="sort-label">排序:</span>
         <button @click="toggleSort('file')" class="sort-btn" :class="{ active: sortBy === 'file' }">
-          文件 {{ sortBy === 'file' ? (sortOrder === 'asc' ? '↑' : '↓') : '' }}
+          {{ t('results.file') }} {{ sortBy === 'file' ? (sortOrder === 'asc' ? '↑' : '↓') : '' }}
         </button>
         <button @click="toggleSort('line')" class="sort-btn" :class="{ active: sortBy === 'line' }">
-          行号 {{ sortBy === 'line' ? (sortOrder === 'asc' ? '↑' : '↓') : '' }}
+          {{ t('results.line') }} {{ sortBy === 'line' ? (sortOrder === 'asc' ? '↑' : '↓') : '' }}
         </button>
         <button @click="toggleSort('match')" class="sort-btn" :class="{ active: sortBy === 'match' }">
-          匹配 {{ sortBy === 'match' ? (sortOrder === 'asc' ? '↑' : '↓') : '' }}
+          {{ t('results.match') }} {{ sortBy === 'match' ? (sortOrder === 'asc' ? '↑' : '↓') : '' }}
         </button>
       </div>
     </div>
@@ -337,7 +340,7 @@ async function openInFileSystem(result: SearchResult, event: MouseEvent) {
 
       <div v-else-if="filteredResults.length === 0 && !isSearching" class="no-results">
         <div class="no-results-content">
-          <h3>{{ resultFilter ? '没有匹配的筛选结果' : '未找到匹配结果' }}</h3>
+          <h3>{{ resultFilter ? '没有匹配的筛选结果' : t('results.noResults') }}</h3>
           <p v-if="!resultFilter" class="no-results-suggestions">
             尝试以下建议：<br>
             • 检查搜索关键词是否正确<br>
@@ -352,7 +355,7 @@ async function openInFileSystem(result: SearchResult, event: MouseEvent) {
       </div>
 
       <div v-if="isSearching" class="searching-indicator">
-        <p>正在搜索...</p>
+        <p>{{ t('results.loading') }}</p>
       </div>
 
       <!-- 分页控件 -->

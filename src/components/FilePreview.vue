@@ -1,7 +1,10 @@
 <script setup lang="ts">
 import { computed, ref, watch } from "vue";
 import { useStore } from 'vuex';
+import { useI18n } from 'vue-i18n';
 import { highlightMatch } from '../utils/highlight';
+
+const { t } = useI18n();
 
 const store = useStore();
 
@@ -72,15 +75,15 @@ watch(fileContent, () => {
 <template>
   <div v-if="selectedResult" class="file-preview">
     <div class="preview-header">
-      <h3>文件预览: {{ selectedResult.file }}</h3>
-      <div v-if="isLoadingFile" class="loading-indicator">加载中...</div>
+      <h3>{{ t('preview.title') }}: {{ selectedResult.file }}</h3>
+      <div v-if="isLoadingFile" class="loading-indicator">{{ t('preview.loading') }}</div>
     </div>
     <div class="preview-content">
       <!-- 使用flex布局实现行号区域与代码内容区域分离 -->
       <div class="code-container">
         <!-- 行号区域 -->
         <div ref="lineNumbersRef" class="line-numbers">
-          <div v-if="isLoadingFile" class="loading-line-numbers">加载中...</div>
+          <div v-if="isLoadingFile" class="loading-line-numbers">{{ t('preview.loading') }}</div>
           <div v-else-if="fileContent" class="line-number" v-for="number in lineNumbers" :key="number">
             {{ number }}
           </div>
@@ -89,7 +92,7 @@ watch(fileContent, () => {
 
         <!-- 代码内容区域 -->
         <div ref="codeContentRef" class="code-content" @scroll="handleScroll">
-          <div v-if="isLoadingFile">加载文件内容中...</div>
+          <div v-if="isLoadingFile">{{ t('preview.loading') }}</div>
           <div v-else-if="fileContent">
             <div v-for="(line, index) in fileContent.split('\n')" :key="index" :data-line="index + 1" class="code-line"
               :class="{ 'highlighted-line': selectedResult && selectedResult.line === index + 1 }">

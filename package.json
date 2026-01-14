@@ -16,6 +16,7 @@
     "@tauri-apps/plugin-opener": "^2",
     "@tauri-apps/plugin-os": "~2",
     "vue": "^3.5.13",
+    "vue-i18n": "^11.2.8",
     "vuex": "^4.0.2"
   },
   "devDependencies": {

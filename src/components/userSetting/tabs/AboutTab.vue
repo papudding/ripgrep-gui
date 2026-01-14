@@ -2,6 +2,9 @@
 // AboutTab 组件不需要 props 和 emit，只展示静态信息
 import { getVersion } from '@tauri-apps/api/app';
 import { ref, onMounted } from 'vue';
+import { useI18n } from 'vue-i18n';
+
+const { t } = useI18n();
 
 const appVersion = ref('1.0.0');
 const latestVersion = ref('1.0.0');
@@ -63,32 +66,32 @@ onMounted(async () => {
   <div class="about-tab">
     <div class="about-content">
       <div class="app-info">
-        <h3>Ripgrep GUI</h3>
-        <p class="app-description">一个基于 Tauri 和 Vue 3 的跨平台文件搜索工具</p>
+        <h3>{{ t('about.appName') }}</h3>
+        <p class="app-description">{{ t('about.appDescription') }}</p>
         <div class="version-container">
-          <p class="app-version">版本: {{ appVersion }}</p>
-          <a v-if="hasUpdate" href="https://github.com/papudding/ripgrep-gui/releases/latest" target="_blank" rel="noopener noreferrer" class="update-badge">有更新</a>
+          <p class="app-version">{{ t('about.version') }} {{ appVersion }}</p>
+          <a v-if="hasUpdate" href="https://github.com/papudding/ripgrep-gui/releases/latest" target="_blank" rel="noopener noreferrer" class="update-badge">{{ t('about.hasUpdate') }}</a>
         </div>
       </div>
       
       <div class="repository-info">
-        <h4>项目信息</h4>
-        <p>作者: papudding</p>
-        <p>仓库地址: <a href="https://github.com/papudding/ripgrep-gui" target="_blank" rel="noopener noreferrer">https://github.com/papudding/ripgrep-gui</a></p>
+        <h4>{{ t('about.projectInfo') }}</h4>
+        <p>{{ t('about.author') }}</p>
+        <p>{{ t('about.repository') }} <a href="https://github.com/papudding/ripgrep-gui" target="_blank" rel="noopener noreferrer">https://github.com/papudding/ripgrep-gui</a></p>
       </div>
       
       <div class="technology-info">
-        <h4>技术栈</h4>
+        <h4>{{ t('about.technology') }}</h4>
         <ul class="tech-stack">
-          <li>前端: <a href="https://vuejs.org/" target="_blank" rel="noopener noreferrer">Vue 3</a> + TypeScript + Vite</li>
-          <li>后端: Rust + <a href="https://tauri.app/" target="_blank" rel="noopener noreferrer">Tauri 2.0</a></li>
-          <li>搜索引擎: <a href="https://github.com/BurntSushi/ripgrep" target="_blank" rel="noopener noreferrer">ripgrep</a> + <a href="https://github.com/sharkdp/fd" target="_blank" rel="noopener noreferrer">fd</a> </li>
+          <li>{{ t('about.frontend') }} <a href="https://vuejs.org/" target="_blank" rel="noopener noreferrer">Vue 3</a> + TypeScript + Vite</li>
+          <li>{{ t('about.backend') }} <a href="https://tauri.app/" target="_blank" rel="noopener noreferrer">Tauri 2.0</a></li>
+          <li>{{ t('about.searchEngine')}} <a href="https://github.com/BurntSushi/ripgrep" target="_blank" rel="noopener noreferrer">ripgrep</a> + <a href="https://github.com/sharkdp/fd" target="_blank" rel="noopener noreferrer">fd</a></li>
         </ul>
       </div>
       
       <div class="license-info">
-        <h4>许可证</h4>
-        <p>MIT License</p>
+        <h4>{{ t('about.license') }}</h4>
+        <p>{{ t('about.mitLicense') }}</p>
       </div>
     </div>
   </div>

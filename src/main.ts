@@ -1,6 +1,7 @@
 import { createApp } from "vue";
 import App from "./App.vue";
 import { store } from "./store";
+import i18n from "./i18n";
 
 // 导入配置管理工具
 import { initializeConfig } from "./utils/configManager";
@@ -10,6 +11,9 @@ const app = createApp(App);
 
 // 注册Vuex store
 app.use(store);
+
+// 注册Vue I18n
+app.use(i18n);
 
 // 应用启动前加载配置
 async function startApp() {

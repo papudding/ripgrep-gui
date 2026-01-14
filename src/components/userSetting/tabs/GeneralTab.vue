@@ -1,7 +1,11 @@
 <script setup lang="ts">
 import { ref, watch } from 'vue';
 import { useStore } from 'vuex';
+import { useI18n } from 'vue-i18n';
 import { open } from '@tauri-apps/plugin-dialog';
+import i18n from '../../../i18n';
+
+const { t } = useI18n();
 
 const store = useStore();
 
@@ -37,6 +41,11 @@ watch(darkMode, (newValue) => {
 });
 
 watch(language, (newValue) => {
+  // 更新i18n语言
+  i18n.global.locale.value = newValue;
+  // 保存到localStorage
+  localStorage.setItem('language', newValue);
+  // 更新store配置
   store.dispatch('config/updateUserConfig', {
     ...store.state.config.userConfig,
     language: newValue
@@ -49,15 +58,24 @@ watch(logPath, (newValue) => {
     logPath: newValue
   });
  showRestartHint.value = true; 
+  
 });
 
 // 选择路径的方法
 const selectPath = async (type: 'default' | 'history' | 'log') => {
   try {
+    let title = '';
+    if (type === 'default') {
+      title = '选择默认搜索目录';
+    } else if (type === 'history') {
+      title = '选择历史记录保存目录';
+    } else {
+      title = '选择日志保存目录';
+    }
     const selected = await open({
       directory: true,
       multiple: false,
-      title: type === 'default' ? '选择默认搜索目录' : type === 'history' ? '选择历史记录保存目录' : '选择日志保存目录'
+      title: title
     });
 
     if (selected && typeof selected === 'string') {
@@ -126,7 +144,7 @@ const selectPath = async (type: 'default' | 'history' | 'log') => {
     <!-- 深色模式 -->
     <div class="form-group">
       <label class="toggle-label">
-        <span>深色模式</span>
+        <span>{{ t('settings.darkMode') }}</span>
         <div class="toggle-switch">
           <input v-model="darkMode" type="checkbox" class="toggle-checkbox" />
           <span class="toggle-slider"></span>
@@ -136,11 +154,10 @@ const selectPath = async (type: 'default' | 'history' | 'log') => {
 
     <!-- 语言选择 -->
     <div class="form-group">
-      <label for="language" class="form-label">语言</label>
+      <label for="language" class="form-label">{{ t('settings.language') }}</label>
       <select id="language" v-model="language" class="form-select">
         <option value="zh-CN">简体中文</option>
-        <option value="en-US">English</option>
-        <option value="ja-JP">日本語</option>
+        <option value="en">English</option>
       </select>
       <div v-if="errors.language" class="error-message">
         {{ errors.language }}
