@@ -7,6 +7,7 @@ const searchModule: Module<Partial<SearchState>, RootState> = {
   state: {
     searchPath: '',
     searchPattern: '',
+    searchScope: 'both', // 搜索范围：both, content, filename
     contentSearchOptions: {
       caseInsensitive: false,
       wholeWord: false,
@@ -83,6 +84,9 @@ const searchModule: Module<Partial<SearchState>, RootState> = {
     setFilenameSearchOptions(state: SearchState, options: Partial<SearchState['filenameSearchOptions']>) {
       state.filenameSearchOptions = { ...state.filenameSearchOptions, ...options };
     },
+    setSearchScope(state: SearchState, scope: string) {
+      state.searchScope = scope;
+    },
     setSearchResults(state: SearchState, results: SearchResult[]) {
       state.searchResults = results;
     },
@@ -112,10 +116,14 @@ const searchModule: Module<Partial<SearchState>, RootState> = {
       try {
         // 导入invoke函数
         const { invoke } = await import('@tauri-apps/api/core');
-        // 并行执行内容搜索和文件名搜索
-        const [contentResults, filenameResults] = await Promise.all([
+        
+        // 根据搜索范围执行相应的搜索
+        let formattedContentResults: SearchResult[] = [];
+        let formattedFilenameResults: SearchResult[] = [];
+        
+        if (state.searchScope === 'both' || state.searchScope === 'content') {
           // 调用内容搜索命令
-          invoke<any[]>('search', {
+          const contentResults = await invoke<any[]>('search', {
             contentSearchParams: {
               path: state.searchPath,
               pattern: state.searchPattern,
@@ -152,9 +160,21 @@ const searchModule: Module<Partial<SearchState>, RootState> = {
               after_context: state.contentSearchOptions.afterContext,
               before_context: state.contentSearchOptions.beforeContext
             }
-          }),
+          });
+          
+          // 转换内容搜索结果格式
+          formattedContentResults = contentResults.map(result => ({
+            file: result.file,
+            line: result.line,
+            column: result.column,
+            content: result.content,
+            match: result.match_text
+          }));
+        }
+        
+        if (state.searchScope === 'both' || state.searchScope === 'filename') {
           // 调用文件名搜索命令
-          invoke<any[]>('search_filename', {
+          const filenameResults = await invoke<any[]>('search_filename', {
             filenameSearchParams: {
               path: state.searchPath,
               pattern: state.searchPattern,
@@ -173,26 +193,17 @@ const searchModule: Module<Partial<SearchState>, RootState> = {
               changed_within: state.filenameSearchOptions.changedWithin,
               changed_before: state.filenameSearchOptions.changedBefore
             }
-          })
-        ]);
-        
-        // 转换内容搜索结果格式
-        const formattedContentResults: SearchResult[] = contentResults.map(result => ({
-          file: result.file,
-          line: result.line,
-          column: result.column,
-          content: result.content,
-          match: result.match_text
-        }));
-        
-        // 转换文件名搜索结果格式
-        const formattedFilenameResults: SearchResult[] = filenameResults.map(result => ({
-          file: result.file,
-          line: result.line,
-          column: result.column,
-          content: result.content,
-          match: result.match_text
-        }));
+          });
+          
+          // 转换文件名搜索结果格式
+          formattedFilenameResults = filenameResults.map(result => ({
+            file: result.file,
+            line: result.line,
+            column: result.column,
+            content: result.content,
+            match: result.match_text
+          }));
+        }
         
         // 存储结果
         commit('setSearchResults', formattedContentResults);

@@ -22,6 +22,12 @@ const searchPattern = computed({
 const isSearching = computed(() => store.state.search.isSearching);
 const searchProgress = computed(() => store.state.search.searchProgress);
 
+// 搜索范围选择
+const searchScope = computed({
+  get: () => store.state.search.searchScope,
+  set: (value) => store.commit('search/setSearchScope', value)
+});
+
 // 最小搜索字符长度
 const MIN_SEARCH_LENGTH = 2;
 
@@ -98,6 +104,11 @@ onMounted(() => {
             至少需要输入{{ MIN_SEARCH_LENGTH }}个字符
           </div>
         </div>
+        <select v-model="searchScope" class="search-scope-select">
+          <option value="both">搜索内容和文件名</option>
+          <option value="content">仅内容</option>
+          <option value="filename">仅文件名</option>
+        </select>
         <button @click="toggleHistory" class="history-btn">
           历史
         </button>
@@ -310,6 +321,30 @@ onMounted(() => {
 .history-btn.active::before {
   background-color: rgba(57, 108, 216, 0.1);
   opacity: 1;
+}
+
+.search-scope-select {
+  padding: 10px 12px;
+  background-color: var(--bg-primary);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  color: var(--text-primary);
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  min-width: 120px;
+}
+
+.search-scope-select:hover {
+  background-color: var(--bg-hover);
+  border-color: var(--border-hover);
+}
+
+.search-scope-select:focus {
+  outline: none;
+  border-color: var(--accent-color);
+  box-shadow: 0 0 0 3px rgba(57, 108, 216, 0.1);
 }
 
 .search-btn {

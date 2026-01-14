@@ -193,6 +193,7 @@ export interface HistoryState {
 export interface SearchState {
   searchPath: string;
   searchPattern: string;
+  searchScope: string; // 搜索范围：both, content, filename
   contentSearchOptions: ContentSearchOptions;
   filenameSearchOptions: FilenameSearchOptions;
   searchResults: SearchResult[];
