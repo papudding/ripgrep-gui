@@ -57,18 +57,19 @@ const searchModule: Module<Partial<SearchState>, RootState> = {
       try {
         // 导入invoke函数
         const { invoke } = await import('@tauri-apps/api/core');
-        
         // 并行执行内容搜索和文件名搜索
         const [contentResults, filenameResults] = await Promise.all([
           // 调用内容搜索命令
           invoke<any[]>('search', {
-            path: state.searchPath,
-            pattern: state.searchPattern,
-            caseInsensitive: state.searchOptions.caseInsensitive,
-            wholeWord: state.searchOptions.wholeWord,
-            regex: state.searchOptions.regex,
-            ignoreHidden: state.searchOptions.ignoreHidden,
-            maxDepth: state.searchOptions.maxDepth
+            contentSearchParams: {
+              path: state.searchPath,
+              pattern: state.searchPattern,
+              case_insensitive: state.searchOptions.caseInsensitive,
+              whole_word: state.searchOptions.wholeWord,
+              regex: state.searchOptions.regex,
+              ignore_hidden: state.searchOptions.ignoreHidden,
+              max_depth: state.searchOptions.maxDepth
+            }
           }),
           // 调用文件名搜索命令
           invoke<any[]>('search_filename', {

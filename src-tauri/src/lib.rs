@@ -1,11 +1,11 @@
 // Learn more about Tauri commands at https://tauri.app/develop/calling-rust/
 mod content_search;
+mod entity;
 mod filename_search;
 mod util;
-mod entity;
-use util::open_file_with_app;
 use content_search::search;
 use filename_search::search_filename;
+use util::open_file_with_app;
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {

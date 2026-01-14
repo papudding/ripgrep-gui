@@ -1,179 +1,133 @@
 // Learn more about Tauri commands at https://tauri.app/develop/calling-rust/
-use std::process::Command;
 use std::str::from_utf8;
-
+use tauri_plugin_shell::process::CommandEvent;
 // 导入 Tauri Shell 扩展，用于 Sidecar 调用
+use crate::entity::{ContentSearchParams, SearchResult};
 use tauri_plugin_shell::ShellExt;
-use crate::entity::SearchResult;
-// 导入Windows特定的process扩展
-#[cfg(target_os = "windows")]
-use std::os::windows::process::CommandExt;
-
-// Windows特定的创建标志，用于隐藏控制台窗口
-#[cfg(target_os = "windows")]
-const CREATE_NO_WINDOW: u32 = 0x08000000;
-
 
 /// 检测系统是否安装了 rg (ripgrep) 工具
-fn check_rg_availability() -> bool {
+async fn check_rg_availability(app: &tauri::AppHandle) -> Result<bool, String> {
     // 尝试执行 rg --version 命令来检测系统是否安装了 rg 工具
-    let mut cmd = Command::new("rg");
-    
-    // 只在 Windows 系统上设置隐藏窗口标志
-    #[cfg(target_os = "windows")]
-    cmd.creation_flags(CREATE_NO_WINDOW);
-    
-    let output = cmd.arg("--version").output();
-    
-    match output {
-        Ok(output) => output.status.success(),
-        Err(_) => false, // 命令执行失败，说明系统没有安装 rg 工具
+    let shell = app.shell();
+    let out_put = shell.command("rg").arg("--version").output().await
+        .map_err(|e| format!("执行 rg 命令失败: {}", e))?;
+
+    if out_put.status.success() {
+        Ok(true)
+    } else {
+        Err(format!(
+            "命令执行失败, 状态码: {}",
+            out_put.status.code().unwrap_or_default()
+        ))
     }
 }
 
-
-#[tauri::command]
-pub async fn search(
-    app: tauri::AppHandle,
-    path: &str,
+/// 构建搜索参数
+fn build_search_args(
     pattern: &str,
+    path: &str,
     case_insensitive: bool,
     whole_word: bool,
     regex: bool,
     ignore_hidden: bool,
     max_depth: u32,
+) -> Vec<String> {
+    let mut args = Vec::new();
+
+    // 添加搜索模式
+    if !regex {
+        args.push(pattern.to_string());
+    }
+
+    // 添加搜索路径
+    args.push(path.to_string());
+
+    // 添加搜索选项
+    if case_insensitive {
+        args.push("-i".to_string());
+    }
+
+    if whole_word {
+        args.push("-w".to_string());
+    }
+
+    if regex {
+        args.push("-e".to_string());
+        args.push(pattern.to_string());
+    }
+
+    if !ignore_hidden {
+        args.push("--hidden".to_string());
+    }
+
+    if max_depth > 0 {
+        args.push(format!("--max-depth={}", max_depth));
+    }
+
+    // 设置输出格式: 文件路径:行号:列号:内容
+    args.push("--vimgrep".to_string());
+
+    args
+}
+
+#[tauri::command]
+pub async fn search(
+    app: tauri::AppHandle,
+    content_search_params: ContentSearchParams,
 ) -> Result<Vec<SearchResult>, String> {
     // 检测系统是否安装了 rg 工具
-    let system_rg_available = check_rg_availability();
+    let system_rg_available = check_rg_availability(&app).await?;
 
-    // 执行搜索并获取输出
-    let output = if system_rg_available {
-        // 系统已安装 rg 工具，使用系统 rg
+    // 构建ripgrep命令
+    let shell = app.shell();
+    let cmd = if system_rg_available {
         println!("使用系统安装的 rg 工具");
-
-        // 构建ripgrep命令
-        let mut cmd = Command::new("rg");
-
-        // Windows系统：设置隐藏窗口标志
-        #[cfg(target_os = "windows")]
-        cmd.creation_flags(CREATE_NO_WINDOW);
-
-        // 添加搜索模式
-        if !regex {
-            cmd.arg(pattern);
-        }
-
-        // 添加搜索路径
-        cmd.arg(path);
-
-        // 添加搜索选项
-        if case_insensitive {
-            cmd.arg("-i");
-        }
-
-        if whole_word {
-            cmd.arg("-w");
-        }
-
-        if regex {
-            cmd.arg("-e");
-            cmd.arg(pattern);
-        }
-
-        if !ignore_hidden {
-            cmd.arg("--hidden");
-        }
-
-        if max_depth > 0 {
-            cmd.arg(format!("--max-depth={}", max_depth));
-        }
-
-        // 设置输出格式: 文件路径:行号:列号:内容
-        cmd.arg("--vimgrep");
-
-        // 执行命令
-        match cmd.output() {
-            Ok(output) => output,
-            Err(e) => return Err(format!("执行系统 rg 命令失败: {}", e)),
-        }
+        shell.command("rg")
     } else {
-        // 系统未安装 rg 工具，使用内置的 rg Sidecar
-        println!("系统未安装 rg 工具，使用内置的 rg Sidecar");
-
-        // 导入必要的类型
-        use tauri_plugin_shell::process::CommandEvent;
-
-        // 构建 Sidecar 命令
-        let sidecar_command = app
-            .shell()
+        shell
             .sidecar("rg")
-            .map_err(|e| format!("创建 rg Sidecar 命令失败: {}", e))?;
+            .map_err(|e| format!("创建 rg Sidecar 命令失败: {}", e))?
+    };
 
-        // 构建命令参数
-        let mut args = Vec::new();
+    // 构建命令参数
+    let args = build_search_args(
+        &content_search_params.pattern,
+        &content_search_params.path,
+        content_search_params.case_insensitive,
+        content_search_params.whole_word,
+        content_search_params.regex,
+        content_search_params.ignore_hidden,
+        content_search_params.max_depth,
+    );
 
-        // 添加搜索模式
-        if !regex {
-            args.push(pattern.to_string());
-        }
+    // 执行 Sidecar 命令
+    let (mut rx, mut _child) = cmd
+        .args(args)
+        .spawn()
+        .map_err(|e| format!("执行内置 rg 命令失败: {}", e))?;
 
-        // 添加搜索路径
-        args.push(path.to_string());
+    // 收集输出
+    let mut stdout = Vec::new();
+    let mut stderr = Vec::new();
 
-        // 添加搜索选项
-        if case_insensitive {
-            args.push("-i".to_string());
-        }
-
-        if whole_word {
-            args.push("-w".to_string());
-        }
-
-        if regex {
-            args.push("-e".to_string());
-            args.push(pattern.to_string());
-        }
-
-        if !ignore_hidden {
-            args.push("--hidden".to_string());
-        }
-
-        if max_depth > 0 {
-            args.push(format!("--max-depth={}", max_depth));
-        }
-
-        // 设置输出格式: 文件路径:行号:列号:内容
-        args.push("--vimgrep".to_string());
-
-        // 执行 Sidecar 命令
-        let (mut rx, mut _child) = sidecar_command
-            .args(args)
-            .spawn()
-            .map_err(|e| format!("执行内置 rg Sidecar 命令失败: {}", e))?;
-
-        // 收集输出
-        let mut stdout = Vec::new();
-        let mut stderr = Vec::new();
-
-        // 处理命令执行事件
-        while let Some(event) = rx.recv().await {
-            match event {
-                CommandEvent::Stdout(line_bytes) => {
-                    stdout.extend_from_slice(&line_bytes);
-                }
-                CommandEvent::Stderr(line_bytes) => {
-                    stderr.extend_from_slice(&line_bytes);
-                }
-                _ => {}
+    // 处理命令执行事件
+    while let Some(event) = rx.recv().await {
+        match event {
+            CommandEvent::Stdout(line_bytes) => {
+                stdout.extend_from_slice(&line_bytes);
             }
+            CommandEvent::Stderr(line_bytes) => {
+                stderr.extend_from_slice(&line_bytes);
+            }
+            _ => {}
         }
+    }
 
-        // 转换为与系统命令相同的输出格式
-        std::process::Output {
-            status: std::process::ExitStatus::default(),
-            stdout,
-            stderr,
-        }
+    // 转换为与系统命令相同的输出格式
+    let output = std::process::Output {
+        status: std::process::ExitStatus::default(),
+        stdout,
+        stderr,
     };
 
     // 检查命令是否成功执行
@@ -202,43 +156,44 @@ pub async fn search(
             break;
         }
 
-        // 分割行: 根据操作系统调整分割逻辑
-        let mut file = String::new();
-        let mut line_num = 0;
-        let mut column = 0;
-        let mut content = String::new();
-
-        if std::env::consts::OS == "windows" {
-            // Windows系统：路径可能包含盘符，如C:\path\to\file，所以分成5段
-            let parts: Vec<&str> = line.splitn(5, ':').collect();
-            if parts.len() == 5 {
-                file = format!("{}:{}", parts[0], parts[1]);
-                line_num = parts[2].parse::<u32>().unwrap_or(0);
-                column = parts[3].parse::<u32>().unwrap_or(0);
-                content = parts[4].to_string();
-            }
-        } else {
-            // 非Windows系统：正常分成4段
-            let parts: Vec<&str> = line.splitn(4, ':').collect();
-            if parts.len() == 4 {
-                file = parts[0].to_string();
-                line_num = parts[1].parse::<u32>().unwrap_or(0);
-                column = parts[2].parse::<u32>().unwrap_or(0);
-                content = parts[3].to_string();
-            }
-        }
-
-        // 如果成功解析，添加到结果
-        if !file.is_empty() {
-            results.push(SearchResult {
-                file,
-                line: line_num,
-                column,
-                content,
-                match_text: pattern.to_string(),
-            });
+        // 解析搜索结果
+        if let Some(result) = search_result_parse(line, &content_search_params.pattern) {
+            results.push(result);
         }
     }
 
     Ok(results)
+}
+
+/// 解析搜索结果行
+fn search_result_parse(line: &str, match_text: &str) -> Option<SearchResult> {
+    if std::env::consts::OS == "windows" {
+        // Windows系统：路径可能包含盘符，如C:\path\to\file，所以分成5段
+        let parts: Vec<&str> = line.splitn(5, ':').collect();
+        if parts.len() == 5 {
+            Some(SearchResult {
+                file: format!("{}:{}", parts[0], parts[1]),
+                line: parts[2].parse::<u32>().unwrap_or(0),
+                column: parts[3].parse::<u32>().unwrap_or(0),
+                content: parts[4].to_string(),
+                match_text: match_text.to_string(),
+            })
+        } else {
+            None
+        }
+    } else {
+        // 非Windows系统：正常分成4段
+        let parts: Vec<&str> = line.splitn(4, ':').collect();
+        if parts.len() == 4 {
+            Some(SearchResult {
+                file: parts[0].to_string(),
+                line: parts[1].parse::<u32>().unwrap_or(0),
+                column: parts[2].parse::<u32>().unwrap_or(0),
+                content: parts[3].to_string(),
+                match_text: match_text.to_string(),
+            })
+        } else {
+            None
+        }
+    }
 }
