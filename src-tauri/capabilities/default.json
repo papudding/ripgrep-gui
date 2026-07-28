@@ -14,8 +14,14 @@
           "sidecar": true
         },
         {
+          "name": "rg"
+        },
+        {
           "name": "fd",
           "sidecar": true
+        },
+        {
+          "name": "fd"
         }
       ]
     }
